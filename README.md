@@ -107,9 +107,76 @@ Or if installed globally or from source:
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `INFOMANIAK_API_TOKEN` | Yes | Your Infomaniak API token |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `INFOMANIAK_API_TOKEN` | Yes | - | Your Infomaniak API token |
+| `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
+| `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
+| `MCP_SESSION_MODE` | No | `stateful` | Session mode: `stateful` or `stateless` |
+
+## 🌐 HTTP Transport
+
+The server supports HTTP transport with SSE streaming, enabling web-based MCP clients and remote connections.
+
+### Starting in HTTP Mode
+
+```bash
+# Using npx
+MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token npx infomaniak-mcp-server
+
+# From source
+MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/index.js
+```
+
+### HTTP Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check - returns server status |
+| `/mcp` | ALL | MCP protocol endpoint (handles all MCP requests) |
+| `/mcp/sessions` | GET | List active sessions (stateful mode only) |
+| `/mcp/session/:id` | DELETE | Close a specific session (stateful mode only) |
+
+### Session Modes
+
+- **Stateful** (default): Maintains session state across requests. Each client gets a unique session ID returned in the `x-mcp-session-id` header.
+- **Stateless**: Each request is independent. Useful for serverless deployments.
+
+### Docker Deployment
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+RUN npm install -g infomaniak-mcp-server
+ENV MCP_TRANSPORT=http
+ENV MCP_PORT=3000
+EXPOSE 3000
+CMD ["infomaniak-mcp-server"]
+```
+
+```bash
+# Build and run
+docker build -t infomaniak-mcp .
+docker run -p 3000:3000 -e INFOMANIAK_API_TOKEN=your-token infomaniak-mcp
+```
+
+### Connecting from Web Clients
+
+```javascript
+// Example: Connect to HTTP transport
+const response = await fetch('http://localhost:3000/mcp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-mcp-session-id': sessionId // Optional: reuse existing session
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    method: 'tools/list',
+    id: 1
+  })
+});
+```
 
 ## 🛠️ Available Tools
 
