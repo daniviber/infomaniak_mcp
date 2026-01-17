@@ -69,26 +69,27 @@ export async function startHttpServer(
       // Reuse existing session
       transport = activeSessions.get(sessionId);
     } else if (!sessionId && isInitializeRequest(req.body)) {
-      // New initialization request - create new transport
+      // New initialization request - create new transport with pre-generated session ID
+      const newSessionId = randomUUID();
+
       transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => randomUUID(),
+        sessionIdGenerator: () => newSessionId,
       });
 
       // Create and connect the MCP server for this session
       const server = createMcpServer(client);
       await server.connect(transport);
 
-      // Store session if stateful mode
+      // Store session immediately if stateful mode (before handleRequest)
       if (!stateless) {
-        const newSessionId = transport.sessionId;
-        if (newSessionId) {
-          activeSessions.set(newSessionId, transport);
+        activeSessions.set(newSessionId, transport);
+        console.error(`Session created: ${newSessionId}`);
 
-          // Clean up session on close
-          transport.onclose = () => {
-            activeSessions.delete(newSessionId);
-          };
-        }
+        // Clean up session on close
+        transport.onclose = () => {
+          activeSessions.delete(newSessionId);
+          console.error(`Session closed: ${newSessionId}`);
+        };
       }
     } else {
       // Invalid request - no session and not an initialization request
