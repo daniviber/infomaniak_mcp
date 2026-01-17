@@ -8,6 +8,7 @@
  */
 
 import express, { Request, Response } from "express";
+import cors from "cors";
 import { randomUUID } from "crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
@@ -19,6 +20,8 @@ export interface HttpServerOptions {
   port?: number;
   /** Enable stateless mode where each request creates a new session */
   stateless?: boolean;
+  /** Allowed CORS origins (default: '*' allows all) */
+  corsOrigins?: string | string[];
 }
 
 // Store active transports for session management (stateful mode)
@@ -36,8 +39,19 @@ export async function startHttpServer(
 ): Promise<void> {
   const port = options.port ?? 3000;
   const stateless = options.stateless ?? false;
+  const corsOrigins = options.corsOrigins ?? "*";
 
   const app = express();
+
+  // Enable CORS for browser-based MCP clients
+  app.use(cors({
+    origin: corsOrigins,
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Accept", "Mcp-Session-Id", "Last-Event-ID"],
+    exposedHeaders: ["Mcp-Session-Id"],
+    credentials: true,
+  }));
+
   app.use(express.json());
 
   // Health check endpoint
