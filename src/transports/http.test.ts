@@ -10,6 +10,7 @@ import { InfomaniakClient } from "../infomaniak-client.js";
 // Mock the MCP SDK modules
 vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => ({
   StreamableHTTPServerTransport: vi.fn().mockImplementation(() => ({
+    sessionId: "test-session-123",
     handleRequest: vi.fn().mockImplementation(async (_req, res) => {
       res.json({ jsonrpc: "2.0", result: { tools: [] }, id: 1 });
     }),
@@ -28,6 +29,9 @@ vi.mock("@modelcontextprotocol/sdk/server/index.js", () => ({
 vi.mock("@modelcontextprotocol/sdk/types.js", () => ({
   CallToolRequestSchema: {},
   ListToolsRequestSchema: {},
+  isInitializeRequest: vi.fn().mockImplementation((body) => {
+    return body?.method === "initialize";
+  }),
 }));
 
 // Create a test app that mirrors the HTTP transport setup
@@ -39,30 +43,75 @@ function createTestApp(): Express {
 
   // Health check endpoint
   app.get("/health", (_req, res) => {
-    res.json({ status: "ok", transport: "http", sessionMode: "stateful" });
+    res.json({ status: "ok", transport: "http", stateless: false });
   });
 
-  // MCP endpoint - simplified for testing
-  app.all("/mcp", async (_req, res) => {
-    const sessionId = "test-session-" + Date.now();
-    res.setHeader("x-mcp-session-id", sessionId);
-    res.json({ jsonrpc: "2.0", result: { tools: [] }, id: 1 });
-  });
+  // MCP POST endpoint
+  app.post("/mcp", async (req, res) => {
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
-  // Session management endpoints
-  app.delete("/mcp/session/:sessionId", (req, res) => {
-    const sessionId = req.params.sessionId as string;
-
-    if (activeSessions.has(sessionId)) {
-      const transport = activeSessions.get(sessionId)!;
-      transport.close();
-      activeSessions.delete(sessionId);
-      res.json({ message: "Session closed" });
+    if (sessionId && activeSessions.has(sessionId)) {
+      res.json({ jsonrpc: "2.0", result: { tools: [] }, id: 1 });
+    } else if (!sessionId && req.body?.method === "initialize") {
+      const newSessionId = "test-session-" + Date.now();
+      activeSessions.set(newSessionId, { close: () => {} });
+      res.setHeader("mcp-session-id", newSessionId);
+      res.json({ jsonrpc: "2.0", result: { protocolVersion: "2025-03-26" }, id: 1 });
     } else {
-      res.status(404).json({ error: "Session not found" });
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: {
+          code: -32600,
+          message: "Invalid request: No session ID provided and not an initialization request",
+        },
+        id: null,
+      });
     }
   });
 
+  // MCP GET endpoint (SSE)
+  app.get("/mcp", (req, res) => {
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+
+    if (!sessionId || !activeSessions.has(sessionId)) {
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: { code: -32600, message: "Invalid request: Session not found" },
+        id: null,
+      });
+      return;
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.status(200).end();
+  });
+
+  // MCP DELETE endpoint
+  app.delete("/mcp", (req, res) => {
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+
+    if (!sessionId) {
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: { code: -32600, message: "Invalid request: No session ID provided" },
+        id: null,
+      });
+      return;
+    }
+
+    if (activeSessions.has(sessionId)) {
+      activeSessions.delete(sessionId);
+      res.json({ message: "Session terminated" });
+    } else {
+      res.status(404).json({
+        jsonrpc: "2.0",
+        error: { code: -32600, message: "Session not found" },
+        id: null,
+      });
+    }
+  });
+
+  // Session management endpoint
   app.get("/mcp/sessions", (_req, res) => {
     res.json({
       activeSessions: Array.from(activeSessions.keys()),
@@ -92,33 +141,98 @@ describe("HTTP Transport", () => {
       expect(response.body).toEqual({
         status: "ok",
         transport: "http",
-        sessionMode: "stateful",
+        stateless: false,
       });
     });
   });
 
-  describe("MCP endpoint", () => {
-    it("should handle POST requests", async () => {
+  describe("MCP POST endpoint", () => {
+    it("should handle initialization request without session ID", async () => {
+      const response = await request(app)
+        .post("/mcp")
+        .send({ jsonrpc: "2.0", method: "initialize", id: 1 });
+
+      expect(response.status).toBe(200);
+      expect(response.headers["mcp-session-id"]).toBeDefined();
+      expect(response.body.result.protocolVersion).toBe("2025-03-26");
+    });
+
+    it("should reject non-initialization request without session ID", async () => {
       const response = await request(app)
         .post("/mcp")
         .send({ jsonrpc: "2.0", method: "tools/list", id: 1 });
 
-      expect(response.status).toBe(200);
-      expect(response.headers["x-mcp-session-id"]).toBeDefined();
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe(-32600);
     });
 
-    it("should handle GET requests", async () => {
+    it("should use Mcp-Session-Id header (per MCP spec)", async () => {
+      // First, initialize to get a session
+      const initResponse = await request(app)
+        .post("/mcp")
+        .send({ jsonrpc: "2.0", method: "initialize", id: 1 });
+
+      const sessionId = initResponse.headers["mcp-session-id"];
+      expect(sessionId).toBeDefined();
+
+      // Then use the session
+      const response = await request(app)
+        .post("/mcp")
+        .set("mcp-session-id", sessionId)
+        .send({ jsonrpc: "2.0", method: "tools/list", id: 2 });
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe("MCP GET endpoint (SSE)", () => {
+    it("should reject GET without session ID", async () => {
       const response = await request(app).get("/mcp");
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("Session not found");
     });
 
-    it("should return session ID in header", async () => {
+    it("should reject GET with invalid session ID", async () => {
       const response = await request(app)
-        .post("/mcp")
-        .send({ jsonrpc: "2.0", method: "tools/list", id: 1 });
+        .get("/mcp")
+        .set("mcp-session-id", "invalid-session");
 
-      expect(response.headers["x-mcp-session-id"]).toMatch(/^test-session-\d+$/);
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe("MCP DELETE endpoint", () => {
+    it("should reject DELETE without session ID", async () => {
+      const response = await request(app).delete("/mcp");
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.message).toContain("No session ID provided");
+    });
+
+    it("should return 404 for non-existent session", async () => {
+      const response = await request(app)
+        .delete("/mcp")
+        .set("mcp-session-id", "non-existent");
+
+      expect(response.status).toBe(404);
+    });
+
+    it("should terminate existing session", async () => {
+      // First, initialize to create a session
+      const initResponse = await request(app)
+        .post("/mcp")
+        .send({ jsonrpc: "2.0", method: "initialize", id: 1 });
+
+      const sessionId = initResponse.headers["mcp-session-id"];
+
+      // Then terminate it
+      const response = await request(app)
+        .delete("/mcp")
+        .set("mcp-session-id", sessionId);
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe("Session terminated");
     });
   });
 
@@ -127,41 +241,25 @@ describe("HTTP Transport", () => {
       const response = await request(app).get("/mcp/sessions");
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        activeSessions: [],
-        count: 0,
-      });
+      expect(response.body.count).toBe(0);
     });
 
-    it("should return 404 for non-existent session deletion", async () => {
-      const response = await request(app).delete("/mcp/session/non-existent");
+    it("should track active sessions", async () => {
+      // Create a session
+      await request(app)
+        .post("/mcp")
+        .send({ jsonrpc: "2.0", method: "initialize", id: 1 });
 
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({ error: "Session not found" });
+      const response = await request(app).get("/mcp/sessions");
+
+      expect(response.status).toBe(200);
+      expect(response.body.count).toBe(1);
     });
-  });
-});
-
-describe("HTTP Transport Options", () => {
-  it("should use default port 3000", () => {
-    const defaultPort = 3000;
-    expect(defaultPort).toBe(3000);
-  });
-
-  it("should support stateful session mode", () => {
-    const sessionMode = "stateful";
-    expect(sessionMode).toBe("stateful");
-  });
-
-  it("should support stateless session mode", () => {
-    const sessionMode = "stateless";
-    expect(sessionMode).toBe("stateless");
   });
 });
 
 describe("InfomaniakClient integration", () => {
   it("should accept InfomaniakClient instance", () => {
-    // This test verifies the type compatibility
     const mockClient = {
       ping: vi.fn(),
       getProfile: vi.fn(),

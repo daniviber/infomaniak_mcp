@@ -112,7 +112,7 @@ Or if installed globally or from source:
 | `INFOMANIAK_API_TOKEN` | Yes | - | Your Infomaniak API token |
 | `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
 | `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
-| `MCP_SESSION_MODE` | No | `stateful` | Session mode: `stateful` or `stateless` |
+| `MCP_STATELESS` | No | `false` | Set to `true` for stateless mode |
 
 ## 🌐 HTTP Transport
 
@@ -133,14 +133,15 @@ MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/inde
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check - returns server status |
-| `/mcp` | ALL | MCP protocol endpoint (handles all MCP requests) |
-| `/mcp/sessions` | GET | List active sessions (stateful mode only) |
-| `/mcp/session/:id` | DELETE | Close a specific session (stateful mode only) |
+| `/mcp` | POST | Send JSON-RPC messages (initialize, tool calls, etc.) |
+| `/mcp` | GET | Open SSE stream for server-to-client notifications |
+| `/mcp` | DELETE | Terminate a session |
+| `/mcp/sessions` | GET | List active sessions (for debugging) |
 
 ### Session Modes
 
-- **Stateful** (default): Maintains session state across requests. Each client gets a unique session ID returned in the `x-mcp-session-id` header.
-- **Stateless**: Each request is independent. Useful for serverless deployments.
+- **Stateful** (default): Maintains session state across requests. Each client gets a unique session ID returned in the `Mcp-Session-Id` header after initialization.
+- **Stateless**: Each request is independent. Set `MCP_STATELESS=true` for serverless deployments.
 
 ### Docker Deployment
 
@@ -163,17 +164,34 @@ docker run -p 3000:3000 -e INFOMANIAK_API_TOKEN=your-token infomaniak-mcp
 ### Connecting from Web Clients
 
 ```javascript
-// Example: Connect to HTTP transport
+// Step 1: Initialize session
+const initResponse = await fetch('http://localhost:3000/mcp', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json, text/event-stream'
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    method: 'initialize',
+    params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'my-client', version: '1.0.0' } },
+    id: 1
+  })
+});
+const sessionId = initResponse.headers.get('Mcp-Session-Id');
+
+// Step 2: Use session for subsequent requests
 const response = await fetch('http://localhost:3000/mcp', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'x-mcp-session-id': sessionId // Optional: reuse existing session
+    'Accept': 'application/json, text/event-stream',
+    'Mcp-Session-Id': sessionId
   },
   body: JSON.stringify({
     jsonrpc: '2.0',
     method: 'tools/list',
-    id: 1
+    id: 2
   })
 });
 ```

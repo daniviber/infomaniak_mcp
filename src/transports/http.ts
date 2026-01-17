@@ -2,23 +2,26 @@
  * HTTP Transport Module
  *
  * Provides HTTP-based transport with SSE streaming for the MCP server.
- * This enables web-based MCP clients and remote connections.
+ * Implements the MCP Streamable HTTP specification (2025-03-26).
+ *
+ * @see https://modelcontextprotocol.io/specification/2025-03-26/basic/transports
  */
 
 import express, { Request, Response } from "express";
 import { randomUUID } from "crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "../infomaniak-client.js";
 import { createMcpServer } from "../server.js";
 
 export interface HttpServerOptions {
   /** Port to listen on (default: 3000) */
   port?: number;
-  /** Session mode: 'stateful' maintains sessions, 'stateless' for single requests */
-  sessionMode?: "stateful" | "stateless";
+  /** Enable stateless mode where each request creates a new session */
+  stateless?: boolean;
 }
 
-// Store active transports for session management
+// Store active transports for session management (stateful mode)
 const activeSessions = new Map<string, StreamableHTTPServerTransport>();
 
 /**
@@ -32,89 +35,156 @@ export async function startHttpServer(
   options: HttpServerOptions = {}
 ): Promise<void> {
   const port = options.port ?? 3000;
-  const sessionMode = options.sessionMode ?? "stateful";
+  const stateless = options.stateless ?? false;
 
   const app = express();
   app.use(express.json());
 
   // Health check endpoint
   app.get("/health", (_req: Request, res: Response) => {
-    res.json({ status: "ok", transport: "http", sessionMode });
+    res.json({ status: "ok", transport: "http", stateless });
   });
 
-  // MCP endpoint - handles all MCP protocol requests
-  app.all("/mcp", async (req: Request, res: Response) => {
-    // Get or create session
-    let sessionId = req.headers["x-mcp-session-id"] as string | undefined;
-    let transport: StreamableHTTPServerTransport;
+  // MCP endpoint - POST for client-to-server messages
+  app.post("/mcp", async (req: Request, res: Response) => {
+    // Check for existing session
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    let transport: StreamableHTTPServerTransport | undefined;
 
-    if (sessionMode === "stateful" && sessionId && activeSessions.has(sessionId)) {
+    if (sessionId && activeSessions.has(sessionId)) {
       // Reuse existing session
-      transport = activeSessions.get(sessionId)!;
-    } else {
-      // Create new session
-      sessionId = randomUUID();
+      transport = activeSessions.get(sessionId);
+    } else if (!sessionId && isInitializeRequest(req.body)) {
+      // New initialization request - create new transport
       transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => sessionId!,
+        sessionIdGenerator: () => randomUUID(),
       });
 
       // Create and connect the MCP server for this session
       const server = createMcpServer(client);
       await server.connect(transport);
 
-      if (sessionMode === "stateful") {
-        activeSessions.set(sessionId, transport);
+      // Store session if stateful mode
+      if (!stateless) {
+        const newSessionId = transport.sessionId;
+        if (newSessionId) {
+          activeSessions.set(newSessionId, transport);
 
-        // Clean up session on close
-        transport.onclose = () => {
-          activeSessions.delete(sessionId!);
-        };
+          // Clean up session on close
+          transport.onclose = () => {
+            activeSessions.delete(newSessionId);
+          };
+        }
       }
+    } else {
+      // Invalid request - no session and not an initialization request
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: {
+          code: -32600,
+          message: "Invalid request: No session ID provided and not an initialization request",
+        },
+        id: null,
+      });
+      return;
     }
-
-    // Set session ID in response header
-    res.setHeader("x-mcp-session-id", sessionId);
 
     // Handle the request through the transport
     try {
-      await transport.handleRequest(req, res, req.body);
+      await transport!.handleRequest(req, res, req.body);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error("MCP request error:", errorMessage);
 
       if (!res.headersSent) {
-        res.status(500).json({ error: errorMessage });
+        res.status(500).json({
+          jsonrpc: "2.0",
+          error: { code: -32603, message: errorMessage },
+          id: null,
+        });
       }
     }
   });
 
-  // Session management endpoint (stateful mode only)
-  if (sessionMode === "stateful") {
-    app.delete("/mcp/session/:sessionId", (req: Request, res: Response) => {
-      const sessionId = req.params.sessionId as string;
+  // MCP endpoint - GET for SSE stream (server-to-client notifications)
+  app.get("/mcp", async (req: Request, res: Response) => {
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
-      if (activeSessions.has(sessionId)) {
-        const transport = activeSessions.get(sessionId)!;
-        transport.close();
-        activeSessions.delete(sessionId);
-        res.json({ message: "Session closed" });
-      } else {
-        res.status(404).json({ error: "Session not found" });
-      }
-    });
-
-    app.get("/mcp/sessions", (_req: Request, res: Response) => {
-      res.json({
-        activeSessions: Array.from(activeSessions.keys()),
-        count: activeSessions.size,
+    if (!sessionId || !activeSessions.has(sessionId)) {
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: {
+          code: -32600,
+          message: "Invalid request: Session not found",
+        },
+        id: null,
       });
+      return;
+    }
+
+    const transport = activeSessions.get(sessionId)!;
+
+    try {
+      await transport.handleRequest(req, res);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("MCP SSE error:", errorMessage);
+
+      if (!res.headersSent) {
+        res.status(500).json({
+          jsonrpc: "2.0",
+          error: { code: -32603, message: errorMessage },
+          id: null,
+        });
+      }
+    }
+  });
+
+  // MCP endpoint - DELETE for session termination
+  app.delete("/mcp", (req: Request, res: Response) => {
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+
+    if (!sessionId) {
+      res.status(400).json({
+        jsonrpc: "2.0",
+        error: {
+          code: -32600,
+          message: "Invalid request: No session ID provided",
+        },
+        id: null,
+      });
+      return;
+    }
+
+    if (activeSessions.has(sessionId)) {
+      const transport = activeSessions.get(sessionId)!;
+      transport.close();
+      activeSessions.delete(sessionId);
+      res.status(200).json({ message: "Session terminated" });
+    } else {
+      res.status(404).json({
+        jsonrpc: "2.0",
+        error: {
+          code: -32600,
+          message: "Session not found",
+        },
+        id: null,
+      });
+    }
+  });
+
+  // Session management endpoints (for debugging/monitoring)
+  app.get("/mcp/sessions", (_req: Request, res: Response) => {
+    res.json({
+      activeSessions: Array.from(activeSessions.keys()),
+      count: activeSessions.size,
     });
-  }
+  });
 
   // Start the server
   app.listen(port, () => {
     console.error(`Infomaniak MCP Server running on http://localhost:${port}/mcp`);
-    console.error(`Session mode: ${sessionMode}`);
+    console.error(`Mode: ${stateless ? "stateless" : "stateful"}`);
     console.error(`Health check: http://localhost:${port}/health`);
   });
 }

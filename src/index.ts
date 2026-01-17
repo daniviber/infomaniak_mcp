@@ -10,7 +10,7 @@
  * - INFOMANIAK_API_TOKEN: Your Infomaniak API token (required)
  * - MCP_TRANSPORT: Transport mode - 'stdio' (default) or 'http'
  * - MCP_PORT: HTTP port when using http transport (default: 3000)
- * - MCP_SESSION_MODE: Session mode for HTTP - 'stateful' (default) or 'stateless'
+ * - MCP_STATELESS: Set to 'true' for stateless mode (default: false)
  *
  * Get your API token from: https://manager.infomaniak.com/v3/ng/accounts/token/list
  */
@@ -34,12 +34,12 @@ const client = new InfomaniakClient({ token: API_TOKEN });
 // Get transport configuration from environment
 const transport = process.env.MCP_TRANSPORT || "stdio";
 const port = parseInt(process.env.MCP_PORT || "3000", 10);
-const sessionMode = (process.env.MCP_SESSION_MODE || "stateful") as "stateful" | "stateless";
+const stateless = process.env.MCP_STATELESS === "true";
 
 // Start the server with the selected transport
 async function main() {
   if (transport === "http") {
-    await startHttpServer(client, { port, sessionMode });
+    await startHttpServer(client, { port, stateless });
   } else if (transport === "stdio") {
     await startStdioServer(client);
   } else {
