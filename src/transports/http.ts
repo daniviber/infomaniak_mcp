@@ -18,6 +18,8 @@ import { createMcpServer } from "../server.js";
 export interface HttpServerOptions {
   /** Port to listen on (default: 3000) */
   port?: number;
+  /** Host to bind to (default: '0.0.0.0' for cloud compatibility) */
+  host?: string;
   /** Enable stateless mode where each request creates a new session */
   stateless?: boolean;
   /** Allowed CORS origins (default: '*' allows all) */
@@ -38,6 +40,7 @@ export async function startHttpServer(
   options: HttpServerOptions = {}
 ): Promise<void> {
   const port = options.port ?? 3000;
+  const host = options.host ?? "0.0.0.0";
   const stateless = options.stateless ?? false;
   const corsOrigins = options.corsOrigins ?? "*";
 
@@ -197,9 +200,9 @@ export async function startHttpServer(
   });
 
   // Start the server
-  app.listen(port, () => {
-    console.error(`Infomaniak MCP Server running on http://localhost:${port}/mcp`);
+  app.listen(port, host, () => {
+    console.error(`Infomaniak MCP Server running on http://${host}:${port}/mcp`);
     console.error(`Mode: ${stateless ? "stateless" : "stateful"}`);
-    console.error(`Health check: http://localhost:${port}/health`);
+    console.error(`Health check: http://${host}:${port}/health`);
   });
 }

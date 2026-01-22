@@ -33,7 +33,7 @@ const client = new InfomaniakClient({ token: API_TOKEN });
 
 // Get transport configuration from environment
 const transport = process.env.MCP_TRANSPORT || "stdio";
-const port = parseInt(process.env.MCP_PORT || "3000", 10);
+const port = parseInt(process.env.PORT || process.env.MCP_PORT || "3000", 10);
 const stateless = process.env.MCP_STATELESS === "true";
 
 // Start the server with the selected transport
