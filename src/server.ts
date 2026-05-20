@@ -13,6 +13,7 @@ import {
   TextContent,
 } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "./infomaniak-client.js";
+import { KChatClient } from "./kchat-client.js";
 import {
   validate,
   AccountIdSchema,
@@ -43,6 +44,37 @@ import {
   CertificateIdSchema,
   InvoiceIdSchema,
   ApiCallSchema,
+  GetDomainNameserversSchema,
+  UpdateDomainNameserversSchema,
+  RenewDomainSchema,
+  EmailRedirectionIdSchema,
+  CreateEmailRedirectionSchema,
+  CronJobIdSchema,
+  CreateCronJobSchema,
+  UpdateCronJobSchema,
+  FtpAccountIdSchema,
+  CreateFtpAccountSchema,
+  UpdateFtpAccountSchema,
+  KDriveFileIdSchema,
+  ListKDriveFilesSchema,
+  SearchKDriveFilesSchema,
+  CreateKDriveDirectorySchema,
+  MoveOrCopyKDriveFileSchema,
+  RenameKDriveFileSchema,
+  ShareKDriveFileSchema,
+  KDriveTrashSchema,
+  KDriveActivitySchema,
+  KDriveFavoritesSchema,
+  UpdateMailboxAutoresponderSchema,
+  KChatTeamIdSchema,
+  KChatChannelIdSchema,
+  KChatPostIdSchema,
+  CreateKChatPostSchema,
+  SearchKChatPostsSchema,
+  CreateKChatDirectChannelSchema,
+  SearchKChatUsersSchema,
+  ListKChatUsersSchema,
+  KChatGetChannelPostsSchema,
 } from "./schemas.js";
 
 /**
@@ -138,6 +170,28 @@ export const tools: Tool[] = [
       },
       required: ["account_id", "domain"],
     },
+  },
+  {
+    name: "infomaniak_get_domain_nameservers",
+    description: "Get the nameservers for a domain",
+    inputSchema: { type: "object", properties: { domain: { type: "string", description: "The domain name" } }, required: ["domain"] },
+  },
+  {
+    name: "infomaniak_update_domain_nameservers",
+    description: "Update the nameservers for a domain",
+    inputSchema: {
+      type: "object",
+      properties: {
+        domain: { type: "string" },
+        nameservers: { type: "array", items: { type: "object", properties: { host: { type: "string" }, ip: { type: "string" } }, required: ["host"] } },
+      },
+      required: ["domain", "nameservers"],
+    },
+  },
+  {
+    name: "infomaniak_renew_domain",
+    description: "Renew a domain for a given number of years",
+    inputSchema: { type: "object", properties: { domain: { type: "string" }, duration: { type: "number", description: "Renewal duration in years" } }, required: ["domain", "duration"] },
   },
   {
     name: "infomaniak_list_dns_records",
@@ -421,6 +475,31 @@ export const tools: Tool[] = [
     },
   },
 
+  {
+    name: "infomaniak_list_email_redirections",
+    description: "List all email redirections for a mail service",
+    inputSchema: { type: "object", properties: { mail_id: { type: "number", description: "The mail service ID" } }, required: ["mail_id"] },
+  },
+  {
+    name: "infomaniak_create_email_redirection",
+    description: "Create an email redirection",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mail_id: { type: "number" },
+        from: { type: "string", description: "Source email address" },
+        to: { type: "array", items: { type: "string" }, description: "Destination email address(es)" },
+        keep_copy: { type: "boolean" },
+      },
+      required: ["mail_id", "from", "to"],
+    },
+  },
+  {
+    name: "infomaniak_delete_email_redirection",
+    description: "Delete an email redirection",
+    inputSchema: { type: "object", properties: { mail_id: { type: "number" }, redirection_id: { type: "number" } }, required: ["mail_id", "redirection_id"] },
+  },
+
   // Web Hosting Tools
   {
     name: "infomaniak_list_web_hostings",
@@ -627,6 +706,56 @@ export const tools: Tool[] = [
     },
   },
 
+  {
+    name: "infomaniak_list_cron_jobs",
+    description: "List all cron jobs for a web hosting",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" } }, required: ["hosting_id"] },
+  },
+  {
+    name: "infomaniak_create_cron_job",
+    description: "Create a cron job on a web hosting",
+    inputSchema: {
+      type: "object",
+      properties: {
+        hosting_id: { type: "number" },
+        command: { type: "string" },
+        schedule: { type: "string", description: "Cron expression e.g. '0 * * * *'" },
+        description: { type: "string" },
+      },
+      required: ["hosting_id", "command", "schedule"],
+    },
+  },
+  {
+    name: "infomaniak_update_cron_job",
+    description: "Update a cron job",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" }, cron_id: { type: "number" }, command: { type: "string" }, schedule: { type: "string" }, description: { type: "string" } }, required: ["hosting_id", "cron_id"] },
+  },
+  {
+    name: "infomaniak_delete_cron_job",
+    description: "Delete a cron job",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" }, cron_id: { type: "number" } }, required: ["hosting_id", "cron_id"] },
+  },
+  {
+    name: "infomaniak_list_ftp_accounts",
+    description: "List all FTP accounts for a web hosting",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" } }, required: ["hosting_id"] },
+  },
+  {
+    name: "infomaniak_create_ftp_account",
+    description: "Create an FTP account",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" }, login: { type: "string" }, password: { type: "string" }, home_directory: { type: "string" } }, required: ["hosting_id", "login", "password"] },
+  },
+  {
+    name: "infomaniak_update_ftp_account",
+    description: "Update an FTP account",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" }, ftp_id: { type: "number" }, password: { type: "string" }, home_directory: { type: "string" }, is_active: { type: "boolean" } }, required: ["hosting_id", "ftp_id"] },
+  },
+  {
+    name: "infomaniak_delete_ftp_account",
+    description: "Delete an FTP account",
+    inputSchema: { type: "object", properties: { hosting_id: { type: "number" }, ftp_id: { type: "number" } }, required: ["hosting_id", "ftp_id"] },
+  },
+
   // kDrive Tools
   {
     name: "infomaniak_list_kdrives",
@@ -655,6 +784,52 @@ export const tools: Tool[] = [
       },
       required: ["drive_id"],
     },
+  },
+
+  {
+    name: "infomaniak_list_kdrive_files",
+    description: "List files in a kDrive directory",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, parent_id: { type: "number", description: "Parent directory ID (omit for root)" } }, required: ["drive_id"] },
+  },
+  {
+    name: "infomaniak_get_kdrive_file",
+    description: "Get details about a file or directory in kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
+  },
+  {
+    name: "infomaniak_search_kdrive_files",
+    description: "Search for files in a kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, query: { type: "string" } }, required: ["drive_id", "query"] },
+  },
+  {
+    name: "infomaniak_create_kdrive_directory",
+    description: "Create a new directory in a kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, name: { type: "string" }, parent_id: { type: "number" } }, required: ["drive_id", "name"] },
+  },
+  {
+    name: "infomaniak_move_kdrive_file",
+    description: "Move a file or directory to another location in kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, destination_directory_id: { type: "number" } }, required: ["drive_id", "file_id", "destination_directory_id"] },
+  },
+  {
+    name: "infomaniak_copy_kdrive_file",
+    description: "Copy a file or directory in kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, destination_directory_id: { type: "number" } }, required: ["drive_id", "file_id", "destination_directory_id"] },
+  },
+  {
+    name: "infomaniak_rename_kdrive_file",
+    description: "Rename a file or directory in kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, name: { type: "string" } }, required: ["drive_id", "file_id", "name"] },
+  },
+  {
+    name: "infomaniak_delete_kdrive_file",
+    description: "Delete a file or directory from kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
+  },
+  {
+    name: "infomaniak_share_kdrive_file",
+    description: "Create a shareable link for a file or directory in kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, right: { type: "string", enum: ["public", "password", "inherit"] }, valid_until: { type: "string" } }, required: ["drive_id", "file_id"] },
   },
 
   // Swiss Backup Tools
@@ -899,6 +1074,179 @@ export const tools: Tool[] = [
       required: ["method", "endpoint"],
     },
   },
+
+  // kDrive Extras
+  {
+    name: "infomaniak_list_kdrive_trash",
+    description: "List files in the kDrive trash",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number", description: "The kDrive ID" } }, required: ["drive_id"] },
+  },
+  {
+    name: "infomaniak_restore_kdrive_file",
+    description: "Restore a file from the kDrive trash",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
+  },
+  {
+    name: "infomaniak_empty_kdrive_trash",
+    description: "Permanently delete all files in the kDrive trash",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" } }, required: ["drive_id"] },
+  },
+  {
+    name: "infomaniak_list_kdrive_file_versions",
+    description: "List version history of a file in kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
+  },
+  {
+    name: "infomaniak_get_kdrive_activity",
+    description: "Get activity log for a kDrive or a specific file",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number", description: "Optional: filter by file" } }, required: ["drive_id"] },
+  },
+  {
+    name: "infomaniak_add_kdrive_favorite",
+    description: "Add a file or directory to kDrive favorites",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
+  },
+  {
+    name: "infomaniak_remove_kdrive_favorite",
+    description: "Remove a file or directory from kDrive favorites",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
+  },
+  {
+    name: "infomaniak_list_kdrive_favorites",
+    description: "List favorite files in a kDrive",
+    inputSchema: { type: "object", properties: { drive_id: { type: "number" } }, required: ["drive_id"] },
+  },
+
+  // Mail Extras
+  {
+    name: "infomaniak_get_mailbox_autoresponder",
+    description: "Get the autoresponder (out-of-office) settings for a mailbox",
+    inputSchema: { type: "object", properties: { mail_id: { type: "number" }, mailbox_id: { type: "number" } }, required: ["mail_id", "mailbox_id"] },
+  },
+  {
+    name: "infomaniak_update_mailbox_autoresponder",
+    description: "Enable or update the autoresponder for a mailbox",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mail_id: { type: "number" },
+        mailbox_id: { type: "number" },
+        enabled: { type: "boolean", description: "Enable or disable the autoresponder" },
+        subject: { type: "string", description: "Auto-reply subject" },
+        body: { type: "string", description: "Auto-reply message body" },
+        from_date: { type: "string", description: "Start date (ISO 8601)" },
+        to_date: { type: "string", description: "End date (ISO 8601)" },
+      },
+      required: ["mail_id", "mailbox_id", "enabled"],
+    },
+  },
+  {
+    name: "infomaniak_list_mailbox_folders",
+    description: "List folders in a mailbox",
+    inputSchema: { type: "object", properties: { mail_id: { type: "number" }, mailbox_id: { type: "number" } }, required: ["mail_id", "mailbox_id"] },
+  },
+
+  // kChat Tools
+  {
+    name: "infomaniak_kchat_get_me",
+    description: "Get the current kChat user profile",
+    inputSchema: { type: "object", properties: {}, required: [] },
+  },
+  {
+    name: "infomaniak_kchat_list_teams",
+    description: "List all kChat teams",
+    inputSchema: { type: "object", properties: {}, required: [] },
+  },
+  {
+    name: "infomaniak_kchat_list_my_teams",
+    description: "List kChat teams the current user belongs to",
+    inputSchema: { type: "object", properties: {}, required: [] },
+  },
+  {
+    name: "infomaniak_kchat_list_channels",
+    description: "List all channels in a kChat team",
+    inputSchema: { type: "object", properties: { team_id: { type: "string", description: "The team ID" } }, required: ["team_id"] },
+  },
+  {
+    name: "infomaniak_kchat_list_my_channels",
+    description: "List kChat channels the current user is a member of",
+    inputSchema: { type: "object", properties: { team_id: { type: "string", description: "The team ID" } }, required: ["team_id"] },
+  },
+  {
+    name: "infomaniak_kchat_get_channel",
+    description: "Get details about a kChat channel",
+    inputSchema: { type: "object", properties: { channel_id: { type: "string", description: "The channel ID" } }, required: ["channel_id"] },
+  },
+  {
+    name: "infomaniak_kchat_get_channel_posts",
+    description: "Get recent posts in a kChat channel",
+    inputSchema: {
+      type: "object",
+      properties: {
+        channel_id: { type: "string" },
+        page: { type: "number", description: "Page number (0-indexed)" },
+        per_page: { type: "number", description: "Posts per page (max 200)" },
+      },
+      required: ["channel_id"],
+    },
+  },
+  {
+    name: "infomaniak_kchat_create_post",
+    description: "Send a message to a kChat channel",
+    inputSchema: {
+      type: "object",
+      properties: {
+        channel_id: { type: "string", description: "The channel ID" },
+        message: { type: "string", description: "Message text (supports Markdown)" },
+        root_id: { type: "string", description: "Parent post ID for threading" },
+      },
+      required: ["channel_id", "message"],
+    },
+  },
+  {
+    name: "infomaniak_kchat_delete_post",
+    description: "Delete a kChat post",
+    inputSchema: { type: "object", properties: { post_id: { type: "string" } }, required: ["post_id"] },
+  },
+  {
+    name: "infomaniak_kchat_search_posts",
+    description: "Search posts in a kChat team",
+    inputSchema: {
+      type: "object",
+      properties: {
+        team_id: { type: "string" },
+        terms: { type: "string", description: "Search terms" },
+        is_or_search: { type: "boolean", description: "Use OR logic between terms" },
+      },
+      required: ["team_id", "terms"],
+    },
+  },
+  {
+    name: "infomaniak_kchat_create_direct",
+    description: "Create or get a direct message channel between two users",
+    inputSchema: {
+      type: "object",
+      properties: { user_ids: { type: "array", items: { type: "string" }, description: "Exactly two user IDs" } },
+      required: ["user_ids"],
+    },
+  },
+  {
+    name: "infomaniak_kchat_search_users",
+    description: "Search kChat users by username or name",
+    inputSchema: { type: "object", properties: { term: { type: "string", description: "Search term" } }, required: ["term"] },
+  },
+  {
+    name: "infomaniak_kchat_list_users",
+    description: "List kChat users, optionally filtered by team or channel",
+    inputSchema: {
+      type: "object",
+      properties: {
+        in_team_id: { type: "string", description: "Filter by team" },
+        in_channel_id: { type: "string", description: "Filter by channel" },
+      },
+      required: [],
+    },
+  },
 ];
 
 /**
@@ -907,8 +1255,13 @@ export const tools: Tool[] = [
 async function handleToolCall(
   client: InfomaniakClient,
   name: string,
-  args: Record<string, unknown> | undefined
+  args: Record<string, unknown> | undefined,
+  kchatClient?: KChatClient | null,
 ): Promise<unknown> {
+  if (name.startsWith("infomaniak_kchat_")) {
+    if (!kchatClient) throw new Error("kChat is not configured. Set KCHAT_HOST and KCHAT_TOKEN environment variables.");
+    return handleKChatToolCall(kchatClient, name, args);
+  }
   switch (name) {
     // Profile & Account (no validation needed - no args)
     case "infomaniak_ping":
@@ -939,6 +1292,19 @@ async function handleToolCall(
     case "infomaniak_get_domain": {
       const validated = validate(GetDomainSchema, args);
       return client.getDomain(validated.account_id, validated.domain);
+    }
+
+    case "infomaniak_get_domain_nameservers": {
+      const validated = validate(GetDomainNameserversSchema, args);
+      return client.getDomainNameservers(validated.domain);
+    }
+    case "infomaniak_update_domain_nameservers": {
+      const validated = validate(UpdateDomainNameserversSchema, args);
+      return client.updateDomainNameservers(validated.domain, validated.nameservers);
+    }
+    case "infomaniak_renew_domain": {
+      const validated = validate(RenewDomainSchema, args);
+      return client.renewDomain(validated.domain, validated.duration);
     }
 
     case "infomaniak_list_dns_records": {
@@ -1042,6 +1408,19 @@ async function handleToolCall(
       );
     }
 
+    case "infomaniak_list_email_redirections": {
+      const validated = validate(MailIdSchema, args);
+      return client.getEmailRedirections(validated.mail_id);
+    }
+    case "infomaniak_create_email_redirection": {
+      const validated = validate(CreateEmailRedirectionSchema, args);
+      return client.createEmailRedirection(validated.mail_id, { from: validated.from, to: validated.to, keep_copy: validated.keep_copy });
+    }
+    case "infomaniak_delete_email_redirection": {
+      const validated = validate(EmailRedirectionIdSchema, args);
+      return client.deleteEmailRedirection(validated.mail_id, validated.redirection_id);
+    }
+
     // Web Hosting
     case "infomaniak_list_web_hostings": {
       const validated = validate(AccountIdSchema, args);
@@ -1113,6 +1492,39 @@ async function handleToolCall(
       return client.deleteDatabase(validated.hosting_id, validated.database_id);
     }
 
+    case "infomaniak_list_cron_jobs": {
+      const validated = validate(HostingIdSchema, args);
+      return client.getCronJobs(validated.hosting_id);
+    }
+    case "infomaniak_create_cron_job": {
+      const validated = validate(CreateCronJobSchema, args);
+      return client.createCronJob(validated.hosting_id, { command: validated.command, schedule: validated.schedule, description: validated.description });
+    }
+    case "infomaniak_update_cron_job": {
+      const validated = validate(UpdateCronJobSchema, args);
+      return client.updateCronJob(validated.hosting_id, validated.cron_id, { command: validated.command, schedule: validated.schedule, description: validated.description });
+    }
+    case "infomaniak_delete_cron_job": {
+      const validated = validate(CronJobIdSchema, args);
+      return client.deleteCronJob(validated.hosting_id, validated.cron_id);
+    }
+    case "infomaniak_list_ftp_accounts": {
+      const validated = validate(HostingIdSchema, args);
+      return client.getFtpAccounts(validated.hosting_id);
+    }
+    case "infomaniak_create_ftp_account": {
+      const validated = validate(CreateFtpAccountSchema, args);
+      return client.createFtpAccount(validated.hosting_id, { login: validated.login, password: validated.password, home_directory: validated.home_directory });
+    }
+    case "infomaniak_update_ftp_account": {
+      const validated = validate(UpdateFtpAccountSchema, args);
+      return client.updateFtpAccount(validated.hosting_id, validated.ftp_id, { password: validated.password, home_directory: validated.home_directory, is_active: validated.is_active });
+    }
+    case "infomaniak_delete_ftp_account": {
+      const validated = validate(FtpAccountIdSchema, args);
+      return client.deleteFtpAccount(validated.hosting_id, validated.ftp_id);
+    }
+
     // kDrive
     case "infomaniak_list_kdrives": {
       const validated = validate(AccountIdSchema, args);
@@ -1122,6 +1534,43 @@ async function handleToolCall(
     case "infomaniak_get_kdrive": {
       const validated = validate(DriveIdSchema, args);
       return client.getKDrive(validated.drive_id);
+    }
+
+    case "infomaniak_list_kdrive_files": {
+      const validated = validate(ListKDriveFilesSchema, args);
+      return client.listKDriveFiles(validated.drive_id, validated.parent_id);
+    }
+    case "infomaniak_get_kdrive_file": {
+      const validated = validate(KDriveFileIdSchema, args);
+      return client.getKDriveFile(validated.drive_id, validated.file_id);
+    }
+    case "infomaniak_search_kdrive_files": {
+      const validated = validate(SearchKDriveFilesSchema, args);
+      return client.searchKDriveFiles(validated.drive_id, validated.query);
+    }
+    case "infomaniak_create_kdrive_directory": {
+      const validated = validate(CreateKDriveDirectorySchema, args);
+      return client.createKDriveDirectory(validated.drive_id, { name: validated.name, parent_id: validated.parent_id });
+    }
+    case "infomaniak_move_kdrive_file": {
+      const validated = validate(MoveOrCopyKDriveFileSchema, args);
+      return client.moveKDriveFile(validated.drive_id, validated.file_id, validated.destination_directory_id);
+    }
+    case "infomaniak_copy_kdrive_file": {
+      const validated = validate(MoveOrCopyKDriveFileSchema, args);
+      return client.copyKDriveFile(validated.drive_id, validated.file_id, validated.destination_directory_id);
+    }
+    case "infomaniak_rename_kdrive_file": {
+      const validated = validate(RenameKDriveFileSchema, args);
+      return client.renameKDriveFile(validated.drive_id, validated.file_id, validated.name);
+    }
+    case "infomaniak_delete_kdrive_file": {
+      const validated = validate(KDriveFileIdSchema, args);
+      return client.deleteKDriveFile(validated.drive_id, validated.file_id);
+    }
+    case "infomaniak_share_kdrive_file": {
+      const validated = validate(ShareKDriveFileSchema, args);
+      return client.shareKDriveFile(validated.drive_id, validated.file_id, { right: validated.right, valid_until: validated.valid_until });
     }
 
     // Swiss Backup
@@ -1211,8 +1660,141 @@ async function handleToolCall(
       );
     }
 
+    // kDrive Extras
+    case "infomaniak_list_kdrive_trash": {
+      const validated = validate(KDriveTrashSchema, args);
+      return client.listKDriveTrash(validated.drive_id);
+    }
+
+    case "infomaniak_restore_kdrive_file": {
+      const validated = validate(KDriveFileIdSchema, args);
+      return client.restoreKDriveFile(validated.drive_id, validated.file_id);
+    }
+
+    case "infomaniak_empty_kdrive_trash": {
+      const validated = validate(DriveIdSchema, args);
+      return client.emptyKDriveTrash(validated.drive_id);
+    }
+
+    case "infomaniak_list_kdrive_file_versions": {
+      const validated = validate(KDriveFileIdSchema, args);
+      return client.listKDriveFileVersions(validated.drive_id, validated.file_id);
+    }
+
+    case "infomaniak_get_kdrive_activity": {
+      const validated = validate(KDriveActivitySchema, args);
+      return client.getKDriveActivity(validated.drive_id, validated.file_id);
+    }
+
+    case "infomaniak_add_kdrive_favorite": {
+      const validated = validate(KDriveFileIdSchema, args);
+      return client.addKDriveFavorite(validated.drive_id, validated.file_id);
+    }
+
+    case "infomaniak_remove_kdrive_favorite": {
+      const validated = validate(KDriveFileIdSchema, args);
+      return client.removeKDriveFavorite(validated.drive_id, validated.file_id);
+    }
+
+    case "infomaniak_list_kdrive_favorites": {
+      const validated = validate(KDriveFavoritesSchema, args);
+      return client.listKDriveFavorites(validated.drive_id);
+    }
+
+    // Mail Extras
+    case "infomaniak_get_mailbox_autoresponder": {
+      const validated = validate(MailboxIdSchema, args);
+      return client.getMailboxAutoresponder(validated.mail_id, validated.mailbox_id);
+    }
+
+    case "infomaniak_update_mailbox_autoresponder": {
+      const validated = validate(UpdateMailboxAutoresponderSchema, args);
+      return client.updateMailboxAutoresponder(validated.mail_id, validated.mailbox_id, {
+        enabled: validated.enabled,
+        subject: validated.subject,
+        body: validated.body,
+        from_date: validated.from_date,
+        to_date: validated.to_date,
+      });
+    }
+
+    case "infomaniak_list_mailbox_folders": {
+      const validated = validate(MailboxIdSchema, args);
+      return client.listMailboxFolders(validated.mail_id, validated.mailbox_id);
+    }
+
     default:
       throw new Error(`Unknown tool: ${name}`);
+  }
+}
+
+async function handleKChatToolCall(
+  client: KChatClient,
+  name: string,
+  args: Record<string, unknown> | undefined,
+): Promise<unknown> {
+  switch (name) {
+    case "infomaniak_kchat_get_me":
+      return client.getMe();
+
+    case "infomaniak_kchat_list_teams":
+      return client.listTeams();
+
+    case "infomaniak_kchat_list_my_teams":
+      return client.listMyTeams();
+
+    case "infomaniak_kchat_list_channels": {
+      const validated = validate(KChatTeamIdSchema, args);
+      return client.listChannels(validated.team_id);
+    }
+
+    case "infomaniak_kchat_list_my_channels": {
+      const validated = validate(KChatTeamIdSchema, args);
+      return client.listMyChannels(validated.team_id);
+    }
+
+    case "infomaniak_kchat_get_channel": {
+      const validated = validate(KChatChannelIdSchema, args);
+      return client.getChannel(validated.channel_id);
+    }
+
+    case "infomaniak_kchat_get_channel_posts": {
+      const validated = validate(KChatGetChannelPostsSchema, args);
+      return client.getChannelPosts(validated.channel_id, validated.page, validated.per_page);
+    }
+
+    case "infomaniak_kchat_create_post": {
+      const validated = validate(CreateKChatPostSchema, args);
+      return client.createPost(validated.channel_id, validated.message, validated.root_id);
+    }
+
+    case "infomaniak_kchat_delete_post": {
+      const validated = validate(KChatPostIdSchema, args);
+      return client.deletePost(validated.post_id);
+    }
+
+    case "infomaniak_kchat_search_posts": {
+      const validated = validate(SearchKChatPostsSchema, args);
+      return client.searchPosts(validated.team_id, validated.terms, validated.is_or_search);
+    }
+
+    case "infomaniak_kchat_create_direct": {
+      const validated = validate(CreateKChatDirectChannelSchema, args);
+      return client.createDirectChannel(validated.user_ids as [string, string]);
+    }
+
+    case "infomaniak_kchat_search_users": {
+      const validated = validate(SearchKChatUsersSchema, args);
+      return client.searchUsers(validated.term);
+    }
+
+    case "infomaniak_kchat_list_users": {
+      const validated = validate(ListKChatUsersSchema, args);
+      return client.listUsers({ inTeamId: validated.in_team_id, inChannelId: validated.in_channel_id });
+    }
+
+    default:
+      throw new Error(`Unknown kChat tool: ${name}`);
   }
 }
 
@@ -1222,7 +1804,7 @@ async function handleToolCall(
  * @param client - The Infomaniak API client to use for tool calls
  * @returns Configured MCP Server instance
  */
-export function createMcpServer(client: InfomaniakClient): Server {
+export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatClient | null): Server {
   const server = new Server(
     {
       name: "infomaniak-mcp-server",
@@ -1245,7 +1827,7 @@ export function createMcpServer(client: InfomaniakClient): Server {
     const { name, arguments: args } = request.params;
 
     try {
-      const result = await handleToolCall(client, name, args);
+      const result = await handleToolCall(client, name, args, kchatClient);
 
       const content: TextContent[] = [
         {

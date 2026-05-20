@@ -159,6 +159,207 @@ export const ApiCallSchema = z.object({
   query_params: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
 });
 
+// Domain extras
+export const GetDomainNameserversSchema = DomainNameSchema;
+
+export const UpdateDomainNameserversSchema = z.object({
+  domain: z.string().min(1),
+  nameservers: z.array(z.object({
+    host: z.string().min(1),
+    ip: z.string().optional(),
+  })).min(1),
+});
+
+export const RenewDomainSchema = z.object({
+  domain: z.string().min(1),
+  duration: z.number().int().positive(),
+});
+
+// Email redirections
+export const EmailRedirectionIdSchema = z.object({
+  mail_id: z.number().positive(),
+  redirection_id: z.number({ required_error: 'redirection_id is required' }).positive(),
+});
+
+export const CreateEmailRedirectionSchema = z.object({
+  mail_id: z.number().positive(),
+  from: z.string({ required_error: 'from is required' }).email(),
+  to: z.array(z.string().email()).min(1),
+  keep_copy: z.boolean().optional(),
+});
+
+// Cron jobs
+export const CronJobIdSchema = z.object({
+  hosting_id: z.number().positive(),
+  cron_id: z.number({ required_error: 'cron_id is required' }).positive(),
+});
+
+export const CreateCronJobSchema = z.object({
+  hosting_id: z.number().positive(),
+  command: z.string({ required_error: 'command is required' }).min(1),
+  schedule: z.string({ required_error: 'schedule is required' }).min(1),
+  description: z.string().optional(),
+});
+
+export const UpdateCronJobSchema = z.object({
+  hosting_id: z.number().positive(),
+  cron_id: z.number().positive(),
+  command: z.string().optional(),
+  schedule: z.string().optional(),
+  description: z.string().optional(),
+});
+
+// FTP accounts
+export const FtpAccountIdSchema = z.object({
+  hosting_id: z.number().positive(),
+  ftp_id: z.number({ required_error: 'ftp_id is required' }).positive(),
+});
+
+export const CreateFtpAccountSchema = z.object({
+  hosting_id: z.number().positive(),
+  login: z.string({ required_error: 'login is required' }).min(1),
+  password: z.string({ required_error: 'password is required' }).min(8),
+  home_directory: z.string().optional(),
+});
+
+export const UpdateFtpAccountSchema = z.object({
+  hosting_id: z.number().positive(),
+  ftp_id: z.number().positive(),
+  password: z.string().min(8).optional(),
+  home_directory: z.string().optional(),
+  is_active: z.boolean().optional(),
+});
+
+// kDrive file ops
+export const KDriveFileIdSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+});
+
+export const ListKDriveFilesSchema = z.object({
+  drive_id: z.number().positive(),
+  parent_id: z.number().positive().optional(),
+});
+
+export const SearchKDriveFilesSchema = z.object({
+  drive_id: z.number().positive(),
+  query: z.string({ required_error: 'query is required' }).min(1),
+});
+
+export const CreateKDriveDirectorySchema = z.object({
+  drive_id: z.number().positive(),
+  name: z.string({ required_error: 'name is required' }).min(1),
+  parent_id: z.number().positive().optional(),
+});
+
+export const MoveOrCopyKDriveFileSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+  destination_directory_id: z.number({ required_error: 'destination_directory_id is required' }).positive(),
+});
+
+export const RenameKDriveFileSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+  name: z.string({ required_error: 'name is required' }).min(1),
+});
+
+export const ShareKDriveFileSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+  right: z.enum(['public', 'password', 'inherit']).optional(),
+  valid_until: z.string().optional(),
+});
+
+// kDrive extras
+export const KDriveTrashSchema = z.object({
+  drive_id: z.number().positive(),
+});
+
+export const KDriveRestoreFileSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+});
+
+export const KDriveActivitySchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive().optional(),
+});
+
+export const KDriveFavoritesSchema = z.object({
+  drive_id: z.number().positive(),
+});
+
+export const KDriveFavoriteFileSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+});
+
+export const KDriveFileVersionsSchema = z.object({
+  drive_id: z.number().positive(),
+  file_id: z.number().positive(),
+});
+
+// Mail extras
+export const UpdateMailboxAutoresponderSchema = z.object({
+  mail_id: z.number().positive(),
+  mailbox_id: z.number().positive(),
+  enabled: z.boolean(),
+  subject: z.string().optional(),
+  body: z.string().optional(),
+  from_date: z.string().optional(),
+  to_date: z.string().optional(),
+});
+
+export const ListMailboxFoldersSchema = z.object({
+  mail_id: z.number().positive(),
+  mailbox_id: z.number().positive(),
+});
+
+// kChat schemas
+export const KChatTeamIdSchema = z.object({
+  team_id: z.string({ required_error: 'team_id is required' }).min(1),
+});
+
+export const KChatChannelIdSchema = z.object({
+  channel_id: z.string({ required_error: 'channel_id is required' }).min(1),
+});
+
+export const KChatPostIdSchema = z.object({
+  post_id: z.string({ required_error: 'post_id is required' }).min(1),
+});
+
+export const CreateKChatPostSchema = z.object({
+  channel_id: z.string({ required_error: 'channel_id is required' }).min(1),
+  message: z.string({ required_error: 'message is required' }).min(1),
+  root_id: z.string().optional(),
+});
+
+export const SearchKChatPostsSchema = z.object({
+  team_id: z.string({ required_error: 'team_id is required' }).min(1),
+  terms: z.string({ required_error: 'terms is required' }).min(1),
+  is_or_search: z.boolean().optional(),
+});
+
+export const CreateKChatDirectChannelSchema = z.object({
+  user_ids: z.array(z.string().min(1)).min(2).max(2),
+});
+
+export const SearchKChatUsersSchema = z.object({
+  term: z.string({ required_error: 'term is required' }).min(1),
+});
+
+export const ListKChatUsersSchema = z.object({
+  in_team_id: z.string().optional(),
+  in_channel_id: z.string().optional(),
+});
+
+export const KChatGetChannelPostsSchema = z.object({
+  channel_id: z.string({ required_error: 'channel_id is required' }).min(1),
+  page: z.number().int().min(0).optional(),
+  per_page: z.number().int().min(1).max(200).optional(),
+});
+
 // Helper function to validate and return typed result
 export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
   const result = schema.safeParse(data);

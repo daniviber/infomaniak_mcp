@@ -13,6 +13,7 @@ import { randomUUID } from "crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "../infomaniak-client.js";
+import { KChatClient } from "../kchat-client.js";
 import { createMcpServer } from "../server.js";
 
 export interface HttpServerOptions {
@@ -34,10 +35,12 @@ const activeSessions = new Map<string, StreamableHTTPServerTransport>();
  *
  * @param client - The Infomaniak API client
  * @param options - HTTP server configuration options
+ * @param kchatClient - Optional kChat API client
  */
 export async function startHttpServer(
   client: InfomaniakClient,
-  options: HttpServerOptions = {}
+  options: HttpServerOptions = {},
+  kchatClient?: KChatClient | null,
 ): Promise<void> {
   const port = options.port ?? 3000;
   const host = options.host ?? "0.0.0.0";
@@ -80,7 +83,7 @@ export async function startHttpServer(
       });
 
       // Create and connect the MCP server for this session
-      const server = createMcpServer(client);
+      const server = createMcpServer(client, kchatClient);
       await server.connect(transport);
 
       // Store session immediately if stateful mode (before handleRequest)

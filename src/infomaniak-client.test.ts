@@ -14,7 +14,7 @@ describe('InfomaniakClient', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    client = new InfomaniakClient({ token: 'test-token-123' });
+    client = new InfomaniakClient({ token: 'test-token-123', maxAttempts: 1 });
   });
 
   afterEach(() => {
@@ -80,6 +80,7 @@ describe('InfomaniakClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
+        headers: { get: () => null },
         text: () => Promise.resolve('Unauthorized'),
       });
 
@@ -90,6 +91,7 @@ describe('InfomaniakClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 403,
+        headers: { get: () => null },
         text: () => Promise.resolve('Forbidden'),
       });
 
@@ -100,6 +102,7 @@ describe('InfomaniakClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
+        headers: { get: () => null },
         text: () => Promise.resolve('Not Found'),
       });
 
@@ -110,6 +113,7 @@ describe('InfomaniakClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 429,
+        headers: { get: () => null },
         text: () => Promise.resolve('Rate limit exceeded'),
       });
 
@@ -120,6 +124,7 @@ describe('InfomaniakClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
+        headers: { get: () => null },
         text: () =>
           Promise.resolve(
             JSON.stringify({
@@ -140,6 +145,7 @@ describe('InfomaniakClient', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
+        headers: { get: () => null },
         text: () => Promise.resolve('Internal Server Error'),
       });
 

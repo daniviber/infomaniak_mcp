@@ -16,6 +16,7 @@
  */
 
 import { InfomaniakClient } from "./infomaniak-client.js";
+import { KChatClient } from "./kchat-client.js";
 import { startStdioServer } from "./transports/stdio.js";
 import { startHttpServer } from "./transports/http.js";
 
@@ -31,6 +32,13 @@ if (!API_TOKEN) {
 // Initialize the Infomaniak client
 const client = new InfomaniakClient({ token: API_TOKEN });
 
+// Optionally initialize the kChat client
+const kchatHost = process.env.KCHAT_HOST;
+const kchatToken = process.env.KCHAT_TOKEN;
+const kchatClient = (kchatHost && kchatToken)
+  ? new KChatClient({ host: kchatHost, token: kchatToken })
+  : null;
+
 // Get transport configuration from environment
 const transport = process.env.MCP_TRANSPORT || "stdio";
 const port = parseInt(process.env.PORT || process.env.MCP_PORT || "3000", 10);
@@ -39,9 +47,9 @@ const stateless = process.env.MCP_STATELESS === "true";
 // Start the server with the selected transport
 async function main() {
   if (transport === "http") {
-    await startHttpServer(client, { port, stateless });
+    await startHttpServer(client, { port, stateless }, kchatClient);
   } else if (transport === "stdio") {
-    await startStdioServer(client);
+    await startStdioServer(client, kchatClient);
   } else {
     console.error(`Error: Unknown transport '${transport}'. Use 'stdio' or 'http'.`);
     process.exit(1);
