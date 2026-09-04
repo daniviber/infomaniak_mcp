@@ -48,6 +48,29 @@ export interface GatewayOptions {
   timeoutMs: number;
   bucket: TokenBucket;
   fetch: typeof fetch;
+  clock: GatewayClock;
+  random: () => number;
+  /** UTC epoch milliseconds, independent of the quota clock. */
+  utcNow: () => number;
+}
+
+/** Multiplicative jitter: base * (1 + random()), clamped to 8 seconds.
+ * A valid Retry-After is never shortened by jitter (only by its 30 second cap).
+ */
+export function retryDelay(
+  attempt: number,
+  random: () => number,
+  retryAfter: string | null,
+  utcNow: () => number,
+): number {
+  if (retryAfter !== null) {
+    const value = retryAfter.trim();
+    const seconds = /^\d+(?:\.\d+)?$/.test(value) ? Number(value) : NaN;
+    const date = /^[A-Za-z]{3}, /.test(value) ? Date.parse(value) : NaN;
+    const delay = Number.isFinite(seconds) ? seconds * 1000 : date - utcNow();
+    if (Number.isFinite(delay)) return Math.min(30000, Math.max(0, delay));
+  }
+  return Math.min(8000, 500 * 2 ** (attempt - 1) * (1 + random()));
 }
 
 export class InfomaniakGateway {
@@ -79,11 +102,26 @@ export class InfomaniakGateway {
           redirect: 'error',
         });
       } catch {
-        if (attempt < attempts) continue;
+        if (attempt < attempts) {
+          await this.options.clock.wait(
+            retryDelay(attempt, this.options.random, null, this.options.utcNow),
+          );
+          continue;
+        }
         throw new Error('Infomaniak request failed');
       }
       if (!response.ok) {
-        if ((response.status === 429 || response.status >= 500) && attempt < attempts) continue;
+        if ((response.status === 429 || response.status >= 500) && attempt < attempts) {
+          await this.options.clock.wait(
+            retryDelay(
+              attempt,
+              this.options.random,
+              response.status === 429 ? response.headers.get('Retry-After') : null,
+              this.options.utcNow,
+            ),
+          );
+          continue;
+        }
         throw new Error(`Infomaniak HTTP ${response.status}`);
       }
       try {

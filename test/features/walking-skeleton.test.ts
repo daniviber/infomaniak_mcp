@@ -8,13 +8,17 @@ import { createFeatureModule } from '../../src/application/feature-module.js';
 import { createEventContract } from '../../src/application/calendar/create-event.js';
 import { listDrivesContract } from '../../src/application/drive/list-drives.js';
 import { createModernServer } from '../../src/adapters/inbound/mcp/modern-server.js';
+import { DriveListAdapter } from '../../src/adapters/outbound/infomaniak/drive-list.adapter.js';
 import { CalendarCreateAdapter } from '../../src/adapters/outbound/infomaniak/calendar-create.adapter.js';
+import * as driveFeature from '../fixtures/features/positive/a-drive.feature.js';
+import * as calendarFeature from '../fixtures/features/positive/z-calendar.feature.js';
 import { InfomaniakGateway, TokenBucket } from '../../src/adapters/outbound/infomaniak/gateway.js';
 import {
   composeFeatureModules,
   discoverFeatureModules,
 } from '../../src/main/discover-feature-modules.js';
-import * as feature from '../../src/features/walking-skeleton.feature.js';
+import * as feature from '../fixtures/features/added/original.feature.js';
+import { existsSync, readdirSync } from 'node:fs';
 import { loadRuntimeConfig } from '../../src/config/runtime-config.js';
 import { createRuntime } from '../../src/main/index.js';
 
@@ -38,15 +42,39 @@ const eventResponse = {
   },
   result: 'success',
 };
-const ports = () => ({
-  drive: {
-    listDrives: vi.fn(async () => ({
-      drives: [],
-      displayText: '{\n  "result": "success",\n  "data": []\n}',
-    })),
+const positivePattern = 'test/fixtures/features/positive/**/*.feature.ts';
+const idleClock = {
+  now: () => 0,
+  wait: async () => {
+    throw new Error('Unexpected wait');
   },
-  calendar: { createEvent: vi.fn() },
-});
+};
+const dependencies = (
+  fetcher = vi
+    .fn<typeof fetch>()
+    .mockImplementation(async () => Response.json({ result: 'success', data: [] })),
+) => {
+  const config = loadRuntimeConfig({ INFOMANIAK_API_TOKEN: 'test' });
+  const bucket = new TokenBucket(idleClock);
+  const createGateway = ({ token, base }: { token: string; base?: string }) =>
+    new InfomaniakGateway({
+      token,
+      base,
+      timeoutMs: 1000,
+      bucket,
+      fetch: fetcher,
+      clock: idleClock,
+      random: () => 0,
+      utcNow: () => 0,
+    });
+  return {
+    config,
+    clock: idleClock,
+    createGateway,
+    gateway: createGateway({ token: config.token }),
+    fetcher,
+  };
+};
 
 async function rpc(
   server: ReturnType<typeof createModernServer>,
@@ -81,6 +109,8 @@ async function rpc(
 
 describe('walking skeleton', () => {
   it('discovers and calls both products through the official client with in-process fetch', async () => {
+    const driveCall = vi.spyOn(DriveListAdapter.prototype, 'listDrives');
+    const calendarCall = vi.spyOn(CalendarCreateAdapter.prototype, 'createEvent');
     const driveResponse = {
       result: 'success',
       data: [{ id: 9, name: 'Équipe', account_id: 123, size_used: 12, size: 1000 }],
@@ -107,7 +137,7 @@ describe('walking skeleton', () => {
             throw new Error('Unexpected wait');
           },
         },
-        pattern: 'src/features/**/*.feature.ts',
+        pattern: positivePattern,
       },
     );
     const requests: { method: string; params?: { name?: string } }[] = [];
@@ -189,7 +219,11 @@ describe('walking skeleton', () => {
         ),
       ).toBe(true);
       expect(fetcher).toHaveBeenCalledTimes(3);
+      expect(driveCall).toHaveBeenCalledExactlyOnceWith(123);
+      expect(calendarCall).toHaveBeenCalledExactlyOnceWith(command);
     } finally {
+      driveCall.mockRestore();
+      calendarCall.mockRestore();
       await client.close();
       await server.close();
     }
@@ -218,7 +252,7 @@ describe('walking skeleton', () => {
     });
     const server = await createRuntime(
       { INFOMANIAK_API_TOKEN: 'drive-token', INFOMANIAK_CALENDAR_TOKEN: 'calendar-token' },
-      { fetch: fetcher, clock: { now: () => now, wait }, pattern: 'src/features/**/*.feature.ts' },
+      { fetch: fetcher, clock: { now: () => now, wait }, pattern: positivePattern },
     );
     try {
       await rpc(server, 'server/discover');
@@ -261,8 +295,8 @@ describe('walking skeleton', () => {
   });
 
   it('discovers sorted tools without initialize and calls the drive application port', async () => {
-    const dependencies = ports();
-    const module = await discoverFeatureModules('src/features/**/*.feature.ts', dependencies);
+    const deps = dependencies();
+    const module = await discoverFeatureModules(positivePattern, deps);
     const server = createModernServer(module, policy);
     try {
       const discover = await rpc(server, 'server/discover');
@@ -287,7 +321,10 @@ describe('walking skeleton', () => {
         content: [{ type: 'text', text: '{\n  "result": "success",\n  "data": []\n}' }],
       });
       expect(result).toHaveProperty('_meta');
-      expect(dependencies.drive.listDrives).toHaveBeenCalledWith(123);
+      expect(deps.fetcher).toHaveBeenCalledWith(
+        'https://api.infomaniak.com/2/drive?account_id=123',
+        expect.anything(),
+      );
     } finally {
       await server.close();
     }
@@ -302,22 +339,8 @@ describe('walking skeleton', () => {
           })
         : Response.json(eventResponse),
     );
-    const gateway = new InfomaniakGateway({
-      token: 'test',
-      timeoutMs: 1000,
-      bucket: new TokenBucket({
-        now: () => 0,
-        wait: async () => {
-          throw new Error('Unexpected wait');
-        },
-      }),
-      fetch: fetcher,
-    });
     const server = createModernServer(
-      composeFeatureModules([feature], {
-        ...ports(),
-        calendar: new CalendarCreateAdapter(gateway),
-      }),
+      composeFeatureModules([feature], dependencies(fetcher)),
       policy,
     );
     try {
@@ -386,10 +409,11 @@ describe('walking skeleton', () => {
     },
   );
 
-  it('returns a read-only denial through MCP with zero port calls', async () => {
-    const dependencies = ports();
+  it('returns a read-only denial through MCP with zero outgoing HTTP calls', async () => {
+    const deps = dependencies();
+    const calendarCall = vi.spyOn(CalendarCreateAdapter.prototype, 'createEvent');
     const server = createModernServer(
-      composeFeatureModules([feature], dependencies),
+      composeFeatureModules([feature], deps),
       { ...policy, readOnly: true },
       1234,
     );
@@ -406,21 +430,25 @@ describe('walking skeleton', () => {
           error: { code: 'POLICY_DENIED', reason: 'read_only', tool: createEventContract.name },
         },
       });
-      expect(dependencies.calendar.createEvent).not.toHaveBeenCalled();
+      expect(deps.fetcher).not.toHaveBeenCalled();
+      expect(calendarCall).not.toHaveBeenCalled();
     } finally {
+      calendarCall.mockRestore();
       await server.close();
     }
   });
 
   it('rejects duplicate tools and missing handlers during composition', () => {
-    expect(() => composeFeatureModules([feature, feature], ports())).toThrow('Duplicate tool');
-    expect(() => composeFeatureModules([{ tools: feature.tools, handlers: {} }], ports())).toThrow(
-      'Missing handler',
+    expect(() => composeFeatureModules([feature, feature], dependencies())).toThrow(
+      'Duplicate tool',
     );
+    expect(() =>
+      composeFeatureModules([{ tools: feature.tools, createHandlers: () => ({}) }], dependencies()),
+    ).toThrow('Missing handler');
   });
 
   it('rejects initialize, GET SSE and event resumption', async () => {
-    const server = createModernServer(composeFeatureModules([feature], ports()), policy);
+    const server = createModernServer(composeFeatureModules([feature], dependencies()), policy);
     try {
       const initialize = await server.fetch(
         new Request('http://localhost/mcp', {
@@ -450,5 +478,131 @@ describe('walking skeleton', () => {
     expect(() =>
       loadRuntimeConfig({ INFOMANIAK_API_TOKEN: 'secret', MCP_TOOLS_TTL_MS: '-1' }),
     ).toThrow('Invalid runtime configuration: MCP_TOOLS_TTL_MS');
+  });
+});
+
+describe('generic feature discovery', () => {
+  it('has no production modules and discovers an empty default catalogue', async () => {
+    if (existsSync('src/features'))
+      expect(readdirSync('src/features', { recursive: true })).toEqual([]);
+    expect((await discoverFeatureModules(undefined, dependencies())).tools).toEqual([]);
+    const server = await createRuntime(
+      { INFOMANIAK_API_TOKEN: 'test' },
+      { fetch: dependencies().fetcher, clock: idleClock },
+    );
+    try {
+      expect((await rpc(server, 'server/discover')).capabilities.tools).toBeUndefined();
+    } finally {
+      await server.close();
+    }
+  });
+
+  it.each(['empty', 'absent'])(
+    'discovers an empty catalogue for %s directories',
+    async (directory) => {
+      expect(
+        (
+          await discoverFeatureModules(
+            `test/fixtures/features/${directory}/**/*.feature.ts`,
+            dependencies(),
+          )
+        ).tools,
+      ).toEqual([]);
+    },
+  );
+
+  it.each([
+    ['duplicate', 'Duplicate tool'],
+    ['missing', 'Missing handler'],
+    ['broken', 'Fixture loading failure'],
+  ])('rejects %s during discovery', async (directory, message) => {
+    await expect(
+      discoverFeatureModules(`test/fixtures/features/${directory}/**/*.feature.ts`, dependencies()),
+    ).rejects.toThrow(message);
+  });
+
+  it('keeps explicit missing module errors', async () => {
+    await expect(
+      discoverFeatureModules('test/fixtures/features/absent.feature.ts', dependencies()),
+    ).rejects.toThrow();
+  });
+
+  it('calls each factory once per composition without provider calls and sorts independently of files', async () => {
+    const deps = dependencies();
+    const driveFactory = vi.spyOn(driveFeature, 'createHandlers');
+    const calendarFactory = vi.spyOn(calendarFeature, 'createHandlers');
+    try {
+      for (const definitions of [
+        [driveFeature, calendarFeature],
+        [calendarFeature, driveFeature],
+      ]) {
+        const module = composeFeatureModules(definitions, deps);
+        expect(module.tools.map((tool) => tool.name)).toEqual([
+          createEventContract.name,
+          listDrivesContract.name,
+        ]);
+      }
+      expect(driveFactory).toHaveBeenCalledTimes(2);
+      expect(calendarFactory).toHaveBeenCalledTimes(2);
+      const module = await discoverFeatureModules(positivePattern, deps);
+      expect(module.tools.map((tool) => tool.name)).toEqual([
+        createEventContract.name,
+        listDrivesContract.name,
+      ]);
+      expect(driveFactory).toHaveBeenCalledTimes(3);
+      expect(calendarFactory).toHaveBeenCalledTimes(3);
+      expect(deps.fetcher).not.toHaveBeenCalled();
+    } finally {
+      driveFactory.mockRestore();
+      calendarFactory.mockRestore();
+    }
+  });
+
+  it('loads an additional module without changing main and forwards factory base, timeout, UTC, random and clock', async () => {
+    let now = 0;
+    const wait = vi.fn(async (ms: number) => {
+      now += ms;
+    });
+    const random = vi.fn(() => 0.5);
+    const utcNow = vi.fn(() => Date.parse('2026-09-04T00:00:00Z'));
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 429,
+          headers: { 'Retry-After': 'Fri, 04 Sep 2026 00:00:02 GMT' },
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(Response.json({ ok: true }));
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    const server = await createRuntime(
+      { INFOMANIAK_API_TOKEN: 'test', INFOMANIAK_TIMEOUT_MS: '1234' },
+      {
+        pattern: 'test/fixtures/features/added/**/*.feature.ts',
+        fetch: fetcher,
+        clock: { now: () => now, wait },
+        random,
+        utcNow,
+      },
+    );
+    try {
+      expect(fetcher).not.toHaveBeenCalled();
+      expect(
+        (await rpc(server, 'tools/list')).tools.map((tool: { name: string }) => tool.name),
+      ).toEqual(['fixture_extra', createEventContract.name, listDrivesContract.name]);
+      expect(
+        await rpc(server, 'tools/call', { name: 'fixture_extra', arguments: {} }),
+      ).toMatchObject({ structuredContent: { ok: true } });
+      expect(fetcher).toHaveBeenCalledTimes(3);
+      expect(fetcher.mock.calls[0][0]).toBe('https://fixture.example/extra');
+      expect(wait.mock.calls).toEqual([[2000], [1500]]);
+      expect(random).toHaveBeenCalledTimes(1);
+      expect(utcNow).toHaveBeenCalled();
+      expect(timeout).toHaveBeenCalledWith(1234);
+    } finally {
+      timeout.mockRestore();
+      await server.close();
+    }
   });
 });
