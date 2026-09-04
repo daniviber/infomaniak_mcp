@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import {
   CLIENT_CAPABILITIES_META_KEY,
   PROTOCOL_VERSION_META_KEY,
@@ -79,6 +80,121 @@ async function rpc(
 }
 
 describe('walking skeleton', () => {
+  it('discovers and calls both products through the official client with in-process fetch', async () => {
+    const driveResponse = {
+      result: 'success',
+      data: [{ id: 9, name: 'Équipe', account_id: 123, size_used: 12, size: 1000 }],
+    };
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {
+      switch (String(url)) {
+        case 'https://api.infomaniak.com/2/drive?account_id=123':
+          return Response.json(driveResponse);
+        case 'https://api.infomaniak.com/2/profile':
+          return Response.json({ result: 'success', data: { email: 'owner@example.test' } });
+        case 'https://api.infomaniak.com/1/calendar/pim/event':
+          return Response.json(eventResponse);
+        default:
+          throw new Error(`Unexpected request: ${url}`);
+      }
+    });
+    const server = await createRuntime(
+      { INFOMANIAK_API_TOKEN: 'test' },
+      {
+        fetch: fetcher,
+        clock: {
+          now: () => 0,
+          wait: async () => {
+            throw new Error('Unexpected wait');
+          },
+        },
+        pattern: 'src/features/**/*.feature.ts',
+      },
+    );
+    const requests: { method: string; params?: { name?: string } }[] = [];
+    const transport = new StreamableHTTPClientTransport(new URL('http://test.local/mcp'), {
+      fetch: async (url, init) => {
+        const request = new Request(url, init);
+        expect(request.method).toBe('POST');
+        expect(request.headers.get('mcp-session-id')).toBeNull();
+        const message = await request.clone().json();
+        expect(message.params._meta[PROTOCOL_VERSION_META_KEY]).toBe('2026-07-28');
+        requests.push(message);
+        const response = await server.fetch(request);
+        expect(response.headers.get('mcp-session-id')).toBeNull();
+        if (message.method === 'tools/call') {
+          // The official client unwraps the modern result envelope before returning CallToolResult.
+          const body = await response.clone().json();
+          expect(body.result.resultType).toBe('complete');
+        }
+        return response;
+      },
+    });
+    const client = new Client(
+      { name: 'walking-skeleton-test', version: '1.0.0' },
+      { versionNegotiation: { mode: { pin: '2026-07-28' } } },
+    );
+    try {
+      await client.connect(transport);
+      expect(client.getProtocolEra()).toBe('modern');
+      expect(client.getNegotiatedProtocolVersion()).toBe('2026-07-28');
+      const discover = await client.discover();
+      expect(discover).toHaveProperty('_meta');
+      const list = await client.listTools();
+      expect(list.tools.map((tool) => tool.name)).toEqual([
+        createEventContract.name,
+        listDrivesContract.name,
+      ]);
+      for (const tool of list.tools) {
+        expect(tool.outputSchema).toMatchObject({ type: 'object' });
+        expect(tool._meta).toHaveProperty('classification');
+      }
+      const meta = {
+        'io.modelcontextprotocol/serverInfo': { name: 'infomaniak-mcp-server', version: '1.1.0' },
+      };
+      expect(
+        await client.callTool({ name: listDrivesContract.name, arguments: { account_id: 123 } }),
+      ).toEqual({
+        content: [{ type: 'text', text: JSON.stringify(driveResponse, null, 2) }],
+        structuredContent: {
+          drives: [{ id: 9, name: 'Équipe', accountId: 123, usedBytes: 12, capacityBytes: 1000 }],
+          displayText: JSON.stringify(driveResponse, null, 2),
+        },
+        _meta: meta,
+      });
+      expect(await client.callTool({ name: createEventContract.name, arguments: command })).toEqual(
+        {
+          content: [{ type: 'text', text: JSON.stringify(eventResponse, null, 2) }],
+          structuredContent: {
+            event: {
+              id: 42,
+              calendarId: '7',
+              title: 'Meeting',
+              start: eventResponse.data.start,
+              end: eventResponse.data.end,
+            },
+            displayText: JSON.stringify(eventResponse, null, 2),
+          },
+          _meta: meta,
+        },
+      );
+      expect(requests[0].method).toBe('server/discover');
+      expect(
+        requests
+          .filter((request) => request.method === 'tools/call')
+          .map((request) => request.params?.name),
+      ).toEqual([listDrivesContract.name, createEventContract.name]);
+      expect(
+        requests.every((request) =>
+          ['server/discover', 'tools/list', 'tools/call'].includes(request.method),
+        ),
+      ).toBe(true);
+      expect(fetcher).toHaveBeenCalledTimes(3);
+    } finally {
+      await client.close();
+      await server.close();
+    }
+  });
+
   it('composes both products with a shared bucket and preserves kDrive text through HTTP doubles', async () => {
     const driveResponse = {
       data: [{ name: 'Équipe', id: 9, size: 1000, size_used: 12, account_id: 123, extra: true }],
