@@ -21,7 +21,9 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run typecheck && npm run test && npm run build",
-    "inspector": "npx @modelcontextprotocol/inspector build/index.js"
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js",
+    "lint": "eslint .",
+    "format:check": "prettier --check ."
   },
   "keywords": [
     "mcp",
@@ -53,21 +55,27 @@
   },
   "homepage": "https://github.com/YOUR_USERNAME/infomaniak-mcp-server#readme",
   "dependencies": {
+    "@modelcontextprotocol/core": "2.0.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/server": "2.0.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "zod": "^3.25.76"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^20.11.0",
     "@types/supertest": "^6.0.3",
+    "eslint": "9.39.5",
+    "prettier": "3.9.6",
     "supertest": "^7.2.2",
     "typescript": "^5.4.0",
+    "typescript-eslint": "8.69.0",
     "vitest": "^4.0.17"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20"
   }
 }

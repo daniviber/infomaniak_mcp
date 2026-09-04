@@ -2,7 +2,7 @@
  * Zod validation schemas for MCP tool inputs
  */
 
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 // Common schemas
 export const AccountIdSchema = z.object({
