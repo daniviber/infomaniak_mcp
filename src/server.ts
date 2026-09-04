@@ -14,6 +14,12 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "./infomaniak-client.js";
 import { KChatClient } from "./kchat-client.js";
+import { CalendarClient } from "./calendar-client.js";
+import { createKDriveToolModule, KDriveToolOptions } from "./tools/kdrive.js";
+import { createCalendarToolModule } from "./tools/calendar.js";
+import type { ToolModule } from "./tools/module.js";
+import { annotateTool, isToolAllowed, resolvePolicy, RAW_API_TOOL, ToolPolicy } from "./tools/policy.js";
+import { createRequire } from "node:module";
 import {
   validate,
   AccountIdSchema,
@@ -37,7 +43,6 @@ import {
   DatabaseIdSchema,
   CreateDatabaseSchema,
   DeleteDatabaseSchema,
-  DriveIdSchema,
   BackupIdSchema,
   VpsIdSchema,
   ServerIdSchema,
@@ -55,16 +60,6 @@ import {
   FtpAccountIdSchema,
   CreateFtpAccountSchema,
   UpdateFtpAccountSchema,
-  KDriveFileIdSchema,
-  ListKDriveFilesSchema,
-  SearchKDriveFilesSchema,
-  CreateKDriveDirectorySchema,
-  MoveOrCopyKDriveFileSchema,
-  RenameKDriveFileSchema,
-  ShareKDriveFileSchema,
-  KDriveTrashSchema,
-  KDriveActivitySchema,
-  KDriveFavoritesSchema,
   UpdateMailboxAutoresponderSchema,
   KChatTeamIdSchema,
   KChatChannelIdSchema,
@@ -77,8 +72,11 @@ import {
   KChatGetChannelPostsSchema,
 } from "./schemas.js";
 
+const { version: SERVER_VERSION } = createRequire(import.meta.url)("../package.json") as { version: string };
+
 /**
- * Tool definitions for the Infomaniak MCP server
+ * Core tool definitions (account, domains, DNS, mail hosting, web hosting, backups,
+ * servers, certificates, invoices, kChat). kDrive and Calendar tools live in src/tools/.
  */
 export const tools: Tool[] = [
   // Profile & Account Tools
@@ -756,82 +754,6 @@ export const tools: Tool[] = [
     inputSchema: { type: "object", properties: { hosting_id: { type: "number" }, ftp_id: { type: "number" } }, required: ["hosting_id", "ftp_id"] },
   },
 
-  // kDrive Tools
-  {
-    name: "infomaniak_list_kdrives",
-    description: "List all kDrives for an account",
-    inputSchema: {
-      type: "object",
-      properties: {
-        account_id: {
-          type: "number",
-          description: "The account ID",
-        },
-      },
-      required: ["account_id"],
-    },
-  },
-  {
-    name: "infomaniak_get_kdrive",
-    description: "Get detailed information about a kDrive",
-    inputSchema: {
-      type: "object",
-      properties: {
-        drive_id: {
-          type: "number",
-          description: "The kDrive ID",
-        },
-      },
-      required: ["drive_id"],
-    },
-  },
-
-  {
-    name: "infomaniak_list_kdrive_files",
-    description: "List files in a kDrive directory",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, parent_id: { type: "number", description: "Parent directory ID (omit for root)" } }, required: ["drive_id"] },
-  },
-  {
-    name: "infomaniak_get_kdrive_file",
-    description: "Get details about a file or directory in kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
-  },
-  {
-    name: "infomaniak_search_kdrive_files",
-    description: "Search for files in a kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, query: { type: "string" } }, required: ["drive_id", "query"] },
-  },
-  {
-    name: "infomaniak_create_kdrive_directory",
-    description: "Create a new directory in a kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, name: { type: "string" }, parent_id: { type: "number" } }, required: ["drive_id", "name"] },
-  },
-  {
-    name: "infomaniak_move_kdrive_file",
-    description: "Move a file or directory to another location in kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, destination_directory_id: { type: "number" } }, required: ["drive_id", "file_id", "destination_directory_id"] },
-  },
-  {
-    name: "infomaniak_copy_kdrive_file",
-    description: "Copy a file or directory in kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, destination_directory_id: { type: "number" } }, required: ["drive_id", "file_id", "destination_directory_id"] },
-  },
-  {
-    name: "infomaniak_rename_kdrive_file",
-    description: "Rename a file or directory in kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, name: { type: "string" } }, required: ["drive_id", "file_id", "name"] },
-  },
-  {
-    name: "infomaniak_delete_kdrive_file",
-    description: "Delete a file or directory from kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
-  },
-  {
-    name: "infomaniak_share_kdrive_file",
-    description: "Create a shareable link for a file or directory in kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" }, right: { type: "string", enum: ["public", "password", "inherit"] }, valid_until: { type: "string" } }, required: ["drive_id", "file_id"] },
-  },
-
   // Swiss Backup Tools
   {
     name: "infomaniak_list_swiss_backups",
@@ -1073,48 +995,6 @@ export const tools: Tool[] = [
       },
       required: ["method", "endpoint"],
     },
-  },
-
-  // kDrive Extras
-  {
-    name: "infomaniak_list_kdrive_trash",
-    description: "List files in the kDrive trash",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number", description: "The kDrive ID" } }, required: ["drive_id"] },
-  },
-  {
-    name: "infomaniak_restore_kdrive_file",
-    description: "Restore a file from the kDrive trash",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
-  },
-  {
-    name: "infomaniak_empty_kdrive_trash",
-    description: "Permanently delete all files in the kDrive trash",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" } }, required: ["drive_id"] },
-  },
-  {
-    name: "infomaniak_list_kdrive_file_versions",
-    description: "List version history of a file in kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
-  },
-  {
-    name: "infomaniak_get_kdrive_activity",
-    description: "Get activity log for a kDrive or a specific file",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number", description: "Optional: filter by file" } }, required: ["drive_id"] },
-  },
-  {
-    name: "infomaniak_add_kdrive_favorite",
-    description: "Add a file or directory to kDrive favorites",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
-  },
-  {
-    name: "infomaniak_remove_kdrive_favorite",
-    description: "Remove a file or directory from kDrive favorites",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" }, file_id: { type: "number" } }, required: ["drive_id", "file_id"] },
-  },
-  {
-    name: "infomaniak_list_kdrive_favorites",
-    description: "List favorite files in a kDrive",
-    inputSchema: { type: "object", properties: { drive_id: { type: "number" } }, required: ["drive_id"] },
   },
 
   // Mail Extras
@@ -1525,54 +1405,6 @@ async function handleToolCall(
       return client.deleteFtpAccount(validated.hosting_id, validated.ftp_id);
     }
 
-    // kDrive
-    case "infomaniak_list_kdrives": {
-      const validated = validate(AccountIdSchema, args);
-      return client.getKDrives(validated.account_id);
-    }
-
-    case "infomaniak_get_kdrive": {
-      const validated = validate(DriveIdSchema, args);
-      return client.getKDrive(validated.drive_id);
-    }
-
-    case "infomaniak_list_kdrive_files": {
-      const validated = validate(ListKDriveFilesSchema, args);
-      return client.listKDriveFiles(validated.drive_id, validated.parent_id);
-    }
-    case "infomaniak_get_kdrive_file": {
-      const validated = validate(KDriveFileIdSchema, args);
-      return client.getKDriveFile(validated.drive_id, validated.file_id);
-    }
-    case "infomaniak_search_kdrive_files": {
-      const validated = validate(SearchKDriveFilesSchema, args);
-      return client.searchKDriveFiles(validated.drive_id, validated.query);
-    }
-    case "infomaniak_create_kdrive_directory": {
-      const validated = validate(CreateKDriveDirectorySchema, args);
-      return client.createKDriveDirectory(validated.drive_id, { name: validated.name, parent_id: validated.parent_id });
-    }
-    case "infomaniak_move_kdrive_file": {
-      const validated = validate(MoveOrCopyKDriveFileSchema, args);
-      return client.moveKDriveFile(validated.drive_id, validated.file_id, validated.destination_directory_id);
-    }
-    case "infomaniak_copy_kdrive_file": {
-      const validated = validate(MoveOrCopyKDriveFileSchema, args);
-      return client.copyKDriveFile(validated.drive_id, validated.file_id, validated.destination_directory_id);
-    }
-    case "infomaniak_rename_kdrive_file": {
-      const validated = validate(RenameKDriveFileSchema, args);
-      return client.renameKDriveFile(validated.drive_id, validated.file_id, validated.name);
-    }
-    case "infomaniak_delete_kdrive_file": {
-      const validated = validate(KDriveFileIdSchema, args);
-      return client.deleteKDriveFile(validated.drive_id, validated.file_id);
-    }
-    case "infomaniak_share_kdrive_file": {
-      const validated = validate(ShareKDriveFileSchema, args);
-      return client.shareKDriveFile(validated.drive_id, validated.file_id, { right: validated.right, valid_until: validated.valid_until });
-    }
-
     // Swiss Backup
     case "infomaniak_list_swiss_backups": {
       const validated = validate(AccountIdSchema, args);
@@ -1658,47 +1490,6 @@ async function handleToolCall(
         validated.body,
         validated.query_params
       );
-    }
-
-    // kDrive Extras
-    case "infomaniak_list_kdrive_trash": {
-      const validated = validate(KDriveTrashSchema, args);
-      return client.listKDriveTrash(validated.drive_id);
-    }
-
-    case "infomaniak_restore_kdrive_file": {
-      const validated = validate(KDriveFileIdSchema, args);
-      return client.restoreKDriveFile(validated.drive_id, validated.file_id);
-    }
-
-    case "infomaniak_empty_kdrive_trash": {
-      const validated = validate(DriveIdSchema, args);
-      return client.emptyKDriveTrash(validated.drive_id);
-    }
-
-    case "infomaniak_list_kdrive_file_versions": {
-      const validated = validate(KDriveFileIdSchema, args);
-      return client.listKDriveFileVersions(validated.drive_id, validated.file_id);
-    }
-
-    case "infomaniak_get_kdrive_activity": {
-      const validated = validate(KDriveActivitySchema, args);
-      return client.getKDriveActivity(validated.drive_id, validated.file_id);
-    }
-
-    case "infomaniak_add_kdrive_favorite": {
-      const validated = validate(KDriveFileIdSchema, args);
-      return client.addKDriveFavorite(validated.drive_id, validated.file_id);
-    }
-
-    case "infomaniak_remove_kdrive_favorite": {
-      const validated = validate(KDriveFileIdSchema, args);
-      return client.removeKDriveFavorite(validated.drive_id, validated.file_id);
-    }
-
-    case "infomaniak_list_kdrive_favorites": {
-      const validated = validate(KDriveFavoritesSchema, args);
-      return client.listKDriveFavorites(validated.drive_id);
     }
 
     // Mail Extras
@@ -1799,53 +1590,91 @@ async function handleKChatToolCall(
 }
 
 /**
- * Create and configure an MCP server instance
+ * Options for createMcpServer / buildToolCatalog
+ */
+export interface McpServerOptions {
+  kchatClient?: KChatClient | null;
+  calendarClient?: CalendarClient | null;
+  policy?: Partial<ToolPolicy>;
+  kdrive?: KDriveToolOptions;
+}
+
+export interface ToolCatalog {
+  /** Every tool the server knows about, with MCP annotations. */
+  all: Tool[];
+  /** Tools exposed to clients under the active policy. */
+  visible: Tool[];
+  modules: ToolModule[];
+  policy: ToolPolicy;
+}
+
+/**
+ * Build the annotated tool catalog for the configured clients and policy.
+ */
+export function buildToolCatalog(client: InfomaniakClient, options: McpServerOptions = {}): ToolCatalog {
+  const policy = resolvePolicy(options.policy);
+  const modules: ToolModule[] = [createKDriveToolModule(client, options.kdrive)];
+  if (options.calendarClient) modules.push(createCalendarToolModule(options.calendarClient));
+
+  // kChat tools are only exposed when kChat is configured.
+  const core = tools.filter((t) => options.kchatClient || !t.name.startsWith("infomaniak_kchat_"));
+  const all = [...core, ...modules.flatMap((m) => m.tools)].map(annotateTool);
+
+  const seen = new Set<string>();
+  for (const tool of all) {
+    if (seen.has(tool.name)) throw new Error(`Duplicate tool name: ${tool.name}`);
+    seen.add(tool.name);
+  }
+
+  return { all, visible: all.filter((t) => isToolAllowed(t, policy)), modules, policy };
+}
+
+/**
+ * Create and configure an MCP server instance.
  *
  * @param client - The Infomaniak API client to use for tool calls
+ * @param options - Optional clients (kChat, Calendar), tool policy and kDrive limits
  * @returns Configured MCP Server instance
  */
-export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatClient | null): Server {
+export function createMcpServer(client: InfomaniakClient, options: McpServerOptions = {}): Server {
+  const catalog = buildToolCatalog(client, options);
+  const byName = new Map(catalog.all.map((t) => [t.name, t] as const));
+
   const server = new Server(
-    {
-      name: "infomaniak-mcp-server",
-      version: "1.0.0",
-    },
-    {
-      capabilities: {
-        tools: {},
-      },
-    }
+    { name: "infomaniak-mcp-server", version: SERVER_VERSION },
+    { capabilities: { tools: {} } },
   );
 
-  // Handle list tools request
-  server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return { tools };
-  });
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: catalog.visible }));
 
-  // Handle tool calls
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
 
     try {
-      const result = await handleToolCall(client, name, args, kchatClient);
+      const tool = byName.get(name);
+      if (!tool) throw new Error(`Unknown tool: ${name}`);
 
-      const content: TextContent[] = [
-        {
-          type: "text",
-          text: JSON.stringify(result, null, 2),
-        },
-      ];
+      if (!isToolAllowed(tool, catalog.policy)) {
+        const reason = name === RAW_API_TOOL && !catalog.policy.allowRawApi
+          ? "the generic API tool is disabled (set INFOMANIAK_ALLOW_RAW_API=true to enable it)"
+          : "the server runs in read-only mode (INFOMANIAK_READ_ONLY=true)";
+        throw new Error(`Tool '${name}' is not available: ${reason}`);
+      }
+      if (name === RAW_API_TOOL && catalog.policy.readOnly && (args as { method?: unknown } | undefined)?.method !== "GET") {
+        throw new Error("Read-only mode: infomaniak_api_call only accepts GET requests");
+      }
 
+      const module = catalog.modules.find((m) => m.canHandle(name));
+      const result = module
+        ? await module.handle(name, args)
+        : await handleToolCall(client, name, args, options.kchatClient);
+
+      const content: TextContent[] = [{ type: "text", text: JSON.stringify(result, null, 2) }];
       return { content };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
-        content: [
-          {
-            type: "text",
-            text: `Error: ${errorMessage}`,
-          },
-        ],
+        content: [{ type: "text", text: `Error: ${errorMessage}` }],
         isError: true,
       };
     }

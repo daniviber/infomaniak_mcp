@@ -231,73 +231,140 @@ export const UpdateFtpAccountSchema = z.object({
 });
 
 // kDrive file ops
+const DriveIdField = z.number({ required_error: 'drive_id is required' }).int().positive();
+const FileIdField = z.number({ required_error: 'file_id is required' }).int().positive();
+const DirectoryIdField = z.number().int().positive();
+const CursorField = z.string().min(1).optional();
+const LimitField = z.number().int().min(1).max(200).optional();
+const KDriveTypeField = z.enum(['file', 'dir']).optional();
+const FileNameField = z
+  .string({ required_error: 'name is required' })
+  .min(1, 'name cannot be empty')
+  .max(255)
+  .refine((n) => !/[\\/]/.test(n) && n !== '.' && n !== '..', 'name must not contain path separators');
+const ShareLinkRightField = z.enum(['public', 'password', 'inherit']);
+
 export const KDriveFileIdSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
+  drive_id: DriveIdField,
+  file_id: FileIdField,
 });
 
-export const ListKDriveFilesSchema = z.object({
-  drive_id: z.number().positive(),
-  parent_id: z.number().positive().optional(),
+export const KDriveListFilesSchema = z.object({
+  drive_id: DriveIdField,
+  directory_id: DirectoryIdField.optional(),
+  type: KDriveTypeField,
+  cursor: CursorField,
+  limit: LimitField,
+  order_by: z.enum(['name', 'size', 'last_modified_at', 'added_at', 'type']).optional(),
+  order: z.enum(['asc', 'desc']).optional(),
 });
 
-export const SearchKDriveFilesSchema = z.object({
-  drive_id: z.number().positive(),
-  query: z.string({ required_error: 'query is required' }).min(1),
+export const KDriveSearchSchema = z.object({
+  drive_id: DriveIdField,
+  query: z.string({ required_error: 'query is required' }).min(1).max(500),
+  directory_id: DirectoryIdField.optional(),
+  depth: z.enum(['child', 'unlimited']).optional(),
+  type: KDriveTypeField,
+  modified_after: z.string().max(40).optional(),
+  modified_before: z.string().max(40).optional(),
+  cursor: CursorField,
+  limit: LimitField,
 });
 
-export const CreateKDriveDirectorySchema = z.object({
-  drive_id: z.number().positive(),
-  name: z.string({ required_error: 'name is required' }).min(1),
-  parent_id: z.number().positive().optional(),
+export const KDriveCreateDirectorySchema = z.object({
+  drive_id: DriveIdField,
+  name: FileNameField,
+  parent_id: DirectoryIdField.optional(),
+  only_for_me: z.boolean().optional(),
 });
 
 export const MoveOrCopyKDriveFileSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
-  destination_directory_id: z.number({ required_error: 'destination_directory_id is required' }).positive(),
+  drive_id: DriveIdField,
+  file_id: FileIdField,
+  destination_directory_id: z.number({ required_error: 'destination_directory_id is required' }).int().positive(),
 });
 
 export const RenameKDriveFileSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
-  name: z.string({ required_error: 'name is required' }).min(1),
+  drive_id: DriveIdField,
+  file_id: FileIdField,
+  name: FileNameField,
 });
 
-export const ShareKDriveFileSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
-  right: z.enum(['public', 'password', 'inherit']).optional(),
-  valid_until: z.string().optional(),
+export const KDriveUploadSchema = z
+  .object({
+    drive_id: DriveIdField,
+    file_name: FileNameField,
+    directory_id: DirectoryIdField.optional(),
+    text_content: z.string().optional(),
+    base64_content: z.string().regex(/^[A-Za-z0-9+/=\s]*$/, 'base64_content must be valid base64').optional(),
+    conflict: z.enum(['error', 'rename', 'version']).optional(),
+    directory_path: z.string().max(1000).optional(),
+    last_modified_at: z.number().int().positive().optional(),
+  })
+  .refine((d) => (d.text_content !== undefined) !== (d.base64_content !== undefined), {
+    message: 'Provide exactly one of text_content or base64_content',
+    path: ['text_content'],
+  });
+
+export const KDriveDownloadSchema = z.object({
+  drive_id: DriveIdField,
+  file_id: FileIdField,
+  encoding: z.enum(['auto', 'utf-8', 'base64']).optional(),
 });
 
-// kDrive extras
-export const KDriveTrashSchema = z.object({
-  drive_id: z.number().positive(),
+const ShareLinkFields = {
+  password: z.string().min(1).max(200).optional(),
+  valid_until: z.number().int().positive().optional(),
+  can_download: z.boolean().optional(),
+  can_edit: z.boolean().optional(),
+  can_see_stats: z.boolean().optional(),
+};
+
+export const KDriveCreateShareLinkSchema = z
+  .object({ drive_id: DriveIdField, file_id: FileIdField, right: ShareLinkRightField, ...ShareLinkFields })
+  .refine((d) => d.right !== 'password' || Boolean(d.password), {
+    message: 'password is required when right is "password"',
+    path: ['password'],
+  });
+
+export const KDriveUpdateShareLinkSchema = z.object({
+  drive_id: DriveIdField,
+  file_id: FileIdField,
+  right: ShareLinkRightField.optional(),
+  ...ShareLinkFields,
 });
 
-export const KDriveRestoreFileSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
+export const KDriveInviteAccessSchema = z.object({
+  drive_id: DriveIdField,
+  file_id: FileIdField,
+  emails: z.array(z.string().email()).min(1).max(50),
+  right: z.enum(['read', 'write', 'manage']),
+  message: z.string().max(2000).optional(),
+  lang: z.enum(['fr', 'en', 'de', 'it', 'es']).optional(),
+});
+
+export const KDriveCursorSchema = z.object({
+  drive_id: DriveIdField,
+  cursor: CursorField,
+  limit: LimitField,
+});
+
+export const KDriveRestoreSchema = z.object({
+  drive_id: DriveIdField,
+  file_id: FileIdField,
+  destination_directory_id: DirectoryIdField.optional(),
+});
+
+export const KDriveTypeFilterSchema = z.object({
+  drive_id: DriveIdField,
+  type: KDriveTypeField,
 });
 
 export const KDriveActivitySchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive().optional(),
-});
-
-export const KDriveFavoritesSchema = z.object({
-  drive_id: z.number().positive(),
-});
-
-export const KDriveFavoriteFileSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
-});
-
-export const KDriveFileVersionsSchema = z.object({
-  drive_id: z.number().positive(),
-  file_id: z.number().positive(),
+  drive_id: DriveIdField,
+  file_id: FileIdField.optional(),
+  cursor: CursorField,
+  limit: LimitField,
 });
 
 // Mail extras
@@ -369,3 +436,67 @@ export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
   }
   return result.data;
 }
+
+// Calendar schemas
+const CalendarIdField = z.union([z.number().int().positive(), z.string().min(1).max(100)]);
+const EventIdField = z.union([z.number().int().positive(), z.string().min(1).max(100)], {
+  required_error: 'event_id is required',
+});
+const DateTimeField = z.string().min(10, 'date must be at least YYYY-MM-DD').max(40);
+const TimezoneField = z.string().min(1).max(64).optional();
+const RRuleField = z
+  .string()
+  .max(500)
+  .regex(
+    /^$|^FREQ=(SECONDLY|MINUTELY|HOURLY|DAILY|WEEKLY|MONTHLY|YEARLY)(;[A-Z]+=[^;]+)*$/i,
+    'rrule must be an RFC 5545 rule starting with FREQ=',
+  );
+const AttendeesField = z.array(z.string().email()).max(100);
+
+export const CalendarListEventsSchema = z.object({
+  from: DateTimeField,
+  to: DateTimeField,
+  calendar_id: CalendarIdField.optional(),
+  timezone: TimezoneField,
+});
+
+export const CalendarEventIdSchema = z.object({
+  event_id: EventIdField,
+});
+
+export const CalendarCreateEventSchema = z.object({
+  title: z.string({ required_error: 'title is required' }).min(1, 'title cannot be empty').max(500),
+  start: DateTimeField,
+  end: DateTimeField,
+  calendar_id: CalendarIdField.optional(),
+  description: z.string().max(10000).optional(),
+  location: z.string().max(1000).optional(),
+  attendees: AttendeesField.optional(),
+  rrule: RRuleField.optional(),
+  fullday: z.boolean().optional(),
+  timezone: TimezoneField,
+  freebusy: z.enum(['busy', 'free']).optional(),
+  private: z.boolean().optional(),
+});
+
+export const CalendarUpdateEventSchema = z.object({
+  event_id: EventIdField,
+  title: z.string().min(1).max(500).optional(),
+  start: DateTimeField.optional(),
+  end: DateTimeField.optional(),
+  calendar_id: CalendarIdField.optional(),
+  description: z.string().max(10000).optional(),
+  location: z.string().max(1000).optional(),
+  attendees: AttendeesField.optional(),
+  rrule: RRuleField.optional(),
+  fullday: z.boolean().optional(),
+  timezone: TimezoneField,
+  freebusy: z.enum(['busy', 'free']).optional(),
+  private: z.boolean().optional(),
+  notify_attendees: z.boolean().optional(),
+});
+
+export const CalendarDeleteEventSchema = z.object({
+  event_id: EventIdField,
+  calendar_id: CalendarIdField.optional(),
+});

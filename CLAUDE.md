@@ -4,115 +4,116 @@ This file provides guidance to Claude Code when working with this codebase.
 
 ## Project Overview
 
-This is an MCP (Model Context Protocol) server that provides tools for interacting with the Infomaniak API. It allows AI assistants to manage Infomaniak services including domains, DNS, email, web hosting, kDrive, Swiss Backup, VPS, dedicated servers, SSL certificates, and invoicing.
+MCP (Model Context Protocol) server for the Infomaniak API. It lets AI assistants manage
+Infomaniak services: domains and DNS, mail hosting, web hosting, kDrive files, kSuite
+Calendar events, Swiss Backup, VPS, dedicated servers, SSL certificates, invoicing and kChat.
+
+Read `SECURITY_AUDIT.md` before changing anything security related (transport, policy, tokens).
 
 ## Tech Stack
 
-- **Language**: TypeScript (ES2022)
-- **Module System**: Node16 ESM
-- **Runtime**: Node.js >= 18
-- **Key Dependencies**:
-  - `@modelcontextprotocol/sdk` - MCP server SDK
-  - `zod` - Schema validation
-- **Build Output**: `./build/`
+- **Language**: TypeScript (ES2022), Node16 ESM, Node.js >= 18
+- **Key dependencies**: `@modelcontextprotocol/sdk` (>= 1.30), `zod`, `express`, `cors`
+- **Tests**: Vitest (+ supertest for HTTP)
+- **Build output**: `./build/` (tests excluded via `tsconfig.build.json`)
 
 ## Project Structure
 
 ```
 src/
-├── index.ts              # MCP server entry point, tool definitions and handlers
-└── infomaniak-client.ts  # Infomaniak API client with typed methods
+├── index.ts                  # Entry point: env parsing, clients, policy, transport selection
+├── server.ts                 # createMcpServer(): core tools + module composition + policy enforcement
+├── infomaniak-client.ts      # Infomaniak REST client (rate limit, retries, JSON + binary requests)
+├── calendar-client.ts        # kSuite Calendar client (/1/calendar/pim/*), date/timezone helpers
+├── kchat-client.ts           # kChat (Mattermost-compatible) client
+├── schemas.ts                # Zod schemas for every tool input + validate()
+├── tools/
+│   ├── module.ts             # ToolModule interface (tools + canHandle + handle)
+│   ├── policy.ts             # read/write/destructive classification, annotations, read-only / raw-API policy
+│   ├── kdrive.ts             # kDrive tool module (28 tools)
+│   └── calendar.ts           # Calendar tool module (6 tools)
+└── transports/
+    ├── stdio.ts              # stdio transport (default)
+    └── http.ts               # Streamable HTTP transport: bearer auth, Host/Origin checks, session store
 ```
 
 ## Build and Run Commands
 
 ```bash
-npm install          # Install dependencies
-npm run build        # Compile TypeScript to build/
-npm run dev          # Watch mode for development
-npm start            # Run the built server
-npm test             # Run unit tests
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage report
-npm run typecheck    # Type check without emitting
-npm run inspector    # Test with MCP Inspector (requires INFOMANIAK_API_TOKEN env var)
+npm install            # (if npm 10 fails with "edgesOut", use: npx -y npm@12 install)
+npm run build          # Compile to build/ (tsconfig.build.json)
+npm run dev            # Watch mode
+npm start              # Run the built server
+npm test               # Unit + integration tests (vitest)
+npm run typecheck      # tsc --noEmit (includes tests)
+npm audit              # Must stay at 0 vulnerabilities
+npm run inspector      # MCP Inspector (requires INFOMANIAK_API_TOKEN)
 ```
 
 ## Architecture
 
-### MCP Server (`src/index.ts`)
-- Defines 50+ tools organized by service category (domains, mail, hosting, etc.)
-- Uses stdio transport for communication
-- Requires `INFOMANIAK_API_TOKEN` environment variable
-- Each tool maps to one or more `InfomaniakClient` methods
+### Tool catalog and policy (`src/server.ts`, `src/tools/policy.ts`)
+- `buildToolCatalog()` merges the core `tools` array with the tool modules, annotates every
+  tool (`readOnlyHint`, `destructiveHint`, ...) from its **name** (`classifyTool`), and
+  filters by policy:
+  - `INFOMANIAK_READ_ONLY=true` → only `readOnlyHint` tools are listed *and* callable.
+  - `infomaniak_api_call` is hidden unless `INFOMANIAK_ALLOW_RAW_API=true`; in read-only
+    mode it only accepts `GET`.
+  - kChat / Calendar tools appear only when their client is configured.
+- `createMcpServer(client, options)` enforces the policy in the `tools/call` handler too
+  (never rely on listing alone).
 
-### API Client (`src/infomaniak-client.ts`)
-- Base URL: `https://api.infomaniak.com`
-- Authentication: OAuth 2.0 Bearer Token
-- Rate Limit: 60 requests/minute
-- Typed interfaces for all API responses
+### API clients
+- `InfomaniakClient` (`https://api.infomaniak.com`, fixed): token bucket 60 req/min, retries on
+  429/5xx, 30 s timeout. `request()` for JSON, `requestBinary()` for uploads/downloads
+  (size caps). **Always** wrap string path segments with `seg()`.
+- kDrive endpoints follow Infomaniak's official `mcp-server-kdrive` / Android app: v3
+  `/3/drive/{id}/files/{dir}/files`, `/files/{parent}/directory`, `/files/{id}/move/{dest}`,
+  `/files/{id}/copy/{dest}`, `/upload`, `/trash`; v2 `/files/{id}/rename`, `/files/{id}`
+  (DELETE), `/files/{id}/link`, `/files/{id}/download`, `/trash/{id}/restore`. Root dir id = 1.
+- `CalendarClient` wraps an `InfomaniakClient` (possibly with a different token). The API is
+  user scoped; dates are `YYYY-MM-DD HH:mm:ss` wall-clock + IANA timezone (`toApiDateTime`).
 
-### Validation (`src/schemas.ts`)
-- Zod schemas for all tool inputs
-- `validate()` helper function for runtime validation
-- Provides clear error messages with field paths
-
-### Tests (`src/*.test.ts`)
-- Unit tests for `InfomaniakClient` with mocked fetch
-- Validation schema tests for all input types
-- Uses Vitest framework
-
-## Tool Categories
-
-1. **Profile & Account**: ping, profile, accounts, products
-2. **Domains**: list domains, get domain details
-3. **DNS**: full CRUD for DNS records (A, AAAA, CNAME, MX, TXT, NS, SRV, CAA)
-4. **Mail Services**: manage mailboxes and aliases
-5. **Web Hosting**: sites, PHP versions, databases
-6. **kDrive**: list and get kDrive details
-7. **Swiss Backup**: backup products and slots
-8. **VPS**: list, get, reboot, shutdown, boot
-9. **Dedicated Servers**: list, get, reboot
-10. **SSL Certificates**: list and get certificates
-11. **Invoicing**: list and get invoices
-12. **Generic API**: custom API calls for advanced operations
+### HTTP transport (`src/transports/http.ts`)
+- `createHttpApp(createServer, options)` is the testable core; `startHttpServer` listens.
+- Auth token mandatory (`MCP_HTTP_AUTH_TOKEN`), loopback bind by default, Host header
+  validation (SDK middleware), Origin guard + opt-in CORS, session cap + TTL, no session
+  listing, generic 500s. Keep it that way.
 
 ## Development Guidelines
 
-### Adding a New Tool
+### Adding a tool
+1. Add a Zod schema in `src/schemas.ts`.
+2. **Core services**: add the definition to `tools` in `src/server.ts` and a `case` in
+   `handleToolCall`. **kDrive / Calendar**: add to the module in `src/tools/`.
+3. Name it `infomaniak_<verb>_<object>` using `list_/get_/search_/download_` for read-only
+   tools and `delete_/empty_/reboot_/shutdown_/remove_/renew_` for destructive ones — the
+   policy and annotations are derived from the name (see `classifyTool` tests).
+4. Add a client method; encode path segments with `seg()`.
+5. Tests: `src/server.test.ts` has a test that calls every listed tool; add unit tests for the
+   client method (mocked `fetch`) and the schema.
 
-1. Add tool definition to the `tools` array in `src/index.ts` with:
-   - `name`: Prefixed with `infomaniak_`
-   - `description`: Clear description of what it does
-   - `inputSchema`: JSON Schema for parameters
-
-2. Add the handler in the `switch` statement in `CallToolRequestSchema` handler
-
-3. If needed, add corresponding method to `InfomaniakClient` class with proper TypeScript types
-
-### API Endpoint Patterns
-
-- API version is in the path: `/1/` (v1) or `/2/` (v2 for kDrive)
-- Account-scoped endpoints: `/1/account/{account_id}/...`
-- Service-specific: `/1/domain/`, `/1/mail/`, `/1/web/`, etc.
-
-### Type Safety
-
-- All API responses use the `ApiResponse<T>` wrapper type
-- Create specific interfaces for response data types
-- Use `unknown` for endpoints where response structure isn't fully typed
+### API endpoint patterns
+- Version in path: `/1/...`, `/2/...` (drive, profile), `/3/...` (drive v3).
+- Never build URLs from unvalidated strings; never add hosts other than the fixed base URL.
+- Endpoints not verified against a live account: mail admin (`/1/mail/...`, official docs use
+  `/1/mail_hostings/{id}/mailboxes/{mailbox_name}`), `/1/domain/account/{id}`, `/1/vps`,
+  `/1/dedicated`. Verify on a test account before relying on them.
 
 ## Testing
 
-Use the MCP Inspector for testing:
-
 ```bash
+npm test
 INFOMANIAK_API_TOKEN=your-token npm run inspector
+# HTTP mode
+MCP_TRANSPORT=http MCP_HTTP_AUTH_TOKEN=$(openssl rand -hex 32) INFOMANIAK_API_TOKEN=... npm start
 ```
 
 ## Common Issues
 
-- **401 errors**: Invalid or expired API token
-- **403 errors**: Token missing required scope
-- **429 errors**: Rate limit exceeded (60 req/min)
-- Build errors: Ensure `npm install` was run and TypeScript is installed
+- **401**: invalid/expired token. **403**: token missing a scope (kDrive: `drive`; calendar:
+  `workspace:calendar user_info`). **429**: rate limit (60 req/min).
+- **"HTTP transport requires MCP_HTTP_AUTH_TOKEN"**: expected — set a shared secret.
+- **Calendar "No calendar found"**: the calendar token must belong to the mailbox user.
+- **kDrive "Only directory can be created here"**: files cannot be uploaded to the drive
+  root or category folders; use a sub-directory.

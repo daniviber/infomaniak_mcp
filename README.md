@@ -1,73 +1,69 @@
 # Infomaniak MCP Server
 
-[![npm version](https://badge.fury.io/js/infomaniak-mcp-server.svg)](https://www.npmjs.com/package/infomaniak-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/YOUR_USERNAME/infomaniak-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/infomaniak-mcp-server/actions/workflows/ci.yml)
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for interacting with the [Infomaniak API](https://developer.infomaniak.com/). This server enables AI assistants like Claude to manage Infomaniak services including domains, email, web hosting, kDrive, and more.
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for the
+[Infomaniak API](https://developer.infomaniak.com/). It lets AI assistants such as Claude
+manage Infomaniak services: domains and DNS, mail hosting, web hosting, **kDrive files**,
+**kSuite Calendar events**, Swiss Backup, VPS, dedicated servers, certificates, invoices and kChat.
 
-<p align="center">
-  <img src="https://www.infomaniak.com/img/common/logo_infomaniak.jpg" alt="Infomaniak" height="60">
-</p>
+> **Security first.** Read [SECURITY_AUDIT.md](SECURITY_AUDIT.md). In short: the HTTP
+> transport requires a shared secret, the generic API tool is disabled by default, a
+> read-only mode exists, and every tool carries MCP annotations (`readOnlyHint`,
+> `destructiveHint`). Use API tokens with the **minimum scopes** you need.
 
 ## ✨ Features
 
-- 🌐 **Domain Management** - List domains, full DNS record CRUD operations
-- 📧 **Email Services** - Manage mailboxes, aliases, and mail configurations  
-- 🖥️ **Web Hosting** - Manage sites, PHP versions, and MySQL databases
-- 💾 **kDrive** - Access and manage kDrive cloud storage
-- 🔒 **Swiss Backup** - View and manage backup products
-- 🖧 **VPS & Servers** - Control VPS instances and dedicated servers
-- 📜 **SSL Certificates** - View certificate information
-- 💰 **Invoicing** - Access billing and invoice data
-- 🔧 **Generic API** - Make custom API calls for advanced operations
+- 🌐 **Domains & DNS** – list domains, nameservers, full DNS record CRUD
+- 📧 **Mail hosting** – mailboxes, aliases, redirections, autoresponder
+- 🖥️ **Web hosting** – sites, databases, cron jobs, FTP accounts
+- 💾 **kDrive** – browse, search, download, upload, move/copy/rename, trash & restore, share links, invitations, favourites, activity
+- 📅 **Calendar** – list calendars, list/get/create/update/delete events (attendees, recurrence, timezones)
+- 🔒 **Swiss Backup**, 🖧 **VPS & dedicated servers**, 📜 **SSL certificates**, 💰 **Invoicing**
+- 💬 **kChat** (optional) – teams, channels, posts, users
+- 🛡️ **Policy** – read-only mode, opt-in raw API tool, per-tool annotations
+- 🔧 **Generic API call** (opt-in) for endpoints not covered by a dedicated tool
 
 ## 📋 Prerequisites
 
 - Node.js 18 or higher
-- An Infomaniak account with API access
-- An API token from Infomaniak
+- An Infomaniak account and one or more API tokens
 
-## 🔑 Getting Your API Token
+## 🔑 API tokens and scopes
 
-1. Log in to your [Infomaniak Manager](https://manager.infomaniak.com)
-2. Navigate to **Account** → **API Tokens** or visit [token management](https://manager.infomaniak.com/v3/ng/accounts/token/list)
-3. Click **"Create a token"**
-4. Select the appropriate scopes for your needs:
-   - `account` - Account management
-   - `domain` - Domain management
-   - `mail` - Email services
-   - `web` - Web hosting
-   - `drive` - kDrive access
-   - `swiss_backup` - Backup services
-   - `vps` - VPS management
-   - `dedicated` - Dedicated servers
-   - `certificate` - SSL certificates
-   - `invoicing` - Billing access
-5. Copy and securely store your token
+Create tokens at **Manager → Account → API tokens**
+(<https://manager.infomaniak.com/v3/ng/accounts/token/list>). Create **one token per
+purpose** with the smallest scope set:
+
+| Need | Scopes | Env variable |
+|------|--------|--------------|
+| Domains, mail hosting, web hosting, backups, servers, invoices | `domain`, `mail`, `web`, `swiss_backup`, `vps`, `dedicated`, `certificate`, `invoicing` (pick what you use) | `INFOMANIAK_API_TOKEN` |
+| kDrive files | `drive` | `INFOMANIAK_API_TOKEN` |
+| **Calendar of a mailbox** | `workspace:calendar`, `user_info` | `INFOMANIAK_CALENDAR_TOKEN` |
+
+### Calendar of a specific mailbox
+
+The Infomaniak Calendar API is **user scoped**: a token sees the calendars of the user who
+created it. To work with the calendar of a given mailbox:
+
+1. Log in to the Manager **as the user of that mailbox** (its e-mail address);
+2. create a token with scopes `workspace:calendar` and `user_info`;
+3. set it as `INFOMANIAK_CALENDAR_TOKEN`. The main token keeps serving everything else.
+
+If you only need calendar access, the same token can be used for both variables.
 
 ## 📦 Installation
 
-### Using npm (recommended)
-
 ```bash
-npm install -g infomaniak-mcp-server
-```
-
-### From source
-
-```bash
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-npm install
+git clone <this repository>
+cd infomaniak_mcp
+npm install          # if npm 10 fails with "edgesOut": npx -y npm@12 install
 npm run build
 ```
 
 ## ⚙️ Configuration
 
-### Claude Desktop
-
-Add to your Claude Desktop configuration file:
+### Claude Desktop (stdio)
 
 | OS | Path |
 |----|------|
@@ -79,319 +75,265 @@ Add to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "infomaniak": {
-      "command": "npx",
-      "args": ["-y", "infomaniak-mcp-server"],
-      "env": {
-        "INFOMANIAK_API_TOKEN": "your-api-token-here"
-      }
-    }
-  }
-}
-```
-
-Or if installed globally or from source:
-
-```json
-{
-  "mcpServers": {
-    "infomaniak": {
       "command": "node",
-      "args": ["/path/to/infomaniak-mcp-server/build/index.js"],
+      "args": ["/path/to/infomaniak_mcp/build/index.js"],
       "env": {
-        "INFOMANIAK_API_TOKEN": "your-api-token-here"
+        "INFOMANIAK_API_TOKEN": "token-with-drive-scope",
+        "INFOMANIAK_CALENDAR_TOKEN": "token-of-the-mailbox-user",
+        "INFOMANIAK_READ_ONLY": "false"
       }
     }
   }
 }
 ```
 
-### Environment Variables
+### Environment variables
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `INFOMANIAK_API_TOKEN` | Yes | - | Your Infomaniak API token |
-| `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
-| `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
-| `MCP_STATELESS` | No | `false` | Set to `true` for stateless mode |
+| `INFOMANIAK_API_TOKEN` | Yes | – | Main Infomaniak API token |
+| `INFOMANIAK_CALENDAR_TOKEN` | No | main token | Token created as the mailbox user (`workspace:calendar user_info`) |
+| `INFOMANIAK_DISABLE_CALENDAR` | No | `false` | Hide calendar tools |
+| `INFOMANIAK_READ_ONLY` | No | `false` | Expose only read tools (list/get/search/download); `infomaniak_api_call` limited to GET |
+| `INFOMANIAK_ALLOW_RAW_API` | No | `false` | Expose `infomaniak_api_call` (whole API surface of the token) |
+| `KDRIVE_MAX_DOWNLOAD_BYTES` | No | `10485760` | Max size returned by `infomaniak_download_kdrive_file` |
+| `KDRIVE_MAX_UPLOAD_BYTES` | No | `52428800` | Max size accepted by `infomaniak_upload_kdrive_file` |
+| `KCHAT_HOST`, `KCHAT_TOKEN` | No | – | Enable kChat tools (`team.kchat.infomaniak.com`, personal access token) |
+| `MCP_TRANSPORT` | No | `stdio` | `stdio` or `http` |
+| `MCP_HOST` | No | `127.0.0.1` | HTTP bind address (use `0.0.0.0` only behind a TLS reverse proxy) |
+| `MCP_PORT` / `PORT` | No | `3000` | HTTP port |
+| `MCP_HTTP_AUTH_TOKEN` | HTTP: yes | – | Shared secret (≥ 16 chars) sent as `Authorization: Bearer …` |
+| `MCP_HTTP_ALLOW_UNAUTHENTICATED` | No | `false` | Run HTTP without auth (loopback only, **not recommended**) |
+| `MCP_ALLOWED_HOSTS` | No | loopback names | Comma-separated Host header allow-list (DNS rebinding protection) |
+| `MCP_CORS_ORIGINS` | No | none | Comma-separated browser origins allowed to call the server (`*` refused) |
+| `MCP_MAX_SESSIONS` | No | `100` | Max concurrent HTTP sessions |
+| `MCP_SESSION_TTL_MS` | No | `1800000` | Idle session lifetime |
+| `MCP_HTTP_BODY_LIMIT` | No | `20mb` | JSON body limit (uploads travel base64 in JSON-RPC) |
+| `MCP_STATELESS` | No | `false` | Stateless HTTP mode (no sessions) |
 
-## 🌐 HTTP Transport
+See [`.env.example`](.env.example).
 
-The server supports HTTP transport with SSE streaming, enabling web-based MCP clients and remote connections.
-
-### Starting in HTTP Mode
+## 🌐 HTTP transport
 
 ```bash
-# Using npx
-MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token npx infomaniak-mcp-server
-
-# From source
-MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/index.js
+export MCP_HTTP_AUTH_TOKEN=$(openssl rand -hex 32)
+MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=... node build/index.js
 ```
 
-### HTTP Endpoints
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/health` | GET | no | Liveness check (`{"status":"ok"}`) |
+| `/mcp` | POST | Bearer | JSON-RPC messages (`initialize`, `tools/list`, `tools/call`, …) |
+| `/mcp` | GET | Bearer | SSE stream for server-to-client notifications (stateful mode) |
+| `/mcp` | DELETE | Bearer | Terminate the session given in `Mcp-Session-Id` |
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check - returns server status |
-| `/mcp` | POST | Send JSON-RPC messages (initialize, tool calls, etc.) |
-| `/mcp` | GET | Open SSE stream for server-to-client notifications |
-| `/mcp` | DELETE | Terminate a session |
-| `/mcp/sessions` | GET | List active sessions (for debugging) |
+Requests without a valid `Authorization: Bearer <MCP_HTTP_AUTH_TOKEN>` get `401`. Requests
+whose `Host` is not loopback (or not in `MCP_ALLOWED_HOSTS`) get `403`; browser requests from
+origins not in `MCP_CORS_ORIGINS` get `403`.
 
-### Session Modes
+```javascript
+const headers = {
+  "Content-Type": "application/json",
+  Accept: "application/json, text/event-stream",
+  Authorization: `Bearer ${process.env.MCP_HTTP_AUTH_TOKEN}`,
+};
+const init = await fetch("http://127.0.0.1:3000/mcp", {
+  method: "POST",
+  headers,
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "initialize",
+    params: { protocolVersion: "2025-03-26", capabilities: {}, clientInfo: { name: "my-client", version: "1.0.0" } },
+  }),
+});
+const sessionId = init.headers.get("Mcp-Session-Id");
+await fetch("http://127.0.0.1:3000/mcp", {
+  method: "POST",
+  headers: { ...headers, "Mcp-Session-Id": sessionId },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list" }),
+});
+```
 
-- **Stateful** (default): Maintains session state across requests. Each client gets a unique session ID returned in the `Mcp-Session-Id` header after initialization.
-- **Stateless**: Each request is independent. Set `MCP_STATELESS=true` for serverless deployments.
-
-### Docker Deployment
+### Docker
 
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
-RUN npm install -g infomaniak-mcp-server
-ENV MCP_TRANSPORT=http
-ENV MCP_PORT=3000
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY build ./build
+ENV MCP_TRANSPORT=http MCP_HOST=0.0.0.0 MCP_PORT=3000
 EXPOSE 3000
-CMD ["infomaniak-mcp-server"]
+CMD ["node", "build/index.js"]
 ```
 
 ```bash
-# Build and run
-docker build -t infomaniak-mcp .
-docker run -p 3000:3000 -e INFOMANIAK_API_TOKEN=your-token infomaniak-mcp
+docker run -p 127.0.0.1:3000:3000 \
+  -e INFOMANIAK_API_TOKEN=... \
+  -e MCP_HTTP_AUTH_TOKEN="$(openssl rand -hex 32)" \
+  -e MCP_ALLOWED_HOSTS=mcp.example.com \
+  infomaniak-mcp
 ```
 
-### Connecting from Web Clients
+Terminate TLS in a reverse proxy in front of the container.
 
-```javascript
-// Step 1: Initialize session
-const initResponse = await fetch('http://localhost:3000/mcp', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json, text/event-stream'
-  },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    method: 'initialize',
-    params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'my-client', version: '1.0.0' } },
-    id: 1
-  })
-});
-const sessionId = initResponse.headers.get('Mcp-Session-Id');
+## 🛠️ Available tools
 
-// Step 2: Use session for subsequent requests
-const response = await fetch('http://localhost:3000/mcp', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json, text/event-stream',
-    'Mcp-Session-Id': sessionId
-  },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    method: 'tools/list',
-    id: 2
-  })
-});
-```
+Every tool is annotated. Read tools (`list_`, `get_`, `search_`, `download_`) have
+`readOnlyHint: true`; irreversible or high-impact tools (`delete_`, `empty_`, `reboot_`,
+`shutdown_`, `remove_`, `renew_`) have `destructiveHint: true`.
 
-## 🛠️ Available Tools
+### kDrive
 
-### Account & Profile
+Root directory id is `1`. List endpoints are paginated: pass back `cursor` while `has_more` is true.
 
 | Tool | Description |
 |------|-------------|
-| `infomaniak_ping` | Test API connectivity |
-| `infomaniak_get_profile` | Get current user profile |
-| `infomaniak_list_accounts` | List all accessible accounts |
-| `infomaniak_get_account` | Get account details |
-| `infomaniak_list_products` | List account products |
+| `infomaniak_list_kdrives` / `infomaniak_get_kdrive` | Drives of an account / drive details |
+| `infomaniak_list_kdrive_files` | List a directory (type filter, sort, cursor) |
+| `infomaniak_get_kdrive_file` | File/directory metadata (path, size, mime, sharing) |
+| `infomaniak_search_kdrive_files` | Search by name, scoped to a directory, depth, date range |
+| `infomaniak_download_kdrive_file` | Download content (UTF-8 text auto-detected, else base64) |
+| `infomaniak_upload_kdrive_file` | Upload text or base64 content into a directory |
+| `infomaniak_create_kdrive_directory` | Create a directory |
+| `infomaniak_move_kdrive_file` / `infomaniak_copy_kdrive_file` / `infomaniak_rename_kdrive_file` | Organise |
+| `infomaniak_delete_kdrive_file` | Move to trash |
+| `infomaniak_list_kdrive_trash` / `infomaniak_restore_kdrive_file` | Trash listing and restore |
+| `infomaniak_delete_kdrive_trashed_file_permanently` / `infomaniak_empty_kdrive_trash` | Irreversible deletions |
+| `infomaniak_share_kdrive_file` / `infomaniak_get_kdrive_share_link` / `infomaniak_update_kdrive_share_link` / `infomaniak_delete_kdrive_share_link` | Public share links (public / password / inherit, expiry, download/edit rights) |
+| `infomaniak_invite_kdrive_access` / `infomaniak_list_kdrive_file_access` | Share with people by e-mail; list who has access |
+| `infomaniak_list_kdrive_favorites` / `infomaniak_add_kdrive_favorite` / `infomaniak_remove_kdrive_favorite` | Favourites |
+| `infomaniak_list_kdrive_recents` / `infomaniak_list_kdrive_shared_with_me` | Recent items, items shared with me |
+| `infomaniak_get_kdrive_activity` | Activity log of a drive or a file |
 
-### Domain Management
+### Calendar
 
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_domains` | List all domains |
-| `infomaniak_get_domain` | Get domain details |
-| `infomaniak_list_dns_records` | List DNS records |
-| `infomaniak_create_dns_record` | Create DNS record (A, AAAA, CNAME, MX, TXT, etc.) |
-| `infomaniak_update_dns_record` | Update DNS record |
-| `infomaniak_delete_dns_record` | Delete DNS record |
-
-### Email Services
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_mail_services` | List mail services |
-| `infomaniak_get_mail_service` | Get mail service details |
-| `infomaniak_list_mailboxes` | List mailboxes |
-| `infomaniak_get_mailbox` | Get mailbox details |
-| `infomaniak_create_mailbox` | Create new mailbox |
-| `infomaniak_update_mailbox` | Update mailbox |
-| `infomaniak_delete_mailbox` | Delete mailbox |
-| `infomaniak_add_mailbox_alias` | Add email alias |
-| `infomaniak_delete_mailbox_alias` | Remove email alias |
-
-### Web Hosting
+Dates: `YYYY-MM-DD HH:mm:ss` (wall-clock in the calendar timezone) or ISO 8601 with offset.
+`YYYY-MM-DD` alone covers a whole day in `list_events`.
 
 | Tool | Description |
 |------|-------------|
-| `infomaniak_list_web_hostings` | List web hostings |
-| `infomaniak_get_web_hosting` | Get hosting details |
-| `infomaniak_list_sites` | List sites |
-| `infomaniak_get_site` | Get site details |
-| `infomaniak_create_site` | Create new site |
-| `infomaniak_update_site` | Update site |
-| `infomaniak_delete_site` | Delete site |
-| `infomaniak_list_databases` | List databases |
-| `infomaniak_get_database` | Get database details |
-| `infomaniak_create_database` | Create database |
-| `infomaniak_delete_database` | Delete database |
+| `infomaniak_calendar_list_calendars` | Calendars of the calendar token owner |
+| `infomaniak_calendar_list_events` | Events between `from` and `to` (optional `calendar_id`, `timezone`) |
+| `infomaniak_calendar_get_event` | Full event details |
+| `infomaniak_calendar_create_event` | Create (title, start, end, description, location, attendees, rrule, fullday, private) |
+| `infomaniak_calendar_update_event` | Update provided fields only; `rrule: ""` removes recurrence |
+| `infomaniak_calendar_delete_event` | Delete an event |
 
-### Cloud Storage
+### Account, domains, DNS
 
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_kdrives` | List kDrives |
-| `infomaniak_get_kdrive` | Get kDrive details |
-| `infomaniak_list_swiss_backups` | List Swiss Backups |
-| `infomaniak_get_swiss_backup` | Get backup details |
-| `infomaniak_list_swiss_backup_slots` | List backup slots |
+`infomaniak_ping`, `infomaniak_get_profile`, `infomaniak_list_accounts`, `infomaniak_get_account`,
+`infomaniak_list_products`, `infomaniak_list_domains`, `infomaniak_get_domain`,
+`infomaniak_get_domain_nameservers`, `infomaniak_update_domain_nameservers`, `infomaniak_renew_domain`,
+`infomaniak_list_dns_records`, `infomaniak_create_dns_record`, `infomaniak_update_dns_record`,
+`infomaniak_delete_dns_record`
 
-### Infrastructure
+### Mail hosting
 
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_vps` | List VPS instances |
-| `infomaniak_get_vps` | Get VPS details |
-| `infomaniak_reboot_vps` | Reboot VPS |
-| `infomaniak_shutdown_vps` | Shutdown VPS |
-| `infomaniak_boot_vps` | Boot VPS |
-| `infomaniak_list_dedicated_servers` | List dedicated servers |
-| `infomaniak_get_dedicated_server` | Get server details |
-| `infomaniak_reboot_dedicated_server` | Reboot server |
+`infomaniak_list_mail_services`, `infomaniak_get_mail_service`, `infomaniak_list_mailboxes`,
+`infomaniak_get_mailbox`, `infomaniak_create_mailbox`, `infomaniak_update_mailbox`,
+`infomaniak_delete_mailbox`, `infomaniak_add_mailbox_alias`, `infomaniak_delete_mailbox_alias`,
+`infomaniak_list_email_redirections`, `infomaniak_create_email_redirection`,
+`infomaniak_delete_email_redirection`, `infomaniak_get_mailbox_autoresponder`,
+`infomaniak_update_mailbox_autoresponder`, `infomaniak_list_mailbox_folders`
 
-### Certificates & Billing
+> These administrative mail endpoints were inherited from the original project and have not
+> been verified against a live account (the official documentation uses
+> `/1/mail_hostings/{id}/mailboxes/{mailbox_name}`). Test on a non-production hosting first.
 
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_certificates` | List SSL certificates |
-| `infomaniak_get_certificate` | Get certificate details |
-| `infomaniak_list_invoices` | List invoices |
-| `infomaniak_get_invoice` | Get invoice details |
+### Web hosting
 
-### Advanced
+`infomaniak_list_web_hostings`, `infomaniak_get_web_hosting`, `infomaniak_list_sites`,
+`infomaniak_get_site`, `infomaniak_create_site`, `infomaniak_update_site`, `infomaniak_delete_site`,
+`infomaniak_list_databases`, `infomaniak_get_database`, `infomaniak_create_database`,
+`infomaniak_delete_database`, `infomaniak_list_cron_jobs`, `infomaniak_create_cron_job`,
+`infomaniak_update_cron_job`, `infomaniak_delete_cron_job`, `infomaniak_list_ftp_accounts`,
+`infomaniak_create_ftp_account`, `infomaniak_update_ftp_account`, `infomaniak_delete_ftp_account`
 
-| Tool | Description |
-|------|-------------|
-| `infomaniak_api_call` | Make custom API calls to any endpoint |
+### Backups, servers, certificates, invoices
 
-## 💬 Usage Examples
+`infomaniak_list_swiss_backups`, `infomaniak_get_swiss_backup`, `infomaniak_list_swiss_backup_slots`,
+`infomaniak_list_vps`, `infomaniak_get_vps`, `infomaniak_reboot_vps`, `infomaniak_shutdown_vps`,
+`infomaniak_boot_vps`, `infomaniak_list_dedicated_servers`, `infomaniak_get_dedicated_server`,
+`infomaniak_reboot_dedicated_server`, `infomaniak_list_certificates`, `infomaniak_get_certificate`,
+`infomaniak_list_invoices`, `infomaniak_get_invoice`
 
-### List all accounts
+### kChat (when `KCHAT_HOST`/`KCHAT_TOKEN` are set)
+
+`infomaniak_kchat_get_me`, `infomaniak_kchat_list_teams`, `infomaniak_kchat_list_my_teams`,
+`infomaniak_kchat_list_channels`, `infomaniak_kchat_list_my_channels`, `infomaniak_kchat_get_channel`,
+`infomaniak_kchat_get_channel_posts`, `infomaniak_kchat_create_post`, `infomaniak_kchat_delete_post`,
+`infomaniak_kchat_search_posts`, `infomaniak_kchat_create_direct`, `infomaniak_kchat_search_users`,
+`infomaniak_kchat_list_users`
+
+### Advanced (opt-in)
+
+`infomaniak_api_call` – arbitrary `GET/POST/PUT/PATCH/DELETE` on any endpoint. Hidden unless
+`INFOMANIAK_ALLOW_RAW_API=true`; restricted to `GET` in read-only mode.
+
+## 💬 Usage examples
+
 ```
-"List all my Infomaniak accounts"
-```
-
-### Manage DNS Records
-```
-"Add an A record for www.example.com pointing to 192.168.1.100"
-"Show all DNS records for mydomain.ch"
-"Delete the TXT record with ID 12345 from example.com"
-```
-
-### Create a Mailbox
-```
-"Create a new email address info@mydomain.com with password SecurePass123"
-```
-
-### Check Infrastructure
-```
-"Show me the status of all my VPS instances"
-"Reboot my VPS with ID 456"
+"List the files in the 'Common documents' folder of my kDrive 12345"
+"Search my kDrive for 'contrat 2025' and download the PDF"
+"Upload this text as notes.md into folder 678 of kDrive 12345"
+"Create a share link protected by a password for file 9876, valid until next Friday"
+"What do I have in my calendar next week?"
+"Create a meeting 'Point projet' on 2025-05-28 from 10:00 to 11:00 with a@example.com and b@example.com"
+"Move the 'Budget' event to Thursday 14:00"
 ```
 
-### Custom API Call
-```
-"Make a GET request to /1/account to see all account details"
-```
+## 🔒 Security notes
 
-## 🔧 Development
+- **Tokens with minimal scopes**, one per purpose. The server only talks to
+  `https://api.infomaniak.com` (and `https://<KCHAT_HOST>` for kChat).
+- **Start in read-only mode** (`INFOMANIAK_READ_ONLY=true`) while exploring.
+- **Prompt injection**: file names, downloaded content, chat messages and event
+  descriptions are third-party content that the model reads. Keep destructive tools
+  disabled (read-only mode) when processing untrusted data.
+- **Passwords** given to `create_mailbox`, `create_ftp_account` or password-protected
+  share links pass through the conversation history.
+- HTTP mode: always behind TLS, always with `MCP_HTTP_AUTH_TOKEN`, bind to loopback
+  unless a reverse proxy sits in front.
 
-### Setup
+## ⚠️ API rate limits
 
-```bash
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-npm install
-```
-
-### Build
-
-```bash
-npm run build
-```
-
-### Watch Mode
-
-```bash
-npm run dev
-```
-
-### Test with MCP Inspector
-
-```bash
-INFOMANIAK_API_TOKEN=your-token npm run inspector
-```
-
-## ⚠️ API Rate Limits
-
-The Infomaniak API has a rate limit of **60 requests per minute**. Be mindful of request frequency when using automation.
+The Infomaniak API allows **60 requests per minute**. The client enforces a token bucket and
+retries `429`/`5xx` responses with backoff.
 
 ## 🐛 Troubleshooting
 
-### "INFOMANIAK_API_TOKEN environment variable is required"
-Ensure you've set the `INFOMANIAK_API_TOKEN` in your MCP client configuration.
+| Message | Meaning |
+|---------|---------|
+| `INFOMANIAK_API_TOKEN environment variable is required` | Set the token in the MCP client configuration |
+| `HTTP transport requires MCP_HTTP_AUTH_TOKEN` | Set a shared secret (or explicitly allow unauthenticated loopback use) |
+| `Infomaniak API Error (401)` | Invalid or expired token |
+| `Infomaniak API Error (403)` | Token lacks a scope (`drive`, `workspace:calendar`, …) |
+| `Infomaniak API Error (429)` | Rate limit exceeded |
+| `No calendar found for this token` | The calendar token must belong to the mailbox user and have `workspace:calendar user_info` |
+| `Tool '…' is not available: read-only mode` | Unset `INFOMANIAK_READ_ONLY` to allow writes |
+| `Only directory can be created here` (kDrive) | Files cannot be uploaded to the drive root; use a sub-directory |
 
-### "Infomaniak API Error (401)"
-Your API token may be invalid or expired. Generate a new token from Infomaniak Manager.
+## 🔧 Development
 
-### "Infomaniak API Error (403)"  
-Your token doesn't have the required scope. Create a new token with appropriate permissions.
+```bash
+npm install
+npm run typecheck
+npm test
+npm run build
+INFOMANIAK_API_TOKEN=your-token npm run inspector
+```
 
-### "Infomaniak API Error (429)"
-Rate limit exceeded. Wait before making more requests.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+See [CLAUDE.md](CLAUDE.md) for the architecture and how to add a tool, and
+[CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT – see [LICENSE](LICENSE).
 
 ## 🔗 Resources
 
-- [Infomaniak API Documentation](https://developer.infomaniak.com/docs/api)
-- [Infomaniak Getting Started](https://developer.infomaniak.com/getting-started)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
-
-## 🙏 Acknowledgments
-
-- [Infomaniak](https://www.infomaniak.com/) for their comprehensive API
-- [Anthropic](https://www.anthropic.com/) for the Model Context Protocol
-- The open-source community
-
----
-
-<p align="center">
-  Made with ❤️ for the Infomaniak and MCP community
-</p>
+- [Infomaniak API documentation](https://developer.infomaniak.com/docs/api)
+- Official Infomaniak MCP servers used as references: [kDrive](https://github.com/Infomaniak/mcp-server-kdrive), [Calendar](https://github.com/Infomaniak/mcp-server-calendar), [Mail](https://github.com/Infomaniak/mcp-server-mail)
+- [Model Context Protocol](https://modelcontextprotocol.io/) · [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)

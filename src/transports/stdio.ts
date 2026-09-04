@@ -6,21 +6,15 @@
  */
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { InfomaniakClient } from "../infomaniak-client.js";
-import { KChatClient } from "../kchat-client.js";
-import { createMcpServer } from "../server.js";
+import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 
 /**
  * Start the MCP server with stdio transport
  *
- * @param client - The Infomaniak API client
- * @param kchatClient - Optional kChat API client
+ * @param createServer - Factory building a configured MCP server (see createMcpServer)
  */
-export async function startStdioServer(
-  client: InfomaniakClient,
-  kchatClient?: KChatClient | null,
-): Promise<void> {
-  const server = createMcpServer(client, kchatClient);
+export async function startStdioServer(createServer: () => Server): Promise<void> {
+  const server = createServer();
   const transport = new StdioServerTransport();
 
   await server.connect(transport);

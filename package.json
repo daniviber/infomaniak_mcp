@@ -1,7 +1,7 @@
 {
   "name": "infomaniak-mcp-server",
-  "version": "1.0.0",
-  "description": "MCP Server for Infomaniak API - Manage domains, email, hosting, kDrive and more",
+  "version": "1.1.0",
+  "description": "MCP Server for Infomaniak API - Manage domains, email, hosting, kDrive files, Calendar events and more",
   "type": "module",
   "main": "build/index.js",
   "bin": {
@@ -13,9 +13,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node build/index.js",
-    "dev": "tsc --watch",
+    "dev": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -36,6 +36,7 @@
     "email",
     "hosting",
     "kdrive",
+    "calendar",
     "swiss-backup",
     "vps",
     "switzerland",
@@ -52,7 +53,7 @@
   },
   "homepage": "https://github.com/YOUR_USERNAME/infomaniak-mcp-server#readme",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "zod": "^3.25.76"

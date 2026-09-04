@@ -155,40 +155,89 @@ export interface FtpAccount {
   is_active: boolean;
 }
 
+/** ID of the root directory of every kDrive. */
+export const KDRIVE_ROOT_DIRECTORY_ID = 1;
+
 export interface KDriveFile {
   id: number;
   name: string;
   type: 'dir' | 'file';
-  size: number;
-  created_at: number;
-  updated_at: number;
-  parent_id: number;
+  size?: number;
+  created_at?: number;
+  last_modified_at?: number;
+  added_at?: number;
+  parent_id?: number;
   mime_type?: string;
-  is_shared: boolean;
+  extension_type?: string;
   path?: string;
+  visibility?: string;
+  status?: string;
+  is_favorite?: boolean;
+  [key: string]: unknown;
+}
+
+/** kDrive list endpoints paginate with a cursor: pass `cursor` back while `has_more` is true. */
+export interface KDriveCursorResponse<T> extends ApiResponse<T> {
+  cursor?: string | null;
+  has_more?: boolean;
 }
 
 export interface KDriveShareLink {
   url: string;
+  file_id?: number;
   right: string;
-  valid_until?: string;
-}
-
-export interface KDriveFileVersion {
-  id: number;
-  file_id: number;
-  size: number;
-  created_at: number;
-  created_by: number;
+  valid_until?: number | string | null;
+  capabilities?: Record<string, boolean>;
+  [key: string]: unknown;
 }
 
 export interface KDriveActivity {
   id: number;
   action: string;
-  file_id: number;
-  file_name: string;
-  user_id: number;
   created_at: number;
+  file?: KDriveFile;
+  user?: unknown;
+  [key: string]: unknown;
+}
+
+export interface KDriveListOptions {
+  type?: 'file' | 'dir';
+  cursor?: string;
+  limit?: number;
+  order_by?: string;
+  order?: 'asc' | 'desc';
+}
+
+export interface KDriveSearchOptions {
+  directory_id?: number;
+  depth?: 'child' | 'unlimited';
+  type?: string;
+  modified_after?: string;
+  modified_before?: string;
+  cursor?: string;
+  limit?: number;
+}
+
+export interface KDriveShareLinkOptions {
+  right: 'public' | 'password' | 'inherit';
+  password?: string;
+  /** Unix timestamp (seconds). */
+  valid_until?: number;
+  can_download?: boolean;
+  can_edit?: boolean;
+  can_see_stats?: boolean;
+}
+
+export interface KDriveUploadOptions {
+  directory_id: number;
+  file_name: string;
+  content: Uint8Array;
+  /** What to do when a file with the same name exists (default: rename). */
+  conflict?: 'error' | 'rename' | 'version';
+  /** Optional sub-path (relative to directory_id) created on the fly. */
+  directory_path?: string;
+  /** Unix timestamp (seconds). */
+  last_modified_at?: number;
 }
 
 export interface AutoresponderSettings {
@@ -304,6 +353,34 @@ class TokenBucket {
   }
 }
 
+type QueryParams = Record<string, string | number | boolean | undefined>;
+
+/** Result of a binary (non JSON) API call such as a file download. */
+export interface BinaryResponse {
+  bytes: Uint8Array;
+  contentType: string | null;
+  fileName?: string;
+}
+
+/** Encode a value for safe use as a single URL path segment (prevents path injection). */
+export function seg(value: string | number): string {
+  return encodeURIComponent(String(value));
+}
+
+function parseContentDispositionFileName(header: string | null): string | undefined {
+  if (!header) return undefined;
+  const star = /filename\*=(?:[^']*'[^']*')?([^;]+)/i.exec(header);
+  if (star) {
+    try {
+      return decodeURIComponent(star[1].trim().replace(/^"|"$/g, ''));
+    } catch {
+      /* fall through */
+    }
+  }
+  const plain = /filename="?([^";]+)"?/i.exec(header);
+  return plain ? plain[1].trim() : undefined;
+}
+
 export class InfomaniakClient {
   private readonly token: string;
   private readonly baseUrl: string;
@@ -319,14 +396,8 @@ export class InfomaniakClient {
     this.bucket = new TokenBucket(60, 60);
   }
 
-  private async executeRequest<T>(
-    method: string,
-    path: string,
-    body?: unknown,
-    queryParams?: Record<string, string | number | boolean | undefined>,
-  ): Promise<T> {
+  private buildUrl(path: string, queryParams?: QueryParams): string {
     let url = `${this.baseUrl}${path}`;
-
     if (queryParams) {
       const params = new URLSearchParams();
       for (const [key, value] of Object.entries(queryParams)) {
@@ -335,60 +406,38 @@ export class InfomaniakClient {
       const qs = params.toString();
       if (qs) url += `?${qs}`;
     }
-
-    const options: RequestInit = {
-      method,
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      signal: AbortSignal.timeout(this.timeoutMs),
-    };
-
-    if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
-      options.body = JSON.stringify(body);
-    }
-
-    const response = await fetch(url, options);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage: string;
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorMessage =
-          errorJson.error?.description ?? errorJson.message ?? errorText;
-      } catch {
-        errorMessage = errorText;
-      }
-      const err = new Error(
-        `Infomaniak API Error (${response.status}): ${errorMessage}`,
-      ) as Error & { status: number; retryAfter?: number };
-      err.status = response.status;
-      if (response.status === 429) {
-        const retryAfter = response.headers.get('Retry-After');
-        if (retryAfter) err.retryAfter = parseInt(retryAfter, 10);
-      }
-      throw err;
-    }
-
-    return (await response.json()) as T;
+    return url;
   }
 
-  private async request<T>(
-    method: string,
-    path: string,
-    body?: unknown,
-    queryParams?: Record<string, string | number | boolean | undefined>,
-  ): Promise<T> {
+  private async throwForStatus(response: Response): Promise<never> {
+    const errorText = await response.text();
+    let errorMessage: string;
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorMessage = errorJson.error?.description ?? errorJson.message ?? errorText;
+    } catch {
+      errorMessage = errorText;
+    }
+    const err = new Error(
+      `Infomaniak API Error (${response.status}): ${errorMessage}`,
+    ) as Error & { status: number; retryAfter?: number };
+    err.status = response.status;
+    if (response.status === 429) {
+      const retryAfter = response.headers?.get?.('Retry-After');
+      if (retryAfter) err.retryAfter = parseInt(retryAfter, 10);
+    }
+    throw err;
+  }
+
+  /** Rate-limit (token bucket) and retry 429/5xx responses with exponential backoff. */
+  private async withRetry<T>(fn: () => Promise<T>): Promise<T> {
     await this.bucket.take();
 
     let lastError: Error | undefined;
 
     for (let attempt = 1; attempt <= this.maxAttempts; attempt++) {
       try {
-        return await this.executeRequest<T>(method, path, body, queryParams);
+        return await fn();
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         const status = (error as { status?: number }).status;
@@ -407,6 +456,76 @@ export class InfomaniakClient {
     }
 
     throw lastError!;
+  }
+
+  /** JSON request/response. */
+  private async request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+    queryParams?: QueryParams,
+  ): Promise<T> {
+    return this.withRetry(async () => {
+      const options: RequestInit = {
+        method,
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        signal: AbortSignal.timeout(this.timeoutMs),
+      };
+
+      if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(this.buildUrl(path, queryParams), options);
+      if (!response.ok) await this.throwForStatus(response);
+      return (await response.json()) as T;
+    });
+  }
+
+  /** Binary request (raw upload body and/or raw download response). */
+  private async requestBinary(
+    method: string,
+    path: string,
+    opts: {
+      body?: Uint8Array;
+      contentType?: string;
+      queryParams?: QueryParams;
+      /** Reject responses larger than this many bytes. */
+      maxBytes?: number;
+      /** Longer timeout for large transfers (default: 4x the regular timeout). */
+      timeoutMs?: number;
+    } = {},
+  ): Promise<BinaryResponse> {
+    return this.withRetry(async () => {
+      const headers: Record<string, string> = { Authorization: `Bearer ${this.token}` };
+      if (opts.body) headers['Content-Type'] = opts.contentType ?? 'application/octet-stream';
+
+      const response = await fetch(this.buildUrl(path, opts.queryParams), {
+        method,
+        headers,
+        body: opts.body as BodyInit | undefined,
+        signal: AbortSignal.timeout(opts.timeoutMs ?? this.timeoutMs * 4),
+      });
+      if (!response.ok) await this.throwForStatus(response);
+
+      const declared = response.headers.get('content-length');
+      if (opts.maxBytes && declared && parseInt(declared, 10) > opts.maxBytes) {
+        throw new Error(`Response too large (${declared} bytes, max ${opts.maxBytes} bytes)`);
+      }
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      if (opts.maxBytes && bytes.byteLength > opts.maxBytes) {
+        throw new Error(`Response too large (${bytes.byteLength} bytes, max ${opts.maxBytes} bytes)`);
+      }
+      return {
+        bytes,
+        contentType: response.headers.get('content-type'),
+        fileName: parseContentDispositionFileName(response.headers.get('content-disposition')),
+      };
+    });
   }
 
   // Profile & Authentication
@@ -437,23 +556,23 @@ export class InfomaniakClient {
   }
 
   async getDomain(accountId: number, domain: string): Promise<ApiResponse<Domain>> {
-    return this.request<ApiResponse<Domain>>('GET', `/1/domain/account/${accountId}/domain/${domain}`);
+    return this.request<ApiResponse<Domain>>('GET', `/1/domain/account/${accountId}/domain/${seg(domain)}`);
   }
 
   async getDomainNameservers(domain: string): Promise<ApiResponse<DomainNameserver[]>> {
-    return this.request<ApiResponse<DomainNameserver[]>>('GET', `/1/domain/${domain}/nameserver`);
+    return this.request<ApiResponse<DomainNameserver[]>>('GET', `/1/domain/${seg(domain)}/nameserver`);
   }
 
   async updateDomainNameservers(domain: string, nameservers: DomainNameserver[]): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('PUT', `/1/domain/${domain}/nameserver`, { nameservers });
+    return this.request<ApiResponse<void>>('PUT', `/1/domain/${seg(domain)}/nameserver`, { nameservers });
   }
 
   async renewDomain(domain: string, duration: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('POST', `/1/domain/${domain}/renew`, { duration });
+    return this.request<ApiResponse<void>>('POST', `/1/domain/${seg(domain)}/renew`, { duration });
   }
 
   async getDnsRecords(domain: string): Promise<ApiResponse<DnsRecord[]>> {
-    return this.request<ApiResponse<DnsRecord[]>>('GET', `/1/domain/${domain}/dns/record`);
+    return this.request<ApiResponse<DnsRecord[]>>('GET', `/1/domain/${seg(domain)}/dns/record`);
   }
 
   async createDnsRecord(domain: string, record: {
@@ -463,7 +582,7 @@ export class InfomaniakClient {
     ttl?: number;
     priority?: number;
   }): Promise<ApiResponse<DnsRecord>> {
-    return this.request<ApiResponse<DnsRecord>>('POST', `/1/domain/${domain}/dns/record`, record);
+    return this.request<ApiResponse<DnsRecord>>('POST', `/1/domain/${seg(domain)}/dns/record`, record);
   }
 
   async updateDnsRecord(domain: string, recordId: number, record: {
@@ -473,11 +592,11 @@ export class InfomaniakClient {
     ttl?: number;
     priority?: number;
   }): Promise<ApiResponse<DnsRecord>> {
-    return this.request<ApiResponse<DnsRecord>>('PUT', `/1/domain/${domain}/dns/record/${recordId}`, record);
+    return this.request<ApiResponse<DnsRecord>>('PUT', `/1/domain/${seg(domain)}/dns/record/${recordId}`, record);
   }
 
   async deleteDnsRecord(domain: string, recordId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/1/domain/${domain}/dns/record/${recordId}`);
+    return this.request<ApiResponse<void>>('DELETE', `/1/domain/${seg(domain)}/dns/record/${recordId}`);
   }
 
   // Mail Services
@@ -637,86 +756,240 @@ export class InfomaniakClient {
   }
 
   // kDrive
+  //
+  // Endpoints below follow Infomaniak's official `mcp-server-kdrive` and the
+  // open-source kDrive Android application (ApiRoutes.kt). The root directory
+  // of a drive always has id 1 (KDRIVE_ROOT_DIRECTORY_ID).
+
   async getKDrives(accountId: number): Promise<ApiResponse<KDrive[]>> {
     return this.request<ApiResponse<KDrive[]>>('GET', `/2/drive`, undefined, { account_id: accountId });
   }
 
   async getKDrive(driveId: number): Promise<ApiResponse<KDrive>> {
-    return this.request<ApiResponse<KDrive>>('GET', `/2/drive/${driveId}`);
+    return this.request<ApiResponse<KDrive>>('GET', `/2/drive/${seg(driveId)}`);
   }
 
-  async listKDriveFiles(driveId: number, parentId?: number): Promise<ApiResponse<KDriveFile[]>> {
-    const path = parentId
-      ? `/2/drive/${driveId}/files/${parentId}/files`
-      : `/2/drive/${driveId}/files`;
-    return this.request<ApiResponse<KDriveFile[]>>('GET', path);
+  async listKDriveFiles(
+    driveId: number,
+    directoryId: number = KDRIVE_ROOT_DIRECTORY_ID,
+    options: KDriveListOptions = {},
+  ): Promise<KDriveCursorResponse<KDriveFile[]>> {
+    return this.request<KDriveCursorResponse<KDriveFile[]>>(
+      'GET',
+      `/3/drive/${seg(driveId)}/files/${seg(directoryId)}/files`,
+      undefined,
+      {
+        'type[]': options.type,
+        cursor: options.cursor,
+        limit: options.limit,
+        order_by: options.order_by,
+        order: options.order,
+        with: 'path,capabilities,is_favorite,sharelink',
+      },
+    );
   }
 
   async getKDriveFile(driveId: number, fileId: number): Promise<ApiResponse<KDriveFile>> {
-    return this.request<ApiResponse<KDriveFile>>('GET', `/2/drive/${driveId}/files/${fileId}`);
+    return this.request<ApiResponse<KDriveFile>>(
+      'GET',
+      `/3/drive/${seg(driveId)}/files/${seg(fileId)}`,
+      undefined,
+      { with: 'path,capabilities,is_favorite,sharelink,users,version' },
+    );
   }
 
-  async searchKDriveFiles(driveId: number, query: string): Promise<ApiResponse<KDriveFile[]>> {
-    return this.request<ApiResponse<KDriveFile[]>>('GET', `/2/drive/${driveId}/files/search`, undefined, { query });
+  async searchKDriveFiles(
+    driveId: number,
+    query: string,
+    options: KDriveSearchOptions = {},
+  ): Promise<KDriveCursorResponse<KDriveFile[]>> {
+    const params: Record<string, string | number | boolean | undefined> = {
+      query,
+      directory_id: options.directory_id,
+      depth: options.depth,
+      'types[]': options.type,
+      cursor: options.cursor,
+      limit: options.limit ?? 25,
+      with: 'path',
+    };
+    if (options.modified_after || options.modified_before) {
+      params.modified_at = 'custom';
+      params.modified_after = options.modified_after;
+      params.modified_before = options.modified_before;
+    }
+    return this.request<KDriveCursorResponse<KDriveFile[]>>(
+      'GET',
+      `/3/drive/${seg(driveId)}/files/search`,
+      undefined,
+      params,
+    );
   }
 
-  async createKDriveDirectory(driveId: number, directory: { name: string; parent_id?: number }): Promise<ApiResponse<KDriveFile>> {
-    return this.request<ApiResponse<KDriveFile>>('POST', `/2/drive/${driveId}/files/directories`, directory);
+  async createKDriveDirectory(
+    driveId: number,
+    name: string,
+    parentId: number = KDRIVE_ROOT_DIRECTORY_ID,
+    onlyForMe = false,
+  ): Promise<ApiResponse<KDriveFile>> {
+    return this.request<ApiResponse<KDriveFile>>(
+      'POST',
+      `/3/drive/${seg(driveId)}/files/${seg(parentId)}/directory`,
+      { name, only_for_me: onlyForMe },
+    );
   }
 
-  async moveKDriveFile(driveId: number, fileId: number, destinationDirectoryId: number): Promise<ApiResponse<KDriveFile>> {
-    return this.request<ApiResponse<KDriveFile>>('POST', `/2/drive/${driveId}/files/${fileId}/move`, { destination_directory_id: destinationDirectoryId });
+  async moveKDriveFile(driveId: number, fileId: number, destinationDirectoryId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>(
+      'POST',
+      `/3/drive/${seg(driveId)}/files/${seg(fileId)}/move/${seg(destinationDirectoryId)}`,
+    );
   }
 
   async copyKDriveFile(driveId: number, fileId: number, destinationDirectoryId: number): Promise<ApiResponse<KDriveFile>> {
-    return this.request<ApiResponse<KDriveFile>>('POST', `/2/drive/${driveId}/files/${fileId}/copy`, { destination_directory_id: destinationDirectoryId });
+    return this.request<ApiResponse<KDriveFile>>(
+      'POST',
+      `/3/drive/${seg(driveId)}/files/${seg(fileId)}/copy/${seg(destinationDirectoryId)}`,
+    );
   }
 
-  async renameKDriveFile(driveId: number, fileId: number, name: string): Promise<ApiResponse<KDriveFile>> {
-    return this.request<ApiResponse<KDriveFile>>('POST', `/2/drive/${driveId}/files/${fileId}/rename`, { name });
+  async renameKDriveFile(driveId: number, fileId: number, name: string): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('POST', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/rename`, { name });
   }
 
-  async deleteKDriveFile(driveId: number, fileId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/2/drive/${driveId}/files/${fileId}`);
+  /** Moves a file or directory to the trash (recoverable). */
+  async deleteKDriveFile(driveId: number, fileId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('DELETE', `/2/drive/${seg(driveId)}/files/${seg(fileId)}`);
   }
 
-  async shareKDriveFile(driveId: number, fileId: number, options: { right?: string; valid_until?: string } = {}): Promise<ApiResponse<KDriveShareLink>> {
-    return this.request<ApiResponse<KDriveShareLink>>('POST', `/2/drive/${driveId}/files/${fileId}/shareable_link`, options);
+  async uploadKDriveFile(driveId: number, options: KDriveUploadOptions): Promise<ApiResponse<KDriveFile>> {
+    const result = await this.requestBinary('POST', `/3/drive/${seg(driveId)}/upload`, {
+      body: options.content,
+      contentType: 'application/octet-stream',
+      queryParams: {
+        directory_id: options.directory_id,
+        file_name: options.file_name,
+        total_size: options.content.byteLength,
+        conflict: options.conflict ?? 'rename',
+        directory_path: options.directory_path,
+        last_modified_at: options.last_modified_at,
+      },
+    });
+    return JSON.parse(new TextDecoder().decode(result.bytes)) as ApiResponse<KDriveFile>;
   }
 
-  async listKDriveTrash(driveId: number): Promise<ApiResponse<KDriveFile[]>> {
-    return this.request<ApiResponse<KDriveFile[]>>('GET', `/2/drive/${driveId}/files/trash`);
+  async downloadKDriveFile(driveId: number, fileId: number, maxBytes?: number): Promise<BinaryResponse> {
+    return this.requestBinary('GET', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/download`, { maxBytes });
   }
 
-  async restoreKDriveFile(driveId: number, fileId: number): Promise<ApiResponse<KDriveFile>> {
-    return this.request<ApiResponse<KDriveFile>>('POST', `/2/drive/${driveId}/files/trash/${fileId}/restore`);
+  // Share links
+  async getKDriveShareLink(driveId: number, fileId: number): Promise<ApiResponse<KDriveShareLink>> {
+    return this.request<ApiResponse<KDriveShareLink>>('GET', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/link`);
   }
 
-  async emptyKDriveTrash(driveId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/2/drive/${driveId}/files/trash`);
+  async createKDriveShareLink(driveId: number, fileId: number, options: KDriveShareLinkOptions): Promise<ApiResponse<KDriveShareLink>> {
+    return this.request<ApiResponse<KDriveShareLink>>('POST', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/link`, options);
   }
 
-  async listKDriveFileVersions(driveId: number, fileId: number): Promise<ApiResponse<KDriveFileVersion[]>> {
-    return this.request<ApiResponse<KDriveFileVersion[]>>('GET', `/2/drive/${driveId}/files/${fileId}/versions`);
+  async updateKDriveShareLink(driveId: number, fileId: number, options: Partial<KDriveShareLinkOptions>): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('PUT', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/link`, options);
   }
 
-  async getKDriveActivity(driveId: number, fileId?: number): Promise<ApiResponse<KDriveActivity[]>> {
-    const path = fileId
-      ? `/2/drive/${driveId}/files/${fileId}/activity`
-      : `/2/drive/${driveId}/activity`;
-    return this.request<ApiResponse<KDriveActivity[]>>('GET', path);
+  async deleteKDriveShareLink(driveId: number, fileId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('DELETE', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/link`);
   }
 
-  async listKDriveFavorites(driveId: number): Promise<ApiResponse<KDriveFile[]>> {
-    return this.request<ApiResponse<KDriveFile[]>>('GET', `/2/drive/${driveId}/files/favorites`);
+  // Access (sharing with users)
+  async listKDriveFileAccess(driveId: number, fileId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>(
+      'GET',
+      `/2/drive/${seg(driveId)}/files/${seg(fileId)}/access`,
+      undefined,
+      { with: 'user', no_avatar_default: 1 },
+    );
   }
 
-  async addKDriveFavorite(driveId: number, fileId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('POST', `/2/drive/${driveId}/files/${fileId}/favorite`);
+  async inviteKDriveAccess(
+    driveId: number,
+    fileId: number,
+    invitation: { emails: string[]; right: 'read' | 'write' | 'manage'; message?: string; lang?: string },
+  ): Promise<ApiResponse<unknown>> {
+    const body: Record<string, unknown> = { emails: invitation.emails, right: invitation.right };
+    if (invitation.message) body.message = invitation.message;
+    return this.request<ApiResponse<unknown>>(
+      'POST',
+      `/2/drive/${seg(driveId)}/files/${seg(fileId)}/access/invitations`,
+      body,
+      { lang: invitation.lang ?? 'en' },
+    );
   }
 
-  async removeKDriveFavorite(driveId: number, fileId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/2/drive/${driveId}/files/${fileId}/favorite`);
+  // Trash
+  async listKDriveTrash(driveId: number, options: { cursor?: string; limit?: number } = {}): Promise<KDriveCursorResponse<KDriveFile[]>> {
+    return this.request<KDriveCursorResponse<KDriveFile[]>>('GET', `/3/drive/${seg(driveId)}/trash`, undefined, {
+      cursor: options.cursor,
+      limit: options.limit,
+    });
+  }
+
+  async restoreKDriveFile(driveId: number, fileId: number, destinationDirectoryId?: number): Promise<ApiResponse<unknown>> {
+    const body = destinationDirectoryId !== undefined ? { destination_directory_id: destinationDirectoryId } : undefined;
+    return this.request<ApiResponse<unknown>>('POST', `/2/drive/${seg(driveId)}/trash/${seg(fileId)}/restore`, body);
+  }
+
+  /** Permanently deletes a single trashed file (irreversible). */
+  async deleteKDriveTrashedFile(driveId: number, fileId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('DELETE', `/2/drive/${seg(driveId)}/trash/${seg(fileId)}`);
+  }
+
+  /** Permanently deletes everything in the trash (irreversible). */
+  async emptyKDriveTrash(driveId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('DELETE', `/2/drive/${seg(driveId)}/trash`);
+  }
+
+  // Favorites, recents, shared with me, activity
+  async listKDriveFavorites(driveId: number, options: { cursor?: string; limit?: number } = {}): Promise<KDriveCursorResponse<KDriveFile[]>> {
+    return this.request<KDriveCursorResponse<KDriveFile[]>>('GET', `/3/drive/${seg(driveId)}/files/favorites`, undefined, {
+      cursor: options.cursor,
+      limit: options.limit,
+      with: 'path',
+    });
+  }
+
+  async addKDriveFavorite(driveId: number, fileId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('POST', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/favorite`);
+  }
+
+  async removeKDriveFavorite(driveId: number, fileId: number): Promise<ApiResponse<unknown>> {
+    return this.request<ApiResponse<unknown>>('DELETE', `/2/drive/${seg(driveId)}/files/${seg(fileId)}/favorite`);
+  }
+
+  async listKDriveRecents(driveId: number, type?: 'file' | 'dir'): Promise<KDriveCursorResponse<KDriveFile[]>> {
+    return this.request<KDriveCursorResponse<KDriveFile[]>>('GET', `/3/drive/${seg(driveId)}/files/recents`, undefined, {
+      'type[]': type,
+      with: 'path',
+    });
+  }
+
+  async listKDriveSharedWithMe(driveId: number, type?: 'file' | 'dir'): Promise<KDriveCursorResponse<KDriveFile[]>> {
+    return this.request<KDriveCursorResponse<KDriveFile[]>>('GET', `/3/drive/${seg(driveId)}/files/shared_with_me`, undefined, {
+      'type[]': type,
+    });
+  }
+
+  async getKDriveActivity(
+    driveId: number,
+    fileId?: number,
+    options: { cursor?: string; limit?: number } = {},
+  ): Promise<KDriveCursorResponse<KDriveActivity[]>> {
+    const path = fileId !== undefined
+      ? `/3/drive/${seg(driveId)}/files/${seg(fileId)}/activities`
+      : `/3/drive/${seg(driveId)}/files/activities`;
+    return this.request<KDriveCursorResponse<KDriveActivity[]>>('GET', path, undefined, {
+      with: fileId !== undefined ? 'user' : 'file,user',
+      cursor: options.cursor,
+      limit: options.limit ?? 50,
+      no_avatar_default: 1,
+    });
   }
 
   // Swiss Backup
