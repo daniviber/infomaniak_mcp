@@ -15,6 +15,7 @@ import {
 } from '../../src/main/discover-feature-modules.js';
 import * as feature from '../../src/features/walking-skeleton.feature.js';
 import { loadRuntimeConfig } from '../../src/config/runtime-config.js';
+import { createRuntime } from '../../src/main/index.js';
 
 const policy = { readOnly: false, allowRawApi: false, allowExperimental: false };
 const command = {
@@ -78,6 +79,71 @@ async function rpc(
 }
 
 describe('walking skeleton', () => {
+  it('composes both products with a shared bucket and preserves kDrive text through HTTP doubles', async () => {
+    const driveResponse = {
+      data: [{ name: 'Équipe', id: 9, size: 1000, size_used: 12, account_id: 123, extra: true }],
+      result: 'success',
+    };
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {
+      switch (String(url)) {
+        case 'https://api.infomaniak.com/2/drive?account_id=123':
+          return Response.json(driveResponse);
+        case 'https://api.infomaniak.com/2/profile':
+          return Response.json({ result: 'success', data: { email: 'owner@example.test' } });
+        case 'https://api.infomaniak.com/1/calendar/pim/event':
+          return Response.json(eventResponse);
+        default:
+          throw new Error(`Unexpected request: ${url}`);
+      }
+    });
+    let now = 0;
+    const wait = vi.fn(async (milliseconds: number) => {
+      now += milliseconds;
+    });
+    const server = await createRuntime(
+      { INFOMANIAK_API_TOKEN: 'drive-token', INFOMANIAK_CALENDAR_TOKEN: 'calendar-token' },
+      { fetch: fetcher, clock: { now: () => now, wait }, pattern: 'src/features/**/*.feature.ts' },
+    );
+    try {
+      await rpc(server, 'server/discover');
+      const call = { name: listDrivesContract.name, arguments: { account_id: 123 } };
+      const result = await rpc(server, 'tools/call', call);
+      expect(result).toEqual({
+        content: [{ type: 'text', text: JSON.stringify(driveResponse, null, 2) }],
+        structuredContent: {
+          drives: [{ id: 9, name: 'Équipe', accountId: 123, usedBytes: 12, capacityBytes: 1000 }],
+          displayText: JSON.stringify(driveResponse, null, 2),
+        },
+        resultType: 'complete',
+        _meta: {
+          'io.modelcontextprotocol/serverInfo': { name: 'infomaniak-mcp-server', version: '1.1.0' },
+        },
+      });
+      await Promise.all(Array.from({ length: 59 }, () => rpc(server, 'tools/call', call)));
+      expect(wait).not.toHaveBeenCalled();
+      expect(
+        await rpc(server, 'tools/call', { name: createEventContract.name, arguments: command }),
+      ).toMatchObject({
+        content: [{ type: 'text', text: JSON.stringify(eventResponse, null, 2) }],
+        structuredContent: { event: { id: 42, calendarId: '7', title: 'Meeting' } },
+        resultType: 'complete',
+        _meta: {},
+      });
+      expect(fetcher).toHaveBeenCalledTimes(62);
+      expect(wait.mock.calls).toEqual([[1000], [1000]]);
+      expect(fetcher.mock.calls[0][1]?.headers).toHaveProperty(
+        'Authorization',
+        'Bearer drive-token',
+      );
+      expect(fetcher.mock.calls[60][1]?.headers).toHaveProperty(
+        'Authorization',
+        'Bearer calendar-token',
+      );
+    } finally {
+      await server.close();
+    }
+  });
+
   it('discovers sorted tools without initialize and calls the drive application port', async () => {
     const dependencies = ports();
     const module = await discoverFeatureModules('src/features/**/*.feature.ts', dependencies);

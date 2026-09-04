@@ -20,6 +20,29 @@ const schema = z.object({ ok: z.boolean() });
 const request = { method: 'GET' as const, pathSegments: ['2', 'drive', 'a/b?c#d'] };
 
 describe('Infomaniak gateway', () => {
+  it('serializes defined query values with unchanged keys through URLSearchParams', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => Response.json({ ok: true }));
+    await setup(fetcher).request(
+      {
+        ...request,
+        query: {
+          account_id: 123,
+          'type[]': 'file & folder',
+          enabled: false,
+          count: 0,
+          empty: '',
+          omitted: undefined,
+        },
+      },
+      schema,
+    );
+    expect(fetcher.mock.calls[0][0]).toBe(
+      'https://api.infomaniak.com/2/drive/a%2Fb%3Fc%23d?account_id=123&type%5B%5D=file+%26+folder&enabled=false&count=0&empty=',
+    );
+  });
+
   it('encodes each segment, sends bearer and a timeout signal, validates DTOs', async () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ ok: true }));
     await expect(setup(fetcher).request(request, schema)).resolves.toEqual({ ok: true });

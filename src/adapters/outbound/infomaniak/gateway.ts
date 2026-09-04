@@ -36,6 +36,7 @@ export class TokenBucket {
 export interface GatewayRequest {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   pathSegments: readonly (string | number)[];
+  query?: Record<string, string | number | boolean | undefined>;
   body?: unknown;
   idempotent?: boolean;
 }
@@ -57,7 +58,11 @@ export class InfomaniakGateway {
     const path = request.pathSegments
       .map((segment) => encodeURIComponent(String(segment)))
       .join('/');
-    const url = `${base.replace(/\/$/, '')}/${path}`;
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(request.query ?? {})) {
+      if (value !== undefined) query.append(key, String(value));
+    }
+    const url = `${base.replace(/\/$/, '')}/${path}${query.size ? `?${query}` : ''}`;
     const attempts = request.method === 'GET' || request.idempotent ? 3 : 1;
     for (let attempt = 1; attempt <= attempts; attempt++) {
       await this.options.bucket.acquire();
