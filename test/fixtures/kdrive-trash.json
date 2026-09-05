@@ -1,0 +1,21 @@
+{
+  "provenance": "Synthetic fixtures based on baseline listKDriveTrash/KDriveFile cursor response and ApiResponse<unknown> mutation contracts; no provider request.",
+  "page": {
+    "result": "success",
+    "data": [
+      {
+        "id": 42,
+        "name": "été.txt",
+        "type": "file",
+        "size": 3,
+        "parent_id": 7,
+        "mime_type": "text/plain",
+        "provider_secret": "PRIVATE_DTO"
+      }
+    ],
+    "has_more": true,
+    "cursor": "next/+?="
+  },
+  "lastPage": { "result": "success", "data": [], "has_more": false, "cursor": null },
+  "mutation": { "result": "success", "data": { "provider_secret": "PRIVATE_DTO" } }
+}
