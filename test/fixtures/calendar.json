@@ -1,0 +1,55 @@
+{
+  "profile": {
+    "result": "success",
+    "data": {
+      "email": "owner@example.test",
+      "display_name": "Owner",
+      "preferences": { "timezone": { "name": "Europe/Zurich" } }
+    }
+  },
+  "calendars": {
+    "result": "success",
+    "data": {
+      "calendars": [
+        {
+          "id": "7",
+          "name": "Personal",
+          "default": true,
+          "color": "#123456",
+          "provider_only": "hidden"
+        }
+      ]
+    }
+  },
+  "event": {
+    "result": "success",
+    "data": {
+      "id": "event/42",
+      "calendar_id": "7",
+      "title": "Meeting",
+      "description": "Agenda",
+      "location": "Room",
+      "start": "2026-03-29T01:30:00+01:00",
+      "end": "2026-03-29T03:30:00+02:00",
+      "timezone_start": "Europe/Zurich",
+      "timezone_end": "Europe/Zurich",
+      "fullday": false,
+      "freebusy": "busy",
+      "private": false,
+      "rrule": "FREQ=WEEKLY;BYDAY=MO",
+      "attendees": [
+        {
+          "address": "guest@example.test",
+          "name": "Guest",
+          "className": "Attendee",
+          "organizer": false,
+          "state": "ACCEPTED"
+        }
+      ],
+      "alarms": [{ "action": "DISPLAY" }],
+      "attachments": [],
+      "provider_only": "hidden"
+    }
+  },
+  "deleted": { "result": "success", "data": true }
+}
