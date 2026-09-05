@@ -1,0 +1,111 @@
+{
+  "provenance": {
+    "access": {
+      "repository": "Infomaniak/android-kDrive",
+      "revision": "c6486edda2852d290005ded011feff4ea958cca1",
+      "proof": "official",
+      "paths": [
+        "app/src/main/java/com/infomaniak/drive/data/models/Share.kt",
+        "app/src/main/java/com/infomaniak/drive/data/models/Shareable.kt",
+        "app/src/main/java/com/infomaniak/drive/data/models/Team.kt",
+        "app/src/main/java/com/infomaniak/drive/data/models/UserFileAccess.kt",
+        "app/src/main/java/com/infomaniak/drive/data/models/Invitation.kt",
+        "app/src/main/java/com/infomaniak/drive/data/models/DriveUser.kt",
+        "app/src/main/java/com/infomaniak/drive/data/api/ApiRepository.kt",
+        "app/src/main/java/com/infomaniak/drive/data/api/ApiRoutes.kt"
+      ],
+      "mapping": "Only id and right are used; type is derived from the containing collection. driveUsers is local Android state and is ignored."
+    },
+    "shareLink": {
+      "repository": "Infomaniak/android-kDrive",
+      "revision": "c6486edda2852d290005ded011feff4ea958cca1",
+      "proof": "official",
+      "paths": [
+        "app/src/main/java/com/infomaniak/drive/data/models/ShareLink.kt",
+        "app/src/main/java/com/infomaniak/drive/data/api/ApiRepository.kt"
+      ]
+    },
+    "invitation": {
+      "proof": "baseline",
+      "repository": "Infomaniak/mcp-server-kdrive",
+      "revision": "5867b717c0eeeabb7b0ae65606822b763c1e72b4",
+      "paths": ["src/kdrive-client.ts"],
+      "note": "2026-09-05: shareAccess proves request only (Promise<any>). Response fallback: success envelope with data array of {id,right}; domain type is invitation. Minimal fields supported by Android Invitation.kt at the access provenance revision; response envelope/array remains baseline, not official."
+    },
+    "acknowledgements": {
+      "proof": "baseline",
+      "repository": "infomaniak_mcp",
+      "revision": "1ab4761a60b94685ecaa8363ce390f1e1b9cb69a",
+      "paths": ["src/infomaniak-client.ts"],
+      "actions": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"],
+      "mapping": "Validate success envelope; ignore data; return ok, action and requested fileId."
+    },
+    "itemsAndActivity": {
+      "proof": "baseline",
+      "repository": "infomaniak_mcp",
+      "revision": "1ab4761a60b94685ecaa8363ce390f1e1b9cb69a",
+      "paths": [
+        "src/infomaniak-client.ts",
+        "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
+      ]
+    }
+  },
+  "link": {
+    "url": "https://example.test/share/abc",
+    "right": "public",
+    "file_id": 42,
+    "valid_until": null,
+    "password": "PRIVATE_VALUE"
+  },
+  "access": {
+    "teams": [
+      {
+        "id": 0,
+        "right": "manage",
+        "name": "PRIVATE_VALUE"
+      }
+    ],
+    "users": [
+      {
+        "id": 7,
+        "right": "write",
+        "user": {
+          "email": "PRIVATE_VALUE"
+        }
+      }
+    ],
+    "invitations": [
+      {
+        "id": 8,
+        "right": "read",
+        "email": "PRIVATE_VALUE"
+      }
+    ]
+  },
+  "invitations": [
+    {
+      "id": 8,
+      "right": "read",
+      "email": "PRIVATE_VALUE"
+    }
+  ],
+  "item": {
+    "id": 42,
+    "name": "rapport.txt",
+    "type": "file",
+    "size": 12,
+    "parent_id": 1,
+    "path": "/rapport.txt",
+    "is_favorite": true,
+    "provider_secret": "PRIVATE_VALUE"
+  },
+  "activity": {
+    "id": 10,
+    "action": "file_update",
+    "created_at": 123,
+    "user": {
+      "email": "PRIVATE_VALUE"
+    }
+  },
+  "cursor": "opaque +/=&é"
+}
