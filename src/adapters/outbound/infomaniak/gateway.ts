@@ -215,6 +215,13 @@ export class InfomaniakGateway {
   }
 
   async request<T>(request: GatewayRequest, outputSchema: z.ZodType<T>): Promise<T> {
+    return (await this.requestWithStatus(request, outputSchema)).data;
+  }
+
+  async requestWithStatus<T>(
+    request: GatewayRequest,
+    outputSchema: z.ZodType<T>,
+  ): Promise<{ status: number; data: T }> {
     const base = this.options.base ?? 'https://api.infomaniak.com';
     const path = request.pathSegments
       .map((segment) => encodeURIComponent(String(segment)))
@@ -270,7 +277,7 @@ export class InfomaniakGateway {
         const payload: unknown = body === '' ? undefined : JSON.parse(body);
         outputSchema.parse(payload);
         // Validation only: retain provider key order for the frozen legacy text mapping.
-        return payload as T;
+        return { status: response.status, data: payload as T };
       } catch {
         throw new Error('Invalid Infomaniak response');
       }

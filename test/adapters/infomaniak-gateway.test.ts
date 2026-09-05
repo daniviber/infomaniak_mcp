@@ -633,3 +633,141 @@ describe('generic empty successful responses', () => {
     ).rejects.toThrow('Invalid Infomaniak response');
   });
 });
+
+describe('additive requestWithStatus', () => {
+  it.each([
+    [200, () => Response.json({ extra: 'retained', ok: true }), { extra: 'retained', ok: true }],
+    [204, () => new Response(null, { status: 204 }), undefined],
+    [200, () => new Response('unread', { headers: { 'Content-Length': '0' } }), undefined],
+    [201, () => new Response('', { status: 201 }), undefined],
+  ] as const)(
+    'exposes actual HTTP %i while request retains the original payload',
+    async (status, response, data) => {
+      const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => response());
+      const gateway = setup(fetcher);
+      const validate = vi.fn(() => true);
+      const output = z.unknown().refine(validate);
+      const invoke = { method: 'DELETE' as const, pathSegments: ['resource', 'id'] };
+      await expect(gateway.requestWithStatus(invoke, output)).resolves.toStrictEqual({
+        status,
+        data,
+      });
+      await expect(gateway.request(invoke, output)).resolves.toStrictEqual(data);
+      expect(validate.mock.calls).toEqual([[data], [data]]);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+    },
+  );
+
+  it('request delegates the unchanged arguments and returns data without a schema transform', async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ extra: 1, ok: true }));
+    const gateway = setup(fetcher);
+    const withStatus = vi.spyOn(gateway, 'requestWithStatus');
+    const output = schema.transform(() => ({ transformed: true }));
+    const value = await gateway.request(request, output);
+    expect(value).toEqual({ extra: 1, ok: true });
+    expect(Object.keys(value)).toEqual(['extra', 'ok']);
+    expect(withStatus).toHaveBeenCalledExactlyOnceWith(request, output);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['request', 'requestWithStatus'] as const)(
+    '%s shares auth, encoded destination, quota and Retry-After',
+    async (entry) => {
+      const time = clock();
+      const bucket = new TokenBucket(time);
+      const acquire = vi.spyOn(bucket, 'acquire');
+      const fetcher = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(
+          new Response('secret-token', { status: 429, headers: { 'Retry-After': '2' } }),
+        )
+        .mockResolvedValueOnce(new Response('secret-token', { status: 503 }))
+        .mockResolvedValueOnce(Response.json({ ok: true }, { status: 202 }));
+      const gateway = setup(fetcher, bucket, time);
+      const invoke = { ...request, query: { term: 'a & b' } };
+      const result = await gateway[entry](invoke, schema);
+      expect(result).toEqual(
+        entry === 'request' ? { ok: true } : { status: 202, data: { ok: true } },
+      );
+      expect(time.wait.mock.calls).toEqual([[2000], [1000]]);
+      expect(acquire).toHaveBeenCalledTimes(3);
+      expect(fetcher).toHaveBeenCalledTimes(3);
+      for (const [address, init] of fetcher.mock.calls) {
+        expect(new URL(String(address)).pathname).toBe('/2/drive/a%2Fb%3Fc%23d');
+        expect(new URL(String(address)).searchParams.get('term')).toBe('a & b');
+        expect(init).toMatchObject({
+          method: 'GET',
+          redirect: 'error',
+          headers: { Authorization: 'Bearer secret-token', 'Content-Type': 'application/json' },
+        });
+        expect(init?.signal).toBeInstanceOf(AbortSignal);
+      }
+    },
+  );
+
+  it.each(['request', 'requestWithStatus'] as const)(
+    '%s preserves failures, attempt bounds and expurgated messages',
+    async (entry) => {
+      const scenarios = [
+        {
+          response: async () => new Response('secret-token', { status: 403 }),
+          error: 'Infomaniak HTTP 403',
+          attempts: 1,
+        },
+        {
+          response: async () => new Response('secret-token', { status: 503 }),
+          error: 'Infomaniak HTTP 503',
+          attempts: 3,
+        },
+        {
+          response: async () => {
+            throw new Error('secret-token');
+          },
+          error: 'Infomaniak request failed',
+          attempts: 3,
+        },
+        {
+          response: async () => new Response('secret-token'),
+          error: 'Invalid Infomaniak response',
+          attempts: 1,
+        },
+        {
+          response: async () => Response.json({ ok: 'secret-token' }),
+          error: 'Invalid Infomaniak response',
+          attempts: 1,
+        },
+        {
+          response: async () => new Response(null, { status: 204 }),
+          error: 'Invalid Infomaniak response',
+          attempts: 1,
+        },
+      ];
+      for (const scenario of scenarios) {
+        const time = clock();
+        const fetcher = vi.fn<typeof fetch>().mockImplementation(scenario.response);
+        const gateway = setup(fetcher, new TokenBucket(time), time);
+        await expect(gateway[entry](request, schema)).rejects.toThrow(new Error(scenario.error));
+        expect(fetcher).toHaveBeenCalledTimes(scenario.attempts);
+        expect(time.wait.mock.calls).toEqual(scenario.attempts === 3 ? [[500], [1000]] : []);
+      }
+    },
+  );
+
+  it.each(['POST', 'PUT', 'PATCH', 'DELETE'] as const)(
+    'does not add retries to non-idempotent %s through requestWithStatus',
+    async (method) => {
+      const time = clock();
+      const fetcher = vi
+        .fn<typeof fetch>()
+        .mockImplementation(async () => new Response('secret-token', { status: 503 }));
+      await expect(
+        setup(fetcher, new TokenBucket(time), time).requestWithStatus(
+          { ...request, method },
+          schema,
+        ),
+      ).rejects.toThrow('Infomaniak HTTP 503');
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(time.wait).not.toHaveBeenCalled();
+    },
+  );
+});

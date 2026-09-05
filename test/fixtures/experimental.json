@@ -13,7 +13,7 @@
     "endpoint": "unproven: these experimental destinations lack a public Infomaniak source in this lot; inherited route existence is not official endpoint proof.",
     "response": "baseline: DTO shapes and generic ApiResponse envelope are inherited local types; void mutations ignore the deserialized body and return baseline acknowledgements. No official proof claimed.",
     "optional": "Identity is used by domain mapping and required. Mailbox name/email occur in baseline doubles (lines 341-367) and remain required. Other ancillary fields absent from doubles are optional; no strict objects.",
-    "raw": "GET maps result=success/data JSON to method, endpoint and response kind=data/value. Unknown envelope keys are removed. Other methods have no endpoint-specific documented response and acknowledge method/endpoint without exposing the body.",
+    "raw": "Addenda 10/11: every raw method returns method, endpoint, the actual HTTP status, and the complete provider JSON body in data, without endpoint-specific DTO validation. This is the explicit raw DTO exception. Empty HTTP bodies stay undefined in the gateway and map to null in MCP to retain four JSON fields. Configured credentials, sensitive credential fields, and their echoes are redacted recursively only in raw output. Gateway errors retain their existing expurgated messages.",
     "paths": "Raw paths start with / and a numeric version. Plain nonempty segments only; no URLs, bases, encoded segments, dot segments, query strings or fragments. Query parameters are separate. No GET body.",
     "data": "All examples are synthetic. No provider HTTP calls or external source reads."
   },
@@ -1291,16 +1291,46 @@
       "domainOutput": {
         "method": "GET",
         "endpoint": "/2/synthetic",
-        "response": {
-          "kind": "data",
-          "value": {
+        "status": 200,
+        "data": {
+          "result": "success",
+          "data": {
             "items": [
               {
                 "id": 21
               }
             ]
-          }
+          },
+          "providerOnly": "discard"
         }
+      }
+    }
+  ],
+  "rawStatusExamples": [
+    {
+      "method": "POST",
+      "status": 201,
+      "body": {
+        "created": 42
+      },
+      "output": {
+        "method": "POST",
+        "endpoint": "/2/synthetic",
+        "status": 201,
+        "data": {
+          "created": 42
+        }
+      }
+    },
+    {
+      "method": "DELETE",
+      "status": 204,
+      "bodyAbsent": true,
+      "output": {
+        "method": "DELETE",
+        "endpoint": "/2/synthetic",
+        "status": 204,
+        "data": null
       }
     }
   ]

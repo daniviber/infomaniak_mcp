@@ -83,7 +83,10 @@ const fields: Record<EntityKind, Record<string, string>> = {
 const envelope = <T extends z.ZodType>(data: T) => z.object({ result: z.literal('success'), data });
 
 export class ExperimentalAdapter implements ExperimentalPort {
-  constructor(private readonly gateway: InfomaniakGateway) {}
+  constructor(
+    private readonly gateway: InfomaniakGateway,
+    private readonly secrets: readonly string[] = [],
+  ) {}
 
   async execute(request: ExperimentalRequest): Promise<Record<string, unknown>> {
     const { response, ...http } = request;
@@ -93,22 +96,14 @@ export class ExperimentalAdapter implements ExperimentalPort {
       return response.value;
     }
     if (response.kind === 'raw') {
-      if (request.method !== 'GET') {
-        await this.gateway.request(http, z.unknown());
-        return rawOutputSchema.parse({
-          method: request.method,
-          endpoint: response.endpoint,
-          response: { kind: 'acknowledgement', ok: true, action: 'api_call' },
-        });
-      }
-      // The baseline generic API envelope is mapped to a validated JSON domain value.
-      // Provider status/error/extra envelope fields are not an MCP response.
-      const schema = envelope(z.json());
-      const value = schema.parse(await this.gateway.request(http, schema));
+      // Addenda 10/11: any JSON body, no endpoint-specific DTO or silent mutation ack.
+      const value = await this.gateway.requestWithStatus(http, z.unknown());
+      const redact = rawRedactor(this.secrets, request.body, request.query, value.data);
       return rawOutputSchema.parse({
         method: request.method,
-        endpoint: response.endpoint,
-        response: { kind: 'data', value: value.data },
+        endpoint: redact(response.endpoint),
+        status: value.status,
+        data: redact(value.data ?? null),
       });
     }
     const domainSchema = entitySchemas[response.kind];
@@ -129,4 +124,49 @@ export class ExperimentalAdapter implements ExperimentalPort {
       );
     return { [response.key]: Array.isArray(value.data) ? value.data.map(map) : map(value.data) };
   }
+}
+
+/** Raw-only redaction: ordinary DTO mappings and gateway payloads keep their behavior. */
+function rawRedactor(configured: readonly string[], ...values: unknown[]) {
+  const sensitive = (key: string) =>
+    /password|passwd|secret|token|apikey|authorization|cookie|privatekey|credentials/.test(
+      key.replace(/[^a-z0-9]/gi, '').toLowerCase(),
+    );
+  const secrets = new Set(configured.filter(Boolean));
+  const collect = (value: unknown, credential = false): void => {
+    if (typeof value === 'string') {
+      if (credential && value) secrets.add(value);
+    } else if (Array.isArray(value)) {
+      for (const child of value) collect(child, credential);
+    } else if (value !== null && typeof value === 'object') {
+      for (const [key, child] of Object.entries(value))
+        collect(child, credential || sensitive(key));
+    }
+  };
+  for (const value of values) collect(value);
+  // Longer credentials first: replacing a prefix must not leave the rest of a token exposed.
+  const known = [...secrets].sort((a, b) => b.length - a.length);
+  const text = (value: string) => {
+    let redacted = value
+      .replace(
+        /-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z]+ )?PRIVATE KEY-----/g,
+        '[REDACTED]',
+      )
+      .replace(/\b(Bearer|Basic)\s+[A-Za-z0-9._~+\/-]+=*/gi, '$1 [REDACTED]');
+    for (const secret of known) redacted = redacted.split(secret).join('[REDACTED]');
+    return redacted;
+  };
+  const redact = (value: unknown): unknown => {
+    if (typeof value === 'string') return text(value);
+    if (Array.isArray(value)) return value.map(redact);
+    if (value !== null && typeof value === 'object')
+      return Object.fromEntries(
+        Object.entries(value).map(([key, child]) => [
+          text(key),
+          sensitive(key) ? '[REDACTED]' : redact(child),
+        ]),
+      );
+    return value;
+  };
+  return redact;
 }

@@ -67,7 +67,7 @@ function dependencies(
   };
   const bucket = new TokenBucket(clock);
   const config = loadRuntimeConfig({
-    INFOMANIAK_API_TOKEN: 'synthetic',
+    INFOMANIAK_API_TOKEN: 'configured-provider-token',
     INFOMANIAK_READ_ONLY: String(policy.readOnly),
     INFOMANIAK_ALLOW_EXPERIMENTAL: String(policy.allowExperimental),
     INFOMANIAK_ALLOW_RAW_API: String(policy.allowRawApi),
@@ -222,6 +222,7 @@ describe('experimental inventory and isolation', () => {
       const adapter = new ExperimentalAdapter(deps.gateway);
       const port = vi.spyOn(adapter, 'execute');
       const gateway = vi.spyOn(deps.gateway, 'request');
+      const withStatus = vi.spyOn(deps.gateway, 'requestWithStatus');
       const module = createFeatureModule(createExperimentalBindings(adapter));
       denied(
         await module.invoke(example.name, null, context),
@@ -230,6 +231,7 @@ describe('experimental inventory and isolation', () => {
       );
       expect(port).not.toHaveBeenCalled();
       expect(gateway).not.toHaveBeenCalled();
+      expect(withStatus).not.toHaveBeenCalled();
       expect(deps.fetcher).not.toHaveBeenCalled();
     },
   );
@@ -249,7 +251,8 @@ describe('experimental adapter and validated domain output', () => {
       { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
     ]);
     expect(result.isError).toBeUndefined();
-    expect(JSON.stringify(result)).not.toContain('providerOnly');
+    if (example.response !== 'raw') expect(JSON.stringify(result)).not.toContain('providerOnly');
+    else expect(result.structuredContent.data).toEqual(example.providerResponse);
     expect(JSON.stringify(result)).not.toContain('synthetic-password');
     expect(deps.fetcher).toHaveBeenCalledTimes(1);
     const [address, init] = deps.fetcher.mock.calls[0];
@@ -419,9 +422,9 @@ describe('raw and destructive policy at zero outgoing calls', () => {
   });
 
   it.each(['POST', 'PUT', 'PATCH', 'DELETE'])(
-    'permits raw %s only outside read-only and acknowledges without exposing its body',
+    'permits raw %s outside read-only and exposes the HTTP status and redacted JSON body',
     async (method) => {
-      const deps = dependencies(enabled, { secret: 'must not escape' });
+      const deps = dependencies(enabled, { changed: true, secret: 'must not escape' });
       const result = await composeFeatureModules([feature], deps).invoke(
         rawName,
         { method, endpoint: '/2/synthetic', body: { value: 1 } },
@@ -430,7 +433,8 @@ describe('raw and destructive policy at zero outgoing calls', () => {
       expect(result.structuredContent).toEqual({
         method,
         endpoint: '/2/synthetic',
-        response: { kind: 'acknowledgement', ok: true, action: 'api_call' },
+        status: 200,
+        data: { changed: true, secret: '[REDACTED]' },
       });
       expect(result.content[0].text).toBe(JSON.stringify(result.structuredContent, null, 2));
       expect(deps.fetcher).toHaveBeenCalledTimes(1);
@@ -480,12 +484,21 @@ describe('raw and destructive policy at zero outgoing calls', () => {
   );
 
   it.each([{ result: 'error', data: {} }, { result: 'success' }, ['unmapped'], null])(
-    'rejects an unmapped raw provider envelope %j',
+    'exposes arbitrary raw JSON without interpreting an envelope: %j',
     async (response) => {
       const deps = dependencies(enabled, response);
-      await expect(
-        composeFeatureModules([feature], deps).invoke(rawName, rawExample.input, enabled),
-      ).rejects.toThrow('Invalid Infomaniak response');
+      const result = await composeFeatureModules([feature], deps).invoke(
+        rawName,
+        rawExample.input,
+        enabled,
+      );
+      expect(result.structuredContent).toEqual({
+        method: 'GET',
+        endpoint: '/2/synthetic',
+        status: 200,
+        data: response,
+      });
+      expect(result.content[0].text).toBe(JSON.stringify(result.structuredContent, null, 2));
       expect(deps.fetcher).toHaveBeenCalledTimes(1);
     },
   );
@@ -536,6 +549,153 @@ describe('raw and destructive policy at zero outgoing calls', () => {
       } finally {
         await server.close();
       }
+    },
+  );
+});
+
+describe('raw HTTP status and JSON exception (addenda 10/11)', () => {
+  it.each(fixtureJson.rawStatusExamples)(
+    'renders $method HTTP $status with four fields through MCP',
+    async (example) => {
+      const deps = dependencies();
+      deps.fetcher.mockResolvedValueOnce(
+        example.status === 204
+          ? new Response(null, { status: 204 })
+          : Response.json(example.body, { status: example.status }),
+      );
+      const server = createModernServer(composeFeatureModules([feature], deps), enabled);
+      try {
+        const result = await rpc(server, 'tools/call', {
+          name: rawName,
+          arguments: { method: example.method, endpoint: '/2/synthetic' },
+        });
+        expect(result.error).toBeUndefined();
+        expect(result.result.isError).not.toBe(true);
+        expect(result.result.structuredContent).toStrictEqual(example.output);
+        expect(Object.keys(result.result.structuredContent).sort()).toEqual([
+          'data',
+          'endpoint',
+          'method',
+          'status',
+        ]);
+        expect(result.result.content).toEqual([
+          { type: 'text', text: JSON.stringify(result.result.structuredContent, null, 2) },
+        ]);
+        expect(deps.fetcher).toHaveBeenCalledTimes(1);
+        expect(deps.fetcher.mock.calls[0][1]?.method).toBe(example.method);
+      } finally {
+        await server.close();
+      }
+    },
+  );
+
+  it.each([null, false, 0, '', ['value', 1], { arbitrary: { body: true } }])(
+    'preserves JSON %j without a DTO schema',
+    async (data) => {
+      const deps = dependencies(enabled, data);
+      const result = await composeFeatureModules([feature], deps).invoke(
+        rawName,
+        rawExample.input,
+        enabled,
+      );
+      expect(result.structuredContent).toStrictEqual({
+        method: 'GET',
+        endpoint: '/2/synthetic',
+        status: 200,
+        data,
+      });
+      expect(result.content[0].text).toBe(JSON.stringify(result.structuredContent, null, 2));
+      expect(deps.fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])(
+    'rejects malformed JSON for raw %s without exposing its contents',
+    async (method) => {
+      const deps = dependencies();
+      deps.fetcher.mockResolvedValueOnce(new Response('configured-provider-token not JSON'));
+      await expect(
+        composeFeatureModules([feature], deps).invoke(
+          rawName,
+          { method, endpoint: '/2/synthetic' },
+          enabled,
+        ),
+      ).rejects.toThrow('Invalid Infomaniak response');
+      expect(deps.fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])(
+    'redacts credentials recursively in raw %s JSON and text while preserving other data',
+    async (method) => {
+      const provider = {
+        changed: true,
+        nested: [{ password: 'provider-password', access_token: 'issued-credential', count: 3 }],
+        credentials: { username: 'private-user', password: 'nested-password' },
+        message:
+          'configured-provider-token calendar-private-credential chat-private-credential provider-password issued-credential supplied-password',
+        authorization: 'Bearer auth-credential',
+        headerEcho: 'Bearer auth-credential',
+        pem: '-----BEGIN PRIVATE KEY-----\nprivate material\n-----END PRIVATE KEY-----',
+        'configured-provider-token': 'key echo',
+        safe: { status: 'updated', items: [0, false, null] },
+      };
+      const deps = dependencies(enabled, provider);
+      const config = {
+        ...deps.config,
+        calendarToken: 'calendar-private-credential',
+        kchat: { host: 'chat.example.test', token: 'chat-private-credential' },
+      };
+      const result = await composeFeatureModules([feature], { ...deps, config }).invoke(
+        rawName,
+        {
+          method,
+          endpoint: '/2/synthetic',
+          query_params: { api_key: 'supplied-password' },
+        },
+        enabled,
+      );
+      expect(result.structuredContent).toEqual({
+        method,
+        endpoint: '/2/synthetic',
+        status: 200,
+        data: {
+          changed: true,
+          nested: [{ password: '[REDACTED]', access_token: '[REDACTED]', count: 3 }],
+          credentials: '[REDACTED]',
+          message: '[REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED] [REDACTED]',
+          authorization: '[REDACTED]',
+          headerEcho: 'Bearer [REDACTED]',
+          pem: '[REDACTED]',
+          '[REDACTED]': '[REDACTED]',
+          safe: { status: 'updated', items: [0, false, null] },
+        },
+      });
+      expect(result.content[0].text).toBe(JSON.stringify(result.structuredContent, null, 2));
+      for (const secret of [
+        'configured-provider-token',
+        'calendar-private-credential',
+        'chat-private-credential',
+        'provider-password',
+        'issued-credential',
+        'supplied-password',
+        'auth-credential',
+        'private material',
+        'private-user',
+        'nested-password',
+      ])
+        expect(JSON.stringify(result)).not.toContain(secret);
+      expect(deps.fetcher).toHaveBeenCalledTimes(1);
+      expect(deps.fetcher.mock.calls[0][1]?.method).toBe(method);
+      // Expurgation belongs to the output: it must not alter the actual request credentials.
+      expect(deps.fetcher.mock.calls[0][1]?.headers).toHaveProperty(
+        'Authorization',
+        'Bearer configured-provider-token',
+      );
+      expect(new URL(String(deps.fetcher.mock.calls[0][0])).searchParams.get('api_key')).toBe(
+        'supplied-password',
+      );
+      expect(provider.nested[0].password).toBe('provider-password');
     },
   );
 });

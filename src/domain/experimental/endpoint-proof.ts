@@ -91,12 +91,8 @@ export type EntityKind = keyof typeof entitySchemas;
 export const rawOutputSchema = z.object({
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']),
   endpoint: z.string(),
-  response: z.discriminatedUnion('kind', [
-    z.object({ kind: z.literal('data'), value: z.json() }),
-    z.object({
-      kind: z.literal('acknowledgement'),
-      ok: z.literal(true),
-      action: z.literal('api_call'),
-    }),
-  ]),
+  status: z.number().int(),
+  // Addendum 10: raw JSON is intentionally exposed, after credential redaction.
+  // An absent HTTP body is represented by null so MCP retains all four fields.
+  data: z.json(),
 });

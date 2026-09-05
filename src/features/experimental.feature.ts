@@ -9,7 +9,15 @@ import type { InfomaniakGateway } from '../adapters/outbound/infomaniak/gateway.
 import type { InvocationContext } from '../domain/tool-contract.js';
 
 export { tools };
-type Dependencies = { gateway: InfomaniakGateway; config: { policy: InvocationContext } };
+type Dependencies = {
+  gateway: InfomaniakGateway;
+  config: {
+    policy: InvocationContext;
+    token: string;
+    calendarToken?: string;
+    kchat?: { token: string };
+  };
+};
 export function selectTools(deps: Dependencies) {
   const policy = experimentalPolicy(deps.config.policy);
   return tools.filter((tool) => policy.enabled && (!tool.rawApi || policy.allowRawApi));
@@ -20,9 +28,13 @@ export function createHandlers(
   const policy = experimentalPolicy(deps.config.policy);
   const selected = new Set(selectTools(deps).map((tool) => tool.name));
   const module = createFeatureModule(
-    createExperimentalBindings(new ExperimentalAdapter(deps.gateway)).filter((binding) =>
-      selected.has(binding.contract.name),
-    ),
+    createExperimentalBindings(
+      new ExperimentalAdapter(deps.gateway, [
+        deps.config.token,
+        deps.config.calendarToken ?? '',
+        deps.config.kchat?.token ?? '',
+      ]),
+    ).filter((binding) => selected.has(binding.contract.name)),
   );
   return Object.fromEntries(
     module.tools.map((tool) => [
