@@ -626,3 +626,153 @@ describe('generic feature discovery', () => {
     }
   });
 });
+
+describe('optional runtime block and generic selection', () => {
+  it.each([
+    'https://chat.example.test',
+    'http://chat.example.test',
+    'chat.example.test/path',
+    'user:secret@chat.example.test',
+    'chat.example.test?token=secret',
+    'chat.example.test#secret',
+    'chat.example.test/',
+    ' chat.example.test',
+    'chat.example.test\n',
+    '-chat.example.test',
+    'chat-.example.test',
+    'chat..example.test',
+    'localhost',
+    'chat.example.test:123456',
+    '',
+  ])('rejects an invalid bare host without echoing it: %j', (host) => {
+    expect(() =>
+      loadRuntimeConfig({
+        INFOMANIAK_API_TOKEN: 'main-secret',
+        KCHAT_HOST: host,
+        KCHAT_TOKEN: 'chat-secret',
+      }),
+    ).toThrow('Invalid runtime configuration: KCHAT_HOST');
+    try {
+      loadRuntimeConfig({
+        INFOMANIAK_API_TOKEN: 'main-secret',
+        KCHAT_HOST: host,
+        KCHAT_TOKEN: 'chat-secret',
+      });
+    } catch (error) {
+      expect(String(error)).not.toContain('secret');
+    }
+  });
+
+  it.each(['chat.example.test', 'CHAT.example.test', 'chat.example.test:8443'])(
+    'accepts baseline bare host %s',
+    (host) => {
+      expect(
+        loadRuntimeConfig({
+          INFOMANIAK_API_TOKEN: 'main-secret',
+          KCHAT_HOST: host,
+          KCHAT_TOKEN: 'chat-secret',
+        }).kchat,
+      ).toEqual({ host, token: 'chat-secret' });
+    },
+  );
+
+  it.each([{}, { KCHAT_HOST: 'chat.example.test' }, { KCHAT_TOKEN: 'chat-secret' }])(
+    'keeps incomplete optional configuration absent: %j',
+    (extra) => {
+      expect(
+        loadRuntimeConfig({ INFOMANIAK_API_TOKEN: 'main-secret', ...extra }).kchat,
+      ).toBeUndefined();
+    },
+  );
+
+  it('rejects an explicitly empty chat token without exposing secrets', () => {
+    expect(() =>
+      loadRuntimeConfig({
+        INFOMANIAK_API_TOKEN: 'main-secret',
+        KCHAT_HOST: 'chat.example.test',
+        KCHAT_TOKEN: '',
+      }),
+    ).toThrow('Invalid runtime configuration: KCHAT_TOKEN');
+  });
+
+  it('snapshots and freezes the optional block independently of subsequent environment mutations', () => {
+    const env = {
+      INFOMANIAK_API_TOKEN: 'main-secret',
+      KCHAT_HOST: 'chat.example.test',
+      KCHAT_TOKEN: 'chat-secret',
+    };
+    const config = loadRuntimeConfig(env);
+    env.KCHAT_HOST = 'other.example.test';
+    env.KCHAT_TOKEN = 'changed';
+    expect(config.kchat).toEqual({ host: 'chat.example.test', token: 'chat-secret' });
+    expect(Object.isFrozen(config.kchat)).toBe(true);
+  });
+
+  it('selects once before handlers, using declared contracts and binding only selected names', async () => {
+    const deps = dependencies();
+    const first = { ...listDrivesContract, name: 'z_selected' };
+    const second = { ...listDrivesContract, name: 'a_hidden' };
+    const calls: string[] = [];
+    const selectTools = vi.fn((actual: typeof deps) => {
+      expect(actual).toBe(deps);
+      calls.push('select');
+      return [{ ...first, classification: 'destructive' as const }];
+    });
+    const createHandlers = vi.fn(() => {
+      calls.push('handlers');
+      return { z_selected: async () => ({ drives: [], displayText: 'ok' }) };
+    });
+    const module = composeFeatureModules(
+      [{ tools: [first, second], selectTools, createHandlers }],
+      deps,
+    );
+    expect(calls).toEqual(['select', 'handlers']);
+    expect(selectTools).toHaveBeenCalledTimes(1);
+    expect(createHandlers).toHaveBeenCalledTimes(1);
+    expect(module.tools).toEqual([first]);
+    await expect(module.invoke(second.name, {}, policy)).rejects.toThrow('Unknown tool');
+    expect(
+      (await module.invoke(first.name, { account_id: 1 }, { ...policy, readOnly: true })).isError,
+    ).toBeUndefined();
+    expect(selectTools).toHaveBeenCalledTimes(1);
+  });
+
+  it('selects no tools without requiring handlers for the hidden catalogue', async () => {
+    const module = composeFeatureModules(
+      [{ tools: feature.tools, selectTools: () => [], createHandlers: () => ({}) }],
+      dependencies(),
+    );
+    expect(module.tools).toEqual([]);
+    for (const tool of feature.tools)
+      await expect(module.invoke(tool.name, {}, policy)).rejects.toThrow('Unknown tool');
+  });
+
+  it.each(['undeclared', 'duplicate', 'missing'])('rejects %s selections', (kind) => {
+    const contract = listDrivesContract;
+    const selected =
+      kind === 'undeclared'
+        ? [{ ...contract, name: 'not_declared' }]
+        : kind === 'duplicate'
+          ? [contract, contract]
+          : [contract];
+    expect(() =>
+      composeFeatureModules(
+        [{ tools: [contract], selectTools: () => selected, createHandlers: () => ({}) }],
+        dependencies(),
+      ),
+    ).toThrow(
+      kind === 'undeclared'
+        ? 'Undeclared tool'
+        : kind === 'duplicate'
+          ? 'Duplicate tool'
+          : 'Missing handler',
+    );
+  });
+
+  it('rejects duplicate selected names across modules', () => {
+    const definition = { ...feature, selectTools: () => feature.tools };
+    expect(() => composeFeatureModules([definition, definition], dependencies())).toThrow(
+      'Duplicate tool',
+    );
+  });
+});

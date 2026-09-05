@@ -19,6 +19,7 @@ export interface FeatureDependencies {
 
 export interface FeatureDefinition {
   tools: readonly ToolContract[];
+  selectTools?(deps: FeatureDependencies): readonly ToolContract[];
   createHandlers(
     deps: FeatureDependencies,
   ): Record<string, (input: unknown) => Promise<Record<string, unknown>>>;
@@ -29,8 +30,17 @@ export function composeFeatureModules(
   deps: FeatureDependencies,
 ): FeatureModule {
   const bindings: ToolBinding[] = definitions.flatMap((definition) => {
+    const selected = definition.selectTools ? definition.selectTools(deps) : definition.tools;
+    const catalogue = new Map(definition.tools.map((contract) => [contract.name, contract]));
+    const names = new Set<string>();
+    for (const contract of selected) {
+      if (!catalogue.has(contract.name)) throw new Error(`Undeclared tool: ${contract.name}`);
+      if (names.has(contract.name)) throw new Error(`Duplicate tool: ${contract.name}`);
+      names.add(contract.name);
+    }
     const handlers = definition.createHandlers(deps);
-    return definition.tools.map((contract) => {
+    return selected.map((selection) => {
+      const contract = catalogue.get(selection.name)!;
       const handler = handlers[contract.name];
       if (typeof handler !== 'function') throw new Error(`Missing handler: ${contract.name}`);
       return { contract, handle: (input: Record<string, unknown>) => handler(input) };

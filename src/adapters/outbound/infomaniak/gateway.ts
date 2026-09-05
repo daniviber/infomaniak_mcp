@@ -263,7 +263,11 @@ export class InfomaniakGateway {
         throw new Error(`Infomaniak HTTP ${response.status}`);
       }
       try {
-        const payload: unknown = await response.json();
+        const body =
+          response.status === 204 || response.headers.get('Content-Length') === '0'
+            ? ''
+            : await response.text();
+        const payload: unknown = body === '' ? undefined : JSON.parse(body);
         outputSchema.parse(payload);
         // Validation only: retain provider key order for the frozen legacy text mapping.
         return payload as T;
