@@ -270,3 +270,306 @@ describe('injected retry delays', () => {
     ).toBe(8000);
   });
 });
+
+describe('binary gateway transfers', () => {
+  it.each([undefined, '1', '3', '99999999'])(
+    'bounds streaming independently of Content-Length %s',
+    async (length) => {
+      const cancel = vi.fn();
+      let pulls = 0;
+      const stream = new ReadableStream<Uint8Array>(
+        {
+          pull(controller) {
+            pulls++;
+            controller.enqueue(new Uint8Array([pulls]));
+          },
+          cancel,
+        },
+        { highWaterMark: 0 },
+      );
+      const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+        new Response(stream, {
+          headers: length === undefined ? {} : { 'Content-Length': length },
+        }),
+      );
+      await expect(setup(fetcher).download(['2', 'drive'], { maxBytes: 3 })).rejects.toThrow(
+        'Download limit exceeded',
+      );
+      expect(pulls).toBe(4);
+      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('cancels a single oversized chunk without reading any following chunks', async () => {
+    const cancel = vi.fn();
+    const pull = vi.fn((controller: ReadableStreamDefaultController<Uint8Array>) =>
+      controller.enqueue(new Uint8Array(1024 * 1024)),
+    );
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(new ReadableStream({ pull, cancel }, { highWaterMark: 0 })));
+    await expect(setup(fetcher).download(['file'], { maxBytes: 3 })).rejects.toThrow(
+      'Download limit exceeded',
+    );
+    expect(pull).toHaveBeenCalledTimes(1);
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([0, 3])('accepts exactly %i bytes and maps binary metadata', async (size) => {
+    let sent = false;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (sent) controller.close();
+        else {
+          sent = true;
+          controller.enqueue(new Uint8Array(size).fill(42));
+        }
+      },
+    });
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(stream, {
+        headers: {
+          'Content-Type': 'image/png',
+          'Content-Disposition': 'attachment; filename="photo.png"',
+        },
+      }),
+    );
+    await expect(
+      setup(fetcher).download(['2', 'a/b?'], {
+        maxBytes: size,
+        query: { 'type[]': 'x y', omit: undefined, zero: 0 },
+      }),
+    ).resolves.toEqual({
+      bytes: new Uint8Array(size).fill(42),
+      contentType: 'image/png',
+      fileName: 'photo.png',
+    });
+    expect(fetcher).toHaveBeenCalledWith(
+      'https://api.infomaniak.com/2/a%2Fb%3F?type%5B%5D=x+y&zero=0',
+      expect.objectContaining({
+        method: 'GET',
+        headers: { Authorization: 'Bearer secret-token' },
+        signal: expect.any(AbortSignal),
+        redirect: 'error',
+      }),
+    );
+  });
+
+  it('decodes extended UTF-8 filename and defaults absent binary metadata', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          headers: {
+            'Content-Disposition': "attachment; filename=old; filename*=UTF-8''%C3%A9t%C3%A9.txt",
+          },
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null));
+    const gateway = setup(fetcher);
+    expect((await gateway.download(['file'], { maxBytes: 0 })).fileName).toBe('été.txt');
+    await expect(gateway.download(['file'], { maxBytes: 0 })).resolves.toEqual({
+      bytes: new Uint8Array(),
+      fileName: null,
+      contentType: 'application/octet-stream',
+    });
+  });
+
+  it.each([429, 503, 'network', 'timeout'] as const)(
+    'retries download %s using the injected clock',
+    async (failure) => {
+      const time = clock();
+      const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
+        if (typeof failure === 'number')
+          return new Response('secret-token', { status: failure, headers: { 'Retry-After': '2' } });
+        throw new Error('secret-token');
+      });
+      await expect(
+        setup(fetcher, new TokenBucket(time), time).download(['file'], { maxBytes: 3 }),
+      ).rejects.toThrow(
+        typeof failure === 'number' ? `Infomaniak HTTP ${failure}` : 'Infomaniak request failed',
+      );
+      expect(fetcher).toHaveBeenCalledTimes(3);
+      expect(time.wait.mock.calls).toEqual(failure === 429 ? [[2000], [2000]] : [[500], [1000]]);
+    },
+  );
+
+  it('does not retry download client errors or stream failures and redacts errors', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('secret-token', { status: 403 }))
+      .mockResolvedValueOnce(
+        new Response(
+          new ReadableStream({
+            pull(controller) {
+              controller.error(new Error('secret-token private-url'));
+            },
+          }),
+        ),
+      );
+    const gateway = setup(fetcher);
+    await expect(gateway.download(['file'], { maxBytes: 3 })).rejects.toThrow(
+      /^Infomaniak HTTP 403$/,
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    await expect(gateway.download(['file'], { maxBytes: 3 })).rejects.toThrow(
+      /^Infomaniak request failed$/,
+    );
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
+  it('cancels a stalled download when its timeout signal aborts without sleeping', async () => {
+    const controller = new AbortController();
+    const timeout = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(controller.signal);
+    const cancel = vi.fn();
+    const stream = new ReadableStream<Uint8Array>(
+      {
+        pull() {
+          controller.abort(new Error('secret-token'));
+        },
+        cancel,
+      },
+      { highWaterMark: 0 },
+    );
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(stream));
+    try {
+      await expect(setup(fetcher).download(['file'], { maxBytes: 3 })).rejects.toThrow(
+        /^Infomaniak request failed$/,
+      );
+      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(timeout).toHaveBeenCalledWith(1000);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    } finally {
+      timeout.mockRestore();
+    }
+  });
+
+  it.each([-1, NaN, Infinity, 1.1])(
+    'rejects invalid binary download bound %s before HTTP',
+    async (maxBytes) => {
+      const fetcher = vi.fn<typeof fetch>();
+      await expect(setup(fetcher).download(['file'], { maxBytes })).rejects.toThrow(
+        'Invalid download limit',
+      );
+      expect(fetcher).not.toHaveBeenCalled();
+    },
+  );
+
+  it('uploads raw bytes with encoded path/query, bearer, content type and timeout', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(Response.json({ result: 'success', data: { id: 42 } }));
+    const bytes = new Uint8Array([0, 255, 10]);
+    await expect(
+      setup(fetcher).upload(['3', 'a/b?'], {
+        query: { file_name: 'é &?.txt', omit: undefined },
+        bytes,
+        contentType: 'image/png',
+      }),
+    ).resolves.toEqual({ result: 'success', data: { id: 42 } });
+    expect(fetcher).toHaveBeenCalledWith(
+      'https://api.infomaniak.com/3/a%2Fb%3F?file_name=%C3%A9+%26%3F.txt',
+      expect.objectContaining({
+        method: 'POST',
+        body: Buffer.from(bytes),
+        headers: { Authorization: 'Bearer secret-token', 'Content-Type': 'image/png' },
+        signal: expect.any(AbortSignal),
+        redirect: 'error',
+      }),
+    );
+  });
+
+  it.each([429, 503, 'network', 'timeout', 'json'] as const)(
+    'never retries upload on %s and redacts failure data',
+    async (failure) => {
+      const time = clock();
+      const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
+        if (typeof failure === 'number') return new Response('secret-token', { status: failure });
+        if (failure === 'json') return new Response('secret-token');
+        throw failure === 'timeout'
+          ? new DOMException('secret-token', 'TimeoutError')
+          : new Error('secret-token');
+      });
+      await expect(
+        setup(fetcher, new TokenBucket(time), time).upload(['file'], {
+          query: {},
+          bytes: new Uint8Array(),
+          contentType: 'application/octet-stream',
+        }),
+      ).rejects.toThrow(
+        typeof failure === 'number'
+          ? `Infomaniak HTTP ${failure}`
+          : failure === 'json'
+            ? 'Invalid Infomaniak response'
+            : 'Infomaniak request failed',
+      );
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(time.wait).not.toHaveBeenCalled();
+    },
+  );
+
+  it('shares request/download/upload quota across gateways', async () => {
+    const time = clock();
+    const bucket = new TokenBucket(time);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => Response.json({ ok: true }));
+    const a = setup(fetcher, bucket, time);
+    const b = setup(fetcher, bucket, time);
+    for (let i = 0; i < 60; i++) await a.request(request, schema);
+    await b.download(['file'], { maxBytes: 20 });
+    await a.upload(['file'], {
+      query: {},
+      bytes: new Uint8Array(),
+      contentType: 'application/octet-stream',
+    });
+    expect(fetcher).toHaveBeenCalledTimes(62);
+    expect(time.wait.mock.calls).toEqual([[1000], [1000]]);
+  });
+});
+
+describe('binary gateway quota and configuration', () => {
+  it('acquires shared quota again for each download retry', async () => {
+    const time = clock();
+    const bucket = new TokenBucket(time);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => Response.json({ ok: true }));
+    const gateway = setup(fetcher, bucket, time);
+    for (let i = 0; i < 60; i++) await gateway.request(request, schema);
+    fetcher.mockImplementation(async () => new Response(null, { status: 503 }));
+    await expect(gateway.download(['file'], { maxBytes: 3 })).rejects.toThrow(
+      'Infomaniak HTTP 503',
+    );
+    expect(fetcher).toHaveBeenCalledTimes(63);
+    expect(time.wait.mock.calls).toEqual([[1000], [500], [500], [1000]]);
+  });
+
+  it('uses the injected base and token for both binary methods', async () => {
+    const time = clock();
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => Response.json({ result: 'success' }));
+    const gateway = new InfomaniakGateway({
+      base: 'https://custom.example/api/',
+      token: 'binary-token',
+      timeoutMs: 42,
+      bucket: new TokenBucket(time),
+      fetch: fetcher,
+      clock: time,
+      random: () => 0,
+      utcNow: () => 0,
+    });
+    await gateway.download(['a/b'], { maxBytes: 100 });
+    await gateway.upload(['a/b'], {
+      query: {},
+      bytes: new Uint8Array(),
+      contentType: 'application/octet-stream',
+    });
+    for (const [url, init] of fetcher.mock.calls) {
+      expect(url).toBe('https://custom.example/api/a%2Fb');
+      expect(init?.headers).toHaveProperty('Authorization', 'Bearer binary-token');
+    }
+  });
+});
