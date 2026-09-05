@@ -3,9 +3,18 @@ import type { InvocationContext, ToolContract, ToolResult } from '../domain/tool
 export function enforcePolicy(
   tool: ToolContract,
   context: InvocationContext,
+  input?: unknown,
 ): ToolResult | undefined {
+  const methodAllowed = tool.methodPolicy
+    ? typeof input === 'object' &&
+      input !== null &&
+      !Array.isArray(input) &&
+      Object.hasOwn(input, tool.methodPolicy.inputField) &&
+      (input as Record<string, unknown>)[tool.methodPolicy.inputField] ===
+        tool.methodPolicy.readOnlyMethod
+    : tool.classification === 'read';
   const reason =
-    context.readOnly && tool.classification !== 'read'
+    context.readOnly && !methodAllowed
       ? 'read_only'
       : tool.rawApi && !context.allowRawApi
         ? 'raw_api_disabled'
