@@ -76,6 +76,144 @@ export function retryDelay(
 export class InfomaniakGateway {
   constructor(private readonly options: GatewayOptions) {}
 
+  async download(
+    pathSegments: readonly (string | number)[],
+    options: { query?: GatewayRequest['query']; maxBytes: number },
+  ): Promise<{ bytes: Uint8Array; contentType: string; fileName: string | null }> {
+    if (!Number.isSafeInteger(options.maxBytes) || options.maxBytes < 0)
+      throw new Error('Invalid download limit');
+    const base = this.options.base ?? 'https://api.infomaniak.com';
+    const path = pathSegments.map((segment) => encodeURIComponent(String(segment))).join('/');
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(options.query ?? {})) {
+      if (value !== undefined) query.append(key, String(value));
+    }
+    const url = `${base.replace(/\/$/, '')}/${path}${query.size ? `?${query}` : ''}`;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await this.options.bucket.acquire();
+      const signal = AbortSignal.timeout(this.options.timeoutMs);
+      let response: Response;
+      try {
+        response = await this.options.fetch(url, {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${this.options.token}` },
+          signal,
+          redirect: 'error',
+        });
+      } catch {
+        if (attempt < 3) {
+          await this.options.clock.wait(
+            retryDelay(attempt, this.options.random, null, this.options.utcNow),
+          );
+          continue;
+        }
+        throw new Error('Infomaniak request failed');
+      }
+      if (!response.ok) {
+        await response.body?.cancel().catch(() => undefined);
+        if ((response.status === 429 || response.status >= 500) && attempt < 3) {
+          await this.options.clock.wait(
+            retryDelay(
+              attempt,
+              this.options.random,
+              response.status === 429 ? response.headers.get('Retry-After') : null,
+              this.options.utcNow,
+            ),
+          );
+          continue;
+        }
+        throw new Error(`Infomaniak HTTP ${response.status}`);
+      }
+      const reader = response.body?.getReader();
+      const buffer = new Uint8Array(options.maxBytes);
+      let size = 0;
+      let exceeded = false;
+      let abort: (() => void) | undefined;
+      const timedOut = new Promise<never>((_, reject) => {
+        abort = () => reject(new Error('Infomaniak request failed'));
+        signal.addEventListener('abort', abort, { once: true });
+      });
+      try {
+        if (reader) {
+          for (;;) {
+            signal.throwIfAborted();
+            const { done, value } = await Promise.race([reader.read(), timedOut]);
+            if (done) break;
+            // Inspect at most the first excess byte; never retain an oversized chunk.
+            const observed = Math.min(value.byteLength, options.maxBytes - size + 1);
+            if (size + observed > options.maxBytes) {
+              exceeded = true;
+              throw new Error('Download limit exceeded');
+            }
+            buffer.set(value.subarray(0, observed), size);
+            size += observed;
+          }
+        }
+        const bytes = buffer.subarray(0, size);
+        const disposition = response.headers.get('Content-Disposition') ?? '';
+        const extended = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+        const plain = /filename=(?:"([^"]*)"|([^;]+))/i.exec(disposition);
+        return {
+          bytes,
+          contentType: response.headers.get('Content-Type') ?? 'application/octet-stream',
+          fileName: extended
+            ? decodeURIComponent(extended[1])
+            : (plain?.[1] ?? plain?.[2]?.trim() ?? null),
+        };
+      } catch {
+        // Cancellation is initiated immediately, including on streams with false/missing length.
+        void reader?.cancel().catch(() => undefined);
+        throw new Error(exceeded ? 'Download limit exceeded' : 'Infomaniak request failed');
+      } finally {
+        if (abort) signal.removeEventListener('abort', abort);
+        reader?.releaseLock();
+      }
+    }
+    throw new Error('Infomaniak request failed');
+  }
+
+  async upload(
+    pathSegments: readonly (string | number)[],
+    options: {
+      query: NonNullable<GatewayRequest['query']>;
+      bytes: Uint8Array;
+      contentType: string;
+    },
+  ): Promise<unknown> {
+    const base = this.options.base ?? 'https://api.infomaniak.com';
+    const path = pathSegments.map((segment) => encodeURIComponent(String(segment))).join('/');
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(options.query)) {
+      if (value !== undefined) query.append(key, String(value));
+    }
+    const url = `${base.replace(/\/$/, '')}/${path}${query.size ? `?${query}` : ''}`;
+    await this.options.bucket.acquire();
+    let response: Response;
+    try {
+      response = await this.options.fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.options.token}`,
+          'Content-Type': options.contentType,
+        },
+        body: Buffer.from(options.bytes),
+        signal: AbortSignal.timeout(this.options.timeoutMs),
+        redirect: 'error',
+      });
+    } catch {
+      throw new Error('Infomaniak request failed');
+    }
+    if (!response.ok) {
+      await response.body?.cancel().catch(() => undefined);
+      throw new Error(`Infomaniak HTTP ${response.status}`);
+    }
+    try {
+      return await response.json();
+    } catch {
+      throw new Error('Invalid Infomaniak response');
+    }
+  }
+
   async request<T>(request: GatewayRequest, outputSchema: z.ZodType<T>): Promise<T> {
     const base = this.options.base ?? 'https://api.infomaniak.com';
     const path = request.pathSegments
