@@ -573,3 +573,63 @@ describe('binary gateway quota and configuration', () => {
     }
   });
 });
+
+describe('generic empty successful responses', () => {
+  const responses = [
+    ['204', () => new Response(null, { status: 204 })],
+    [
+      'content-length zero',
+      () => new Response(null, { status: 200, headers: { 'Content-Length': '0' } }),
+    ],
+    ['empty body', () => new Response('', { status: 201 })],
+  ] as const;
+  it.each(responses)('passes undefined to the output schema for %s', async (_name, response) => {
+    const validate = vi.fn((value: unknown) => value === undefined);
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => response());
+    await expect(
+      setup(fetcher).request(
+        { method: 'DELETE', pathSegments: ['resource', 'id'] },
+        z.custom<undefined>(validate),
+      ),
+    ).resolves.toBeUndefined();
+    expect(validate).toHaveBeenCalledExactlyOnceWith(undefined);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it.each(responses)(
+    'still rejects %s when the output schema requires a body',
+    async (_name, response) => {
+      const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => response());
+      await expect(setup(fetcher).request(request, schema)).rejects.toThrow(
+        'Invalid Infomaniak response',
+      );
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+  it('does not parse a body declared absent by content-length', async () => {
+    const response = new Response('unread', { headers: { 'Content-Length': '0' } });
+    const read = vi.spyOn(response, 'text');
+    await expect(
+      setup(vi.fn<typeof fetch>().mockResolvedValue(response)).request(request, z.undefined()),
+    ).resolves.toBeUndefined();
+    expect(read).not.toHaveBeenCalled();
+  });
+  it.each(['null', 'false', '0', '""'])(
+    'preserves a nonempty JSON %s instead of treating it as absent',
+    async (body) => {
+      await expect(
+        setup(vi.fn<typeof fetch>().mockResolvedValue(new Response(body))).request(
+          request,
+          z.unknown(),
+        ),
+      ).resolves.toEqual(JSON.parse(body));
+    },
+  );
+  it('keeps invalid nonempty JSON a response error', async () => {
+    await expect(
+      setup(vi.fn<typeof fetch>().mockResolvedValue(new Response('secret-token'))).request(
+        request,
+        z.unknown(),
+      ),
+    ).rejects.toThrow('Invalid Infomaniak response');
+  });
+});
