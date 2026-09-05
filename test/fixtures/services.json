@@ -1,0 +1,1682 @@
+{
+  "baseline": {
+    "tag": "baseline-2026-09-04",
+    "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+    "inventoryPath": "src/server.ts",
+    "routesAndTypesPath": "src/infomaniak-client.ts",
+    "inputValidationPath": "src/schemas.ts",
+    "doublesPath": "src/infomaniak-client.test.ts"
+  },
+  "externalSources": [],
+  "dtoPolicy": {
+    "proof": "baseline",
+    "note": "Local v1 types and routes only; no official provider response source claimed. Minimal documented identity is required for every entity, plus fqdn for Site (baseline doubles lines 370-416). All other typed fields absent from baseline doubles are optional under addendum 6, validated and mapped if present. Unknown properties are discarded, including passwords. No DTO strict objects. Deletes discard the deserialized JSON value and acknowledge input identifiers.",
+    "pagination": "No baseline pagination inputs or documented numeric list limits for these nine lists; no invented query parameters, limits, or truncation.",
+    "emptyBody": "The existing gateway requires deserializable JSON. Empty 2xx handling is owned by FEAT-10; this fixture models baseline envelopes with null data."
+  },
+  "deferred": [
+    {
+      "family": "/1/mail/... including redirections",
+      "owner": "FEAT-09",
+      "proof": "unproven",
+      "enabled": false
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "infomaniak_list_web_hostings",
+      "capability": "hosting",
+      "operation": "list",
+      "baselineMethod": "getWebHostings",
+      "method": "GET",
+      "path": "/1/web",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 671
+      },
+      "response": "hosting",
+      "outputKey": "hostings",
+      "list": true
+    },
+    {
+      "name": "infomaniak_get_web_hosting",
+      "capability": "hosting",
+      "operation": "get",
+      "baselineMethod": "getWebHosting",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 675
+      },
+      "response": "hosting",
+      "outputKey": "hosting",
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_sites",
+      "capability": "hosting",
+      "operation": "listSites",
+      "baselineMethod": "getSites",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}/site",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 679
+      },
+      "response": "site",
+      "outputKey": "sites",
+      "list": true
+    },
+    {
+      "name": "infomaniak_get_site",
+      "capability": "hosting",
+      "operation": "getSite",
+      "baselineMethod": "getSite",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}/site/{site_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 683
+      },
+      "response": "site",
+      "outputKey": "site",
+      "list": false
+    },
+    {
+      "name": "infomaniak_create_site",
+      "capability": "hosting",
+      "operation": "createSite",
+      "baselineMethod": "createSite",
+      "method": "POST",
+      "path": "/1/web/{hosting_id}/site",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 687
+      },
+      "response": "site",
+      "outputKey": "site",
+      "list": false
+    },
+    {
+      "name": "infomaniak_update_site",
+      "capability": "hosting",
+      "operation": "updateSite",
+      "baselineMethod": "updateSite",
+      "method": "PUT",
+      "path": "/1/web/{hosting_id}/site/{site_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 695
+      },
+      "response": "site",
+      "outputKey": "site",
+      "list": false
+    },
+    {
+      "name": "infomaniak_delete_site",
+      "capability": "hosting",
+      "operation": "deleteSite",
+      "baselineMethod": "deleteSite",
+      "method": "DELETE",
+      "path": "/1/web/{hosting_id}/site/{site_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 702
+      },
+      "response": "site",
+      "outputKey": null,
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_databases",
+      "capability": "database",
+      "operation": "list",
+      "baselineMethod": "getDatabases",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}/database",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 707
+      },
+      "response": "database",
+      "outputKey": "databases",
+      "list": true
+    },
+    {
+      "name": "infomaniak_get_database",
+      "capability": "database",
+      "operation": "get",
+      "baselineMethod": "getDatabase",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}/database/{database_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 711
+      },
+      "response": "database",
+      "outputKey": "database",
+      "list": false
+    },
+    {
+      "name": "infomaniak_create_database",
+      "capability": "database",
+      "operation": "create",
+      "baselineMethod": "createDatabase",
+      "method": "POST",
+      "path": "/1/web/{hosting_id}/database",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 715
+      },
+      "response": "database",
+      "outputKey": "database",
+      "list": false
+    },
+    {
+      "name": "infomaniak_delete_database",
+      "capability": "database",
+      "operation": "delete",
+      "baselineMethod": "deleteDatabase",
+      "method": "DELETE",
+      "path": "/1/web/{hosting_id}/database/{database_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 722
+      },
+      "response": "database",
+      "outputKey": null,
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_cron_jobs",
+      "capability": "cron",
+      "operation": "list",
+      "baselineMethod": "getCronJobs",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}/cron",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 726
+      },
+      "response": "cronJob",
+      "outputKey": "cronJobs",
+      "list": true
+    },
+    {
+      "name": "infomaniak_create_cron_job",
+      "capability": "cron",
+      "operation": "create",
+      "baselineMethod": "createCronJob",
+      "method": "POST",
+      "path": "/1/web/{hosting_id}/cron",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 730
+      },
+      "response": "cronJob",
+      "outputKey": "cronJob",
+      "list": false
+    },
+    {
+      "name": "infomaniak_update_cron_job",
+      "capability": "cron",
+      "operation": "update",
+      "baselineMethod": "updateCronJob",
+      "method": "PUT",
+      "path": "/1/web/{hosting_id}/cron/{cron_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 734
+      },
+      "response": "cronJob",
+      "outputKey": "cronJob",
+      "list": false
+    },
+    {
+      "name": "infomaniak_delete_cron_job",
+      "capability": "cron",
+      "operation": "delete",
+      "baselineMethod": "deleteCronJob",
+      "method": "DELETE",
+      "path": "/1/web/{hosting_id}/cron/{cron_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 738
+      },
+      "response": "cronJob",
+      "outputKey": null,
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_ftp_accounts",
+      "capability": "ftp",
+      "operation": "list",
+      "baselineMethod": "getFtpAccounts",
+      "method": "GET",
+      "path": "/1/web/{hosting_id}/ftp",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 742
+      },
+      "response": "ftpAccount",
+      "outputKey": "ftpAccounts",
+      "list": true
+    },
+    {
+      "name": "infomaniak_create_ftp_account",
+      "capability": "ftp",
+      "operation": "create",
+      "baselineMethod": "createFtpAccount",
+      "method": "POST",
+      "path": "/1/web/{hosting_id}/ftp",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {
+        "passwordMinLength": 8
+      },
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 746
+      },
+      "response": "ftpAccount",
+      "outputKey": "ftpAccount",
+      "list": false
+    },
+    {
+      "name": "infomaniak_update_ftp_account",
+      "capability": "ftp",
+      "operation": "update",
+      "baselineMethod": "updateFtpAccount",
+      "method": "PUT",
+      "path": "/1/web/{hosting_id}/ftp/{ftp_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {
+        "passwordMinLength": 8
+      },
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 750
+      },
+      "response": "ftpAccount",
+      "outputKey": "ftpAccount",
+      "list": false
+    },
+    {
+      "name": "infomaniak_delete_ftp_account",
+      "capability": "ftp",
+      "operation": "delete",
+      "baselineMethod": "deleteFtpAccount",
+      "method": "DELETE",
+      "path": "/1/web/{hosting_id}/ftp/{ftp_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 754
+      },
+      "response": "ftpAccount",
+      "outputKey": null,
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_swiss_backups",
+      "capability": "backup",
+      "operation": "list",
+      "baselineMethod": "getSwissBackups",
+      "method": "GET",
+      "path": "/1/swiss_backup",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 996
+      },
+      "response": "backup",
+      "outputKey": "backups",
+      "list": true
+    },
+    {
+      "name": "infomaniak_get_swiss_backup",
+      "capability": "backup",
+      "operation": "get",
+      "baselineMethod": "getSwissBackup",
+      "method": "GET",
+      "path": "/1/swiss_backup/{backup_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 1000
+      },
+      "response": "backup",
+      "outputKey": "backup",
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_swiss_backup_slots",
+      "capability": "backup",
+      "operation": "listSlots",
+      "baselineMethod": "getSwissBackupSlots",
+      "method": "GET",
+      "path": "/1/swiss_backup/{backup_id}/slot",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 1004
+      },
+      "response": "backupSlot",
+      "outputKey": "slots",
+      "list": true
+    },
+    {
+      "name": "infomaniak_list_certificates",
+      "capability": "certificate",
+      "operation": "list",
+      "baselineMethod": "getCertificates",
+      "method": "GET",
+      "path": "/1/certificate",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 1043
+      },
+      "response": "certificate",
+      "outputKey": "certificates",
+      "list": true
+    },
+    {
+      "name": "infomaniak_get_certificate",
+      "capability": "certificate",
+      "operation": "get",
+      "baselineMethod": "getCertificate",
+      "method": "GET",
+      "path": "/1/certificate/{certificate_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 1047
+      },
+      "response": "certificate",
+      "outputKey": "certificate",
+      "list": false
+    },
+    {
+      "name": "infomaniak_list_invoices",
+      "capability": "invoice",
+      "operation": "list",
+      "baselineMethod": "getInvoices",
+      "method": "GET",
+      "path": "/1/invoicing/{account_id}/invoice/list",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 1052
+      },
+      "response": "invoice",
+      "outputKey": "invoices",
+      "list": true
+    },
+    {
+      "name": "infomaniak_get_invoice",
+      "capability": "invoice",
+      "operation": "get",
+      "baselineMethod": "getInvoice",
+      "method": "GET",
+      "path": "/1/invoicing/{account_id}/invoice/{invoice_id}",
+      "proof": "baseline",
+      "enabled": true,
+      "pagination": "none",
+      "limits": {},
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+        "line": 1056
+      },
+      "response": "invoice",
+      "outputKey": "invoice",
+      "list": false
+    }
+  ],
+  "entities": {
+    "hosting": {
+      "dto": {
+        "id": 12,
+        "account_id": 7,
+        "customer_name": "Hosting",
+        "ip": "192.0.2.1",
+        "service_name": "web",
+        "quota_used": 5,
+        "quota": 100
+      },
+      "domain": {
+        "id": 12,
+        "accountId": 7,
+        "customerName": "Hosting",
+        "ip": "192.0.2.1",
+        "serviceName": "web",
+        "quotaUsed": 5,
+        "quota": 100
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "site": {
+      "dto": {
+        "id": 12,
+        "fqdn": "example.test",
+        "path": "/web",
+        "php_version": "8.2",
+        "ssl_enabled": true
+      },
+      "domain": {
+        "id": 12,
+        "fqdn": "example.test",
+        "path": "/web",
+        "phpVersion": "8.2",
+        "sslEnabled": true
+      },
+      "minimal": {
+        "id": 12,
+        "fqdn": "example.test"
+      }
+    },
+    "database": {
+      "dto": {
+        "id": 12,
+        "name": "database",
+        "size": 42,
+        "charset": "utf8mb4"
+      },
+      "domain": {
+        "id": 12,
+        "name": "database",
+        "size": 42,
+        "charset": "utf8mb4"
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "cronJob": {
+      "dto": {
+        "id": 12,
+        "hosting_id": 100,
+        "command": "php task.php",
+        "schedule": "0 * * * *",
+        "description": "Hourly",
+        "status": "active",
+        "last_run": "2026-09-04T12:00:00Z",
+        "next_run": "2026-09-04T13:00:00Z"
+      },
+      "domain": {
+        "id": 12,
+        "hostingId": 100,
+        "command": "php task.php",
+        "schedule": "0 * * * *",
+        "description": "Hourly",
+        "status": "active",
+        "lastRun": "2026-09-04T12:00:00Z",
+        "nextRun": "2026-09-04T13:00:00Z"
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "ftpAccount": {
+      "dto": {
+        "id": 12,
+        "hosting_id": 100,
+        "login": "ftp-user",
+        "home_directory": "/web",
+        "is_active": false
+      },
+      "domain": {
+        "id": 12,
+        "hostingId": 100,
+        "login": "ftp-user",
+        "homeDirectory": "/web",
+        "isActive": false
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "backupSlot": {
+      "dto": {
+        "id": 12,
+        "name": "Archive",
+        "size_used": 20,
+        "max_size": 100,
+        "protocol": "swift"
+      },
+      "domain": {
+        "id": 12,
+        "name": "Archive",
+        "sizeUsed": 20,
+        "maxSize": 100,
+        "protocol": "swift"
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "backup": {
+      "dto": {
+        "id": 12,
+        "account_id": 7,
+        "customer_name": "Backup",
+        "slots": [
+          {
+            "id": 13,
+            "name": "Archive",
+            "size_used": 20,
+            "max_size": 100,
+            "protocol": "swift",
+            "password": "PRIVATE"
+          }
+        ]
+      },
+      "domain": {
+        "id": 12,
+        "accountId": 7,
+        "customerName": "Backup",
+        "slots": [
+          {
+            "id": 13,
+            "name": "Archive",
+            "sizeUsed": 20,
+            "maxSize": 100,
+            "protocol": "swift"
+          }
+        ]
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "certificate": {
+      "dto": {
+        "id": 12,
+        "account_id": 7,
+        "common_name": "example.test",
+        "alternative_names": ["www.example.test"],
+        "type": "ssl",
+        "status": "active",
+        "not_before": "2026-01-01",
+        "not_after": "2027-01-01"
+      },
+      "domain": {
+        "id": 12,
+        "accountId": 7,
+        "commonName": "example.test",
+        "alternativeNames": ["www.example.test"],
+        "type": "ssl",
+        "status": "active",
+        "notBefore": "2026-01-01",
+        "notAfter": "2027-01-01"
+      },
+      "minimal": {
+        "id": 12
+      }
+    },
+    "invoice": {
+      "dto": {
+        "id": 12,
+        "account_id": 7,
+        "reference": "INV-12",
+        "amount_ttc": 108.1,
+        "amount_ht": 100,
+        "currency": "CHF",
+        "status": "paid",
+        "due_date": "2026-09-30",
+        "created_at": "2026-09-01",
+        "pdf_url": "https://example.invalid/invoice.pdf"
+      },
+      "domain": {
+        "id": 12,
+        "accountId": 7,
+        "reference": "INV-12",
+        "amountTtc": 108.1,
+        "amountHt": 100,
+        "currency": "CHF",
+        "status": "paid",
+        "dueDate": "2026-09-30",
+        "createdAt": "2026-09-01",
+        "pdfUrl": "https://example.invalid/invoice.pdf"
+      },
+      "minimal": {
+        "id": 12
+      }
+    }
+  },
+  "cases": [
+    {
+      "name": "infomaniak_list_web_hostings",
+      "input": {
+        "account_id": 7
+      },
+      "method": "GET",
+      "path": "/1/web?account_id=7",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "account_id": 7,
+            "customer_name": "Hosting",
+            "ip": "192.0.2.1",
+            "service_name": "web",
+            "quota_used": 5,
+            "quota": 100,
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "hostings": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "customerName": "Hosting",
+            "ip": "192.0.2.1",
+            "serviceName": "web",
+            "quotaUsed": 5,
+            "quota": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_web_hosting",
+      "input": {
+        "hosting_id": 100
+      },
+      "method": "GET",
+      "path": "/1/web/100",
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "account_id": 7,
+          "customer_name": "Hosting",
+          "ip": "192.0.2.1",
+          "service_name": "web",
+          "quota_used": 5,
+          "quota": 100,
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "hosting": {
+          "id": 12,
+          "accountId": 7,
+          "customerName": "Hosting",
+          "ip": "192.0.2.1",
+          "serviceName": "web",
+          "quotaUsed": 5,
+          "quota": 100
+        }
+      }
+    },
+    {
+      "name": "infomaniak_list_sites",
+      "input": {
+        "hosting_id": 100
+      },
+      "method": "GET",
+      "path": "/1/web/100/site",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "fqdn": "example.test",
+            "path": "/web",
+            "php_version": "8.2",
+            "ssl_enabled": true,
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "sites": [
+          {
+            "id": 12,
+            "fqdn": "example.test",
+            "path": "/web",
+            "phpVersion": "8.2",
+            "sslEnabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_site",
+      "input": {
+        "hosting_id": 100,
+        "site_id": 12
+      },
+      "method": "GET",
+      "path": "/1/web/100/site/12",
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "fqdn": "example.test",
+          "path": "/web",
+          "php_version": "8.2",
+          "ssl_enabled": true,
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "site": {
+          "id": 12,
+          "fqdn": "example.test",
+          "path": "/web",
+          "phpVersion": "8.2",
+          "sslEnabled": true
+        }
+      }
+    },
+    {
+      "name": "infomaniak_create_site",
+      "input": {
+        "hosting_id": 100,
+        "fqdn": "example.test",
+        "path": "/web",
+        "php_version": "8.2"
+      },
+      "method": "POST",
+      "path": "/1/web/100/site",
+      "body": {
+        "fqdn": "example.test",
+        "path": "/web",
+        "php_version": "8.2"
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "fqdn": "example.test",
+          "path": "/web",
+          "php_version": "8.2",
+          "ssl_enabled": true,
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "site": {
+          "id": 12,
+          "fqdn": "example.test",
+          "path": "/web",
+          "phpVersion": "8.2",
+          "sslEnabled": true
+        }
+      }
+    },
+    {
+      "name": "infomaniak_update_site",
+      "input": {
+        "hosting_id": 100,
+        "site_id": 12,
+        "path": "/web",
+        "php_version": "8.2"
+      },
+      "method": "PUT",
+      "path": "/1/web/100/site/12",
+      "body": {
+        "path": "/web",
+        "php_version": "8.2"
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "fqdn": "example.test",
+          "path": "/web",
+          "php_version": "8.2",
+          "ssl_enabled": true,
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "site": {
+          "id": 12,
+          "fqdn": "example.test",
+          "path": "/web",
+          "phpVersion": "8.2",
+          "sslEnabled": true
+        }
+      }
+    },
+    {
+      "name": "infomaniak_delete_site",
+      "input": {
+        "hosting_id": 100,
+        "site_id": 12
+      },
+      "method": "DELETE",
+      "path": "/1/web/100/site/12",
+      "dto": {
+        "result": "success",
+        "data": null,
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ok": true,
+        "action": "delete_site",
+        "hostingId": 100,
+        "siteId": 12
+      }
+    },
+    {
+      "name": "infomaniak_list_databases",
+      "input": {
+        "hosting_id": 100
+      },
+      "method": "GET",
+      "path": "/1/web/100/database",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "name": "database",
+            "size": 42,
+            "charset": "utf8mb4",
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "databases": [
+          {
+            "id": 12,
+            "name": "database",
+            "size": 42,
+            "charset": "utf8mb4"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_database",
+      "input": {
+        "hosting_id": 100,
+        "database_id": 12
+      },
+      "method": "GET",
+      "path": "/1/web/100/database/12",
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "name": "database",
+          "size": 42,
+          "charset": "utf8mb4",
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "database": {
+          "id": 12,
+          "name": "database",
+          "size": 42,
+          "charset": "utf8mb4"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_create_database",
+      "input": {
+        "hosting_id": 100,
+        "name": "database",
+        "charset": "utf8mb4"
+      },
+      "method": "POST",
+      "path": "/1/web/100/database",
+      "body": {
+        "name": "database",
+        "charset": "utf8mb4"
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "name": "database",
+          "size": 42,
+          "charset": "utf8mb4",
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "database": {
+          "id": 12,
+          "name": "database",
+          "size": 42,
+          "charset": "utf8mb4"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_delete_database",
+      "input": {
+        "hosting_id": 100,
+        "database_id": 12
+      },
+      "method": "DELETE",
+      "path": "/1/web/100/database/12",
+      "dto": {
+        "result": "success",
+        "data": null,
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ok": true,
+        "action": "delete_database",
+        "hostingId": 100,
+        "databaseId": 12
+      }
+    },
+    {
+      "name": "infomaniak_list_cron_jobs",
+      "input": {
+        "hosting_id": 100
+      },
+      "method": "GET",
+      "path": "/1/web/100/cron",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "hosting_id": 100,
+            "command": "php task.php",
+            "schedule": "0 * * * *",
+            "description": "Hourly",
+            "status": "active",
+            "last_run": "2026-09-04T12:00:00Z",
+            "next_run": "2026-09-04T13:00:00Z",
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "cronJobs": [
+          {
+            "id": 12,
+            "hostingId": 100,
+            "command": "php task.php",
+            "schedule": "0 * * * *",
+            "description": "Hourly",
+            "status": "active",
+            "lastRun": "2026-09-04T12:00:00Z",
+            "nextRun": "2026-09-04T13:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_create_cron_job",
+      "input": {
+        "hosting_id": 100,
+        "command": "php task.php",
+        "schedule": "0 * * * *",
+        "description": "Hourly"
+      },
+      "method": "POST",
+      "path": "/1/web/100/cron",
+      "body": {
+        "command": "php task.php",
+        "schedule": "0 * * * *",
+        "description": "Hourly"
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "hosting_id": 100,
+          "command": "php task.php",
+          "schedule": "0 * * * *",
+          "description": "Hourly",
+          "status": "active",
+          "last_run": "2026-09-04T12:00:00Z",
+          "next_run": "2026-09-04T13:00:00Z",
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "cronJob": {
+          "id": 12,
+          "hostingId": 100,
+          "command": "php task.php",
+          "schedule": "0 * * * *",
+          "description": "Hourly",
+          "status": "active",
+          "lastRun": "2026-09-04T12:00:00Z",
+          "nextRun": "2026-09-04T13:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_update_cron_job",
+      "input": {
+        "hosting_id": 100,
+        "cron_id": 12,
+        "command": "php task.php",
+        "schedule": "0 * * * *",
+        "description": "Hourly"
+      },
+      "method": "PUT",
+      "path": "/1/web/100/cron/12",
+      "body": {
+        "command": "php task.php",
+        "schedule": "0 * * * *",
+        "description": "Hourly"
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "hosting_id": 100,
+          "command": "php task.php",
+          "schedule": "0 * * * *",
+          "description": "Hourly",
+          "status": "active",
+          "last_run": "2026-09-04T12:00:00Z",
+          "next_run": "2026-09-04T13:00:00Z",
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "cronJob": {
+          "id": 12,
+          "hostingId": 100,
+          "command": "php task.php",
+          "schedule": "0 * * * *",
+          "description": "Hourly",
+          "status": "active",
+          "lastRun": "2026-09-04T12:00:00Z",
+          "nextRun": "2026-09-04T13:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_delete_cron_job",
+      "input": {
+        "hosting_id": 100,
+        "cron_id": 12
+      },
+      "method": "DELETE",
+      "path": "/1/web/100/cron/12",
+      "dto": {
+        "result": "success",
+        "data": null,
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ok": true,
+        "action": "delete_cron_job",
+        "hostingId": 100,
+        "cronId": 12
+      }
+    },
+    {
+      "name": "infomaniak_list_ftp_accounts",
+      "input": {
+        "hosting_id": 100
+      },
+      "method": "GET",
+      "path": "/1/web/100/ftp",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "hosting_id": 100,
+            "login": "ftp-user",
+            "home_directory": "/web",
+            "is_active": false,
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ftpAccounts": [
+          {
+            "id": 12,
+            "hostingId": 100,
+            "login": "ftp-user",
+            "homeDirectory": "/web",
+            "isActive": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_create_ftp_account",
+      "input": {
+        "hosting_id": 100,
+        "login": "ftp-user",
+        "password": "SYNTHETIC-password",
+        "home_directory": "/web"
+      },
+      "method": "POST",
+      "path": "/1/web/100/ftp",
+      "body": {
+        "login": "ftp-user",
+        "password": "SYNTHETIC-password",
+        "home_directory": "/web"
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "hosting_id": 100,
+          "login": "ftp-user",
+          "home_directory": "/web",
+          "is_active": false,
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ftpAccount": {
+          "id": 12,
+          "hostingId": 100,
+          "login": "ftp-user",
+          "homeDirectory": "/web",
+          "isActive": false
+        }
+      }
+    },
+    {
+      "name": "infomaniak_update_ftp_account",
+      "input": {
+        "hosting_id": 100,
+        "ftp_id": 12,
+        "password": "SYNTHETIC-password",
+        "home_directory": "/web",
+        "is_active": false
+      },
+      "method": "PUT",
+      "path": "/1/web/100/ftp/12",
+      "body": {
+        "password": "SYNTHETIC-password",
+        "home_directory": "/web",
+        "is_active": false
+      },
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "hosting_id": 100,
+          "login": "ftp-user",
+          "home_directory": "/web",
+          "is_active": false,
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ftpAccount": {
+          "id": 12,
+          "hostingId": 100,
+          "login": "ftp-user",
+          "homeDirectory": "/web",
+          "isActive": false
+        }
+      }
+    },
+    {
+      "name": "infomaniak_delete_ftp_account",
+      "input": {
+        "hosting_id": 100,
+        "ftp_id": 12
+      },
+      "method": "DELETE",
+      "path": "/1/web/100/ftp/12",
+      "dto": {
+        "result": "success",
+        "data": null,
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "ok": true,
+        "action": "delete_ftp_account",
+        "hostingId": 100,
+        "ftpId": 12
+      }
+    },
+    {
+      "name": "infomaniak_list_swiss_backups",
+      "input": {
+        "account_id": 7
+      },
+      "method": "GET",
+      "path": "/1/swiss_backup?account_id=7",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "account_id": 7,
+            "customer_name": "Backup",
+            "slots": [
+              {
+                "id": 13,
+                "name": "Archive",
+                "size_used": 20,
+                "max_size": 100,
+                "protocol": "swift",
+                "password": "PRIVATE"
+              }
+            ],
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "backups": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "customerName": "Backup",
+            "slots": [
+              {
+                "id": 13,
+                "name": "Archive",
+                "sizeUsed": 20,
+                "maxSize": 100,
+                "protocol": "swift"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_swiss_backup",
+      "input": {
+        "backup_id": 12
+      },
+      "method": "GET",
+      "path": "/1/swiss_backup/12",
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "account_id": 7,
+          "customer_name": "Backup",
+          "slots": [
+            {
+              "id": 13,
+              "name": "Archive",
+              "size_used": 20,
+              "max_size": 100,
+              "protocol": "swift",
+              "password": "PRIVATE"
+            }
+          ],
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "backup": {
+          "id": 12,
+          "accountId": 7,
+          "customerName": "Backup",
+          "slots": [
+            {
+              "id": 13,
+              "name": "Archive",
+              "sizeUsed": 20,
+              "maxSize": 100,
+              "protocol": "swift"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "infomaniak_list_swiss_backup_slots",
+      "input": {
+        "backup_id": 12
+      },
+      "method": "GET",
+      "path": "/1/swiss_backup/12/slot",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "name": "Archive",
+            "size_used": 20,
+            "max_size": 100,
+            "protocol": "swift",
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "slots": [
+          {
+            "id": 12,
+            "name": "Archive",
+            "sizeUsed": 20,
+            "maxSize": 100,
+            "protocol": "swift"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_certificates",
+      "input": {
+        "account_id": 7
+      },
+      "method": "GET",
+      "path": "/1/certificate?account_id=7",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "account_id": 7,
+            "common_name": "example.test",
+            "alternative_names": ["www.example.test"],
+            "type": "ssl",
+            "status": "active",
+            "not_before": "2026-01-01",
+            "not_after": "2027-01-01",
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "certificates": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "commonName": "example.test",
+            "alternativeNames": ["www.example.test"],
+            "type": "ssl",
+            "status": "active",
+            "notBefore": "2026-01-01",
+            "notAfter": "2027-01-01"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_certificate",
+      "input": {
+        "certificate_id": 12
+      },
+      "method": "GET",
+      "path": "/1/certificate/12",
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "account_id": 7,
+          "common_name": "example.test",
+          "alternative_names": ["www.example.test"],
+          "type": "ssl",
+          "status": "active",
+          "not_before": "2026-01-01",
+          "not_after": "2027-01-01",
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "certificate": {
+          "id": 12,
+          "accountId": 7,
+          "commonName": "example.test",
+          "alternativeNames": ["www.example.test"],
+          "type": "ssl",
+          "status": "active",
+          "notBefore": "2026-01-01",
+          "notAfter": "2027-01-01"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_list_invoices",
+      "input": {
+        "account_id": 7
+      },
+      "method": "GET",
+      "path": "/1/invoicing/7/invoice/list",
+      "dto": {
+        "result": "success",
+        "data": [
+          {
+            "id": 12,
+            "account_id": 7,
+            "reference": "INV-12",
+            "amount_ttc": 108.1,
+            "amount_ht": 100,
+            "currency": "CHF",
+            "status": "paid",
+            "due_date": "2026-09-30",
+            "created_at": "2026-09-01",
+            "pdf_url": "https://example.invalid/invoice.pdf",
+            "password": "PRIVATE",
+            "extra": "PRIVATE"
+          }
+        ],
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "invoices": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "reference": "INV-12",
+            "amountTtc": 108.1,
+            "amountHt": 100,
+            "currency": "CHF",
+            "status": "paid",
+            "dueDate": "2026-09-30",
+            "createdAt": "2026-09-01",
+            "pdfUrl": "https://example.invalid/invoice.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_invoice",
+      "input": {
+        "account_id": 7,
+        "invoice_id": 12
+      },
+      "method": "GET",
+      "path": "/1/invoicing/7/invoice/12",
+      "dto": {
+        "result": "success",
+        "data": {
+          "id": 12,
+          "account_id": 7,
+          "reference": "INV-12",
+          "amount_ttc": 108.1,
+          "amount_ht": 100,
+          "currency": "CHF",
+          "status": "paid",
+          "due_date": "2026-09-30",
+          "created_at": "2026-09-01",
+          "pdf_url": "https://example.invalid/invoice.pdf",
+          "password": "PRIVATE",
+          "extra": "PRIVATE"
+        },
+        "extra": "PRIVATE"
+      },
+      "output": {
+        "invoice": {
+          "id": 12,
+          "accountId": 7,
+          "reference": "INV-12",
+          "amountTtc": 108.1,
+          "amountHt": 100,
+          "currency": "CHF",
+          "status": "paid",
+          "dueDate": "2026-09-30",
+          "createdAt": "2026-09-01",
+          "pdfUrl": "https://example.invalid/invoice.pdf"
+        }
+      }
+    }
+  ]
+}
