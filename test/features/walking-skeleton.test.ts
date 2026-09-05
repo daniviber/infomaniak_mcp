@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import {
   CLIENT_CAPABILITIES_META_KEY,
@@ -775,4 +776,145 @@ describe('optional runtime block and generic selection', () => {
       'Duplicate tool',
     );
   });
+});
+
+// FEAT-09: preserve static policy and gate dynamic HTTP methods solely by metadata.
+describe('dynamic method policy without ordinary-tool regressions', () => {
+  const active = { readOnly: true, allowRawApi: true, allowExperimental: true };
+  const methods: unknown[] = [
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    undefined,
+    null,
+    '',
+    'get',
+    'HEAD',
+    0,
+  ];
+  it.each(methods)(
+    'rejects method %j under an arbitrary tool name before validation and handler',
+    async (method) => {
+      const handle = vi.fn();
+      const contract = {
+        ...listDrivesContract,
+        name: 'arbitrary_dynamic_tool',
+        rawApi: true,
+        methodPolicy: { inputField: 'verb', readOnlyMethod: 'GET' as const },
+      };
+      const module = createFeatureModule([{ contract, handle }]);
+      expect(await module.invoke(contract.name, { verb: method }, active)).toEqual({
+        content: [{ type: 'text', text: '[POLICY_DENIED] read_only: arbitrary_dynamic_tool' }],
+        structuredContent: {
+          error: { code: 'POLICY_DENIED', reason: 'read_only', tool: contract.name },
+        },
+        isError: true,
+        resultType: 'complete',
+        _meta: {},
+      });
+      expect(handle).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([null, undefined, [], Object.create({ verb: 'GET' })])(
+    'never obtains GET from absent or non-object input: %j',
+    async (input) => {
+      const handle = vi.fn();
+      const contract = {
+        ...listDrivesContract,
+        name: 'dynamic_input',
+        methodPolicy: { inputField: 'verb', readOnlyMethod: 'GET' as const },
+      };
+      const result = await createFeatureModule([{ contract, handle }]).invoke(
+        contract.name,
+        input,
+        active,
+      );
+      expect(result.structuredContent).toEqual({
+        error: { code: 'POLICY_DENIED', reason: 'read_only', tool: contract.name },
+      });
+      expect(result.isError).toBe(true);
+      expect(handle).not.toHaveBeenCalled();
+    },
+  );
+
+  it('permits explicit GET through metadata even with a destructive classification and a renamed field', async () => {
+    const handle = vi.fn(async () => ({ ok: true }));
+    const contract = {
+      ...createEventContract,
+      name: 'renamed_dynamic_tool',
+      classification: 'destructive' as const,
+      rawApi: true,
+      experimental: true,
+      methodPolicy: { inputField: 'verb', readOnlyMethod: 'GET' as const },
+      inputSchema: z.object({ verb: z.literal('GET') }),
+      outputSchema: z.object({ ok: z.literal(true) }),
+      text: (value: Record<string, unknown>) => JSON.stringify(value, null, 2),
+    };
+    const module = createFeatureModule([{ contract, handle }]);
+    const result = await module.invoke(contract.name, { verb: 'GET' }, active);
+    expect(result.structuredContent).toEqual({ ok: true });
+    expect(result.isError).toBeUndefined();
+    expect(handle).toHaveBeenCalledExactlyOnceWith({ verb: 'GET' });
+    for (const [context, reason] of [
+      [{ ...active, allowRawApi: false }, 'raw_api_disabled'],
+      [{ ...active, allowExperimental: false }, 'experimental_disabled'],
+    ] as const) {
+      handle.mockClear();
+      expect(
+        (await module.invoke(contract.name, { verb: 'GET' }, context)).structuredContent,
+      ).toEqual({ error: { code: 'POLICY_DENIED', reason, tool: contract.name } });
+      expect(handle).not.toHaveBeenCalled();
+    }
+  });
+
+  it.each([false, true])(
+    'preserves the static policy of every composed ordinary contract with readOnly=%s',
+    async (readOnly) => {
+      const deps = dependencies();
+      // Include the optional ordinary family, independently of experimental activation.
+      const config = loadRuntimeConfig({
+        INFOMANIAK_API_TOKEN: 'test',
+        KCHAT_HOST: 'chat.example.test',
+        KCHAT_TOKEN: 'test',
+      });
+      const discovered = await discoverFeatureModules('src/features/**/*.feature.ts', {
+        ...deps,
+        config,
+      });
+      const ordinary = discovered.tools.filter((tool) => !tool.experimental && !tool.rawApi);
+      expect(ordinary.length).toBeGreaterThan(0);
+      for (const tool of ordinary) {
+        expect(tool.methodPolicy).toBeUndefined();
+        for (const method of ['GET', 'POST', undefined]) {
+          const entered = new Error('ordinary handler entered');
+          const handle = vi.fn(async () => {
+            throw entered;
+          });
+          // Keep each real contract's policy metadata; isolate policy from its product DTO.
+          const contract = { ...tool, inputSchema: z.object({ method: z.unknown().optional() }) };
+          const module = createFeatureModule([{ contract, handle }]);
+          if (readOnly && tool.classification !== 'read') {
+            expect(await module.invoke(tool.name, { method }, { ...policy, readOnly })).toEqual({
+              content: [{ type: 'text', text: `[POLICY_DENIED] read_only: ${tool.name}` }],
+              structuredContent: {
+                error: { code: 'POLICY_DENIED', reason: 'read_only', tool: tool.name },
+              },
+              isError: true,
+              resultType: 'complete',
+              _meta: {},
+            });
+            expect(handle).not.toHaveBeenCalled();
+          } else {
+            await expect(
+              module.invoke(tool.name, { method }, { ...policy, readOnly }),
+            ).rejects.toBe(entered);
+            expect(handle).toHaveBeenCalledTimes(1);
+          }
+        }
+      }
+      expect(deps.fetcher).not.toHaveBeenCalled();
+    },
+  );
 });

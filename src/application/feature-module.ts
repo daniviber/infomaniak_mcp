@@ -25,7 +25,7 @@ export function createFeatureModule(bindings: readonly ToolBinding[]): FeatureMo
     async invoke(name, input, context) {
       const binding = handlers.get(name);
       if (!binding) throw new Error(`Unknown tool: ${name}`);
-      const denied = enforcePolicy(binding.contract, context);
+      const denied = enforcePolicy(binding.contract, context, input);
       if (denied) return denied;
       const parsed = binding.contract.inputSchema.parse(input);
       const output = await binding.handle(parsed);

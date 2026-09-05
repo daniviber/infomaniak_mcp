@@ -1,0 +1,1337 @@
+{
+  "baseline": {
+    "tag": "baseline-2026-09-04",
+    "tagObject": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
+    "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+    "inventoryPath": "src/server.ts",
+    "routesAndTypesPath": "src/infomaniak-client.ts",
+    "inputValidationPath": "src/schemas.ts",
+    "doublesPath": "src/infomaniak-client.test.ts"
+  },
+  "externalSources": [],
+  "proofPolicy": {
+    "endpoint": "unproven: these experimental destinations lack a public Infomaniak source in this lot; inherited route existence is not official endpoint proof.",
+    "response": "baseline: DTO shapes and generic ApiResponse envelope are inherited local types; void mutations ignore the deserialized body and return baseline acknowledgements. No official proof claimed.",
+    "optional": "Identity is used by domain mapping and required. Mailbox name/email occur in baseline doubles (lines 341-367) and remain required. Other ancillary fields absent from doubles are optional; no strict objects.",
+    "raw": "Addenda 10/11: every raw method returns method, endpoint, the actual HTTP status, and the complete provider JSON body in data, without endpoint-specific DTO validation. This is the explicit raw DTO exception. Empty HTTP bodies stay undefined in the gateway and map to null in MCP to retain four JSON fields. Configured credentials, sensitive credential fields, and their echoes are redacted recursively only in raw output. Gateway errors retain their existing expurgated messages.",
+    "paths": "Raw paths start with / and a numeric version. Plain nonempty segments only; no URLs, bases, encoded segments, dot segments, query strings or fragments. Query parameters are separate. No GET body.",
+    "data": "All examples are synthetic. No provider HTTP calls or external source reads."
+  },
+  "entities": {
+    "domain": {
+      "dto": {
+        "id": 21,
+        "customer_name": "example.test",
+        "registrant": "Owner",
+        "registry_expiration": "2027",
+        "auto_renew": true,
+        "status": "active"
+      },
+      "domain": {
+        "id": 21,
+        "customerName": "example.test",
+        "registrant": "Owner",
+        "registryExpiration": "2027",
+        "autoRenew": true,
+        "status": "active"
+      },
+      "minimal": {
+        "id": 21
+      }
+    },
+    "mailService": {
+      "dto": {
+        "id": 21,
+        "account_id": 3,
+        "customer_name": "example.test",
+        "nb_mailbox": 2,
+        "max_mailbox": 10
+      },
+      "domain": {
+        "id": 21,
+        "accountId": 3,
+        "customerName": "example.test",
+        "mailboxCount": 2,
+        "maxMailboxCount": 10
+      },
+      "minimal": {
+        "id": 21
+      }
+    },
+    "mailbox": {
+      "dto": {
+        "id": 21,
+        "mail_id": 4,
+        "mailbox_name": "info",
+        "email": "info@example.test",
+        "aliases": ["alias@example.test"],
+        "size_used": 12,
+        "max_size": 100
+      },
+      "domain": {
+        "id": 21,
+        "mailId": 4,
+        "mailboxName": "info",
+        "email": "info@example.test",
+        "aliases": ["alias@example.test"],
+        "sizeUsed": 12,
+        "maxSize": 100
+      },
+      "minimal": {
+        "id": 21,
+        "mailbox_name": "info",
+        "email": "info@example.test"
+      }
+    },
+    "redirection": {
+      "dto": {
+        "id": 21,
+        "mail_id": 4,
+        "from": "info@example.test",
+        "to": ["target@example.test"],
+        "keep_copy": true,
+        "created_at": "2026"
+      },
+      "domain": {
+        "id": 21,
+        "mailId": 4,
+        "from": "info@example.test",
+        "to": ["target@example.test"],
+        "keepCopy": true,
+        "createdAt": "2026"
+      },
+      "minimal": {
+        "id": 21
+      }
+    },
+    "autoresponder": {
+      "dto": {
+        "enabled": true,
+        "subject": "Absent",
+        "body": "Away",
+        "from_date": "2026-09-04",
+        "to_date": "2026-09-10"
+      },
+      "domain": {
+        "enabled": true,
+        "subject": "Absent",
+        "body": "Away",
+        "fromDate": "2026-09-04",
+        "toDate": "2026-09-10"
+      },
+      "minimal": {}
+    },
+    "folder": {
+      "dto": {
+        "id": "inbox",
+        "name": "Inbox",
+        "path": "INBOX",
+        "messages_count": 3,
+        "unseen_count": 1
+      },
+      "domain": {
+        "id": "inbox",
+        "name": "Inbox",
+        "path": "INBOX",
+        "messagesCount": 3,
+        "unseenCount": 1
+      },
+      "minimal": {
+        "id": "inbox"
+      }
+    },
+    "vps": {
+      "dto": {
+        "id": 21,
+        "account_id": 3,
+        "hostname": "compute.example.test",
+        "state": "running",
+        "cpu": 2,
+        "memory": 4096,
+        "disk": 80,
+        "ip": "192.0.2.1",
+        "created_at": "2026",
+        "expires_at": "2027"
+      },
+      "domain": {
+        "id": 21,
+        "accountId": 3,
+        "hostname": "compute.example.test",
+        "state": "running",
+        "cpu": 2,
+        "memory": 4096,
+        "disk": 80,
+        "ip": "192.0.2.1",
+        "createdAt": "2026",
+        "expiresAt": "2027"
+      },
+      "minimal": {
+        "id": 21
+      }
+    },
+    "dedicatedServer": {
+      "dto": {
+        "id": 21,
+        "account_id": 3,
+        "hostname": "server.example.test",
+        "state": "running",
+        "ip": "192.0.2.2",
+        "location": "synthetic",
+        "expires_at": "2027"
+      },
+      "domain": {
+        "id": 21,
+        "accountId": 3,
+        "hostname": "server.example.test",
+        "state": "running",
+        "ip": "192.0.2.2",
+        "location": "synthetic",
+        "expiresAt": "2027"
+      },
+      "minimal": {
+        "id": 21
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "name": "infomaniak_list_vps",
+      "baselineMethod": "getVpsList",
+      "method": "GET",
+      "path": "/1/vps",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1009
+      },
+      "input": {},
+      "response": "vps",
+      "outputKey": "servers",
+      "list": true,
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": 21,
+            "account_id": 3,
+            "hostname": "compute.example.test",
+            "state": "running",
+            "cpu": 2,
+            "memory": 4096,
+            "disk": 80,
+            "ip": "192.0.2.1",
+            "created_at": "2026",
+            "expires_at": "2027",
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "servers": [
+          {
+            "id": 21,
+            "accountId": 3,
+            "hostname": "compute.example.test",
+            "state": "running",
+            "cpu": 2,
+            "memory": 4096,
+            "disk": 80,
+            "ip": "192.0.2.1",
+            "createdAt": "2026",
+            "expiresAt": "2027"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_vps",
+      "baselineMethod": "getVps",
+      "method": "GET",
+      "path": "/1/vps/{vps_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1013
+      },
+      "input": {
+        "vps_id": 7
+      },
+      "response": "vps",
+      "outputKey": "server",
+      "list": false,
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "account_id": 3,
+          "hostname": "compute.example.test",
+          "state": "running",
+          "cpu": 2,
+          "memory": 4096,
+          "disk": 80,
+          "ip": "192.0.2.1",
+          "created_at": "2026",
+          "expires_at": "2027",
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "server": {
+          "id": 21,
+          "accountId": 3,
+          "hostname": "compute.example.test",
+          "state": "running",
+          "cpu": 2,
+          "memory": 4096,
+          "disk": 80,
+          "ip": "192.0.2.1",
+          "createdAt": "2026",
+          "expiresAt": "2027"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_reboot_vps",
+      "baselineMethod": "rebootVps",
+      "method": "POST",
+      "path": "/1/vps/{vps_id}/reboot",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1017
+      },
+      "input": {
+        "vps_id": 7
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "reboot_vps",
+        "vpsId": 7
+      }
+    },
+    {
+      "name": "infomaniak_shutdown_vps",
+      "baselineMethod": "shutdownVps",
+      "method": "POST",
+      "path": "/1/vps/{vps_id}/shutdown",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1021
+      },
+      "input": {
+        "vps_id": 7
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "shutdown_vps",
+        "vpsId": 7
+      }
+    },
+    {
+      "name": "infomaniak_boot_vps",
+      "baselineMethod": "bootVps",
+      "method": "POST",
+      "path": "/1/vps/{vps_id}/boot",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1025
+      },
+      "input": {
+        "vps_id": 7
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "boot_vps",
+        "vpsId": 7
+      }
+    },
+    {
+      "name": "infomaniak_list_dedicated_servers",
+      "baselineMethod": "getDedicatedServers",
+      "method": "GET",
+      "path": "/1/dedicated",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1030
+      },
+      "input": {},
+      "response": "dedicatedServer",
+      "outputKey": "servers",
+      "list": true,
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": 21,
+            "account_id": 3,
+            "hostname": "server.example.test",
+            "state": "running",
+            "ip": "192.0.2.2",
+            "location": "synthetic",
+            "expires_at": "2027",
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "servers": [
+          {
+            "id": 21,
+            "accountId": 3,
+            "hostname": "server.example.test",
+            "state": "running",
+            "ip": "192.0.2.2",
+            "location": "synthetic",
+            "expiresAt": "2027"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_dedicated_server",
+      "baselineMethod": "getDedicatedServer",
+      "method": "GET",
+      "path": "/1/dedicated/{server_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1034
+      },
+      "input": {
+        "server_id": 8
+      },
+      "response": "dedicatedServer",
+      "outputKey": "server",
+      "list": false,
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "account_id": 3,
+          "hostname": "server.example.test",
+          "state": "running",
+          "ip": "192.0.2.2",
+          "location": "synthetic",
+          "expires_at": "2027",
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "server": {
+          "id": 21,
+          "accountId": 3,
+          "hostname": "server.example.test",
+          "state": "running",
+          "ip": "192.0.2.2",
+          "location": "synthetic",
+          "expiresAt": "2027"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_reboot_dedicated_server",
+      "baselineMethod": "rebootDedicatedServer",
+      "method": "POST",
+      "path": "/1/dedicated/{server_id}/reboot",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1038
+      },
+      "input": {
+        "server_id": 8
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "reboot_dedicated_server",
+        "serverId": 8
+      }
+    },
+    {
+      "name": "infomaniak_list_domains",
+      "baselineMethod": "getDomains",
+      "method": "GET",
+      "path": "/1/domain/account/{account_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 554
+      },
+      "input": {
+        "account_id": 3
+      },
+      "response": "domain",
+      "outputKey": "domains",
+      "list": true,
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": 21,
+            "customer_name": "example.test",
+            "registrant": "Owner",
+            "registry_expiration": "2027",
+            "auto_renew": true,
+            "status": "active",
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "domains": [
+          {
+            "id": 21,
+            "customerName": "example.test",
+            "registrant": "Owner",
+            "registryExpiration": "2027",
+            "autoRenew": true,
+            "status": "active"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_domain",
+      "baselineMethod": "getDomain",
+      "method": "GET",
+      "path": "/1/domain/account/{account_id}/domain/{domain}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 558
+      },
+      "input": {
+        "account_id": 3,
+        "domain": "example.test"
+      },
+      "response": "domain",
+      "outputKey": "domain",
+      "list": false,
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "customer_name": "example.test",
+          "registrant": "Owner",
+          "registry_expiration": "2027",
+          "auto_renew": true,
+          "status": "active",
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "domain": {
+          "id": 21,
+          "customerName": "example.test",
+          "registrant": "Owner",
+          "registryExpiration": "2027",
+          "autoRenew": true,
+          "status": "active"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_list_mail_services",
+      "baselineMethod": "getMailServices",
+      "method": "GET",
+      "path": "/1/mail",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 603
+      },
+      "input": {
+        "account_id": 3
+      },
+      "response": "mailService",
+      "outputKey": "services",
+      "list": true,
+      "query": {
+        "account_id": 3
+      },
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": 21,
+            "account_id": 3,
+            "customer_name": "example.test",
+            "nb_mailbox": 2,
+            "max_mailbox": 10,
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "services": [
+          {
+            "id": 21,
+            "accountId": 3,
+            "customerName": "example.test",
+            "mailboxCount": 2,
+            "maxMailboxCount": 10
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_mail_service",
+      "baselineMethod": "getMailService",
+      "method": "GET",
+      "path": "/1/mail/{mail_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 607
+      },
+      "input": {
+        "mail_id": 4
+      },
+      "response": "mailService",
+      "outputKey": "service",
+      "list": false,
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "account_id": 3,
+          "customer_name": "example.test",
+          "nb_mailbox": 2,
+          "max_mailbox": 10,
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "service": {
+          "id": 21,
+          "accountId": 3,
+          "customerName": "example.test",
+          "mailboxCount": 2,
+          "maxMailboxCount": 10
+        }
+      }
+    },
+    {
+      "name": "infomaniak_list_mailboxes",
+      "baselineMethod": "getMailboxes",
+      "method": "GET",
+      "path": "/1/mail/{mail_id}/mailbox",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 611
+      },
+      "input": {
+        "mail_id": 4
+      },
+      "response": "mailbox",
+      "outputKey": "mailboxes",
+      "list": true,
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": 21,
+            "mail_id": 4,
+            "mailbox_name": "info",
+            "email": "info@example.test",
+            "aliases": ["alias@example.test"],
+            "size_used": 12,
+            "max_size": 100,
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "mailboxes": [
+          {
+            "id": 21,
+            "mailId": 4,
+            "mailboxName": "info",
+            "email": "info@example.test",
+            "aliases": ["alias@example.test"],
+            "sizeUsed": 12,
+            "maxSize": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_get_mailbox",
+      "baselineMethod": "getMailbox",
+      "method": "GET",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 615
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5
+      },
+      "response": "mailbox",
+      "outputKey": "mailbox",
+      "list": false,
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "mail_id": 4,
+          "mailbox_name": "info",
+          "email": "info@example.test",
+          "aliases": ["alias@example.test"],
+          "size_used": 12,
+          "max_size": 100,
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "mailbox": {
+          "id": 21,
+          "mailId": 4,
+          "mailboxName": "info",
+          "email": "info@example.test",
+          "aliases": ["alias@example.test"],
+          "sizeUsed": 12,
+          "maxSize": 100
+        }
+      }
+    },
+    {
+      "name": "infomaniak_create_mailbox",
+      "baselineMethod": "createMailbox",
+      "method": "POST",
+      "path": "/1/mail/{mail_id}/mailbox",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 619
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_name": "info",
+        "password": "synthetic-password",
+        "max_size": 100
+      },
+      "response": "mailbox",
+      "outputKey": "mailbox",
+      "list": false,
+      "body": {
+        "mailbox_name": "info",
+        "password": "synthetic-password",
+        "max_size": 100
+      },
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "mail_id": 4,
+          "mailbox_name": "info",
+          "email": "info@example.test",
+          "aliases": ["alias@example.test"],
+          "size_used": 12,
+          "max_size": 100,
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "mailbox": {
+          "id": 21,
+          "mailId": 4,
+          "mailboxName": "info",
+          "email": "info@example.test",
+          "aliases": ["alias@example.test"],
+          "sizeUsed": 12,
+          "maxSize": 100
+        }
+      }
+    },
+    {
+      "name": "infomaniak_update_mailbox",
+      "baselineMethod": "updateMailbox",
+      "method": "PUT",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 627
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5,
+        "password": "changed-password",
+        "max_size": 200
+      },
+      "response": "mailbox",
+      "outputKey": "mailbox",
+      "list": false,
+      "body": {
+        "password": "changed-password",
+        "max_size": 200
+      },
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "mail_id": 4,
+          "mailbox_name": "info",
+          "email": "info@example.test",
+          "aliases": ["alias@example.test"],
+          "size_used": 12,
+          "max_size": 100,
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "mailbox": {
+          "id": 21,
+          "mailId": 4,
+          "mailboxName": "info",
+          "email": "info@example.test",
+          "aliases": ["alias@example.test"],
+          "sizeUsed": 12,
+          "maxSize": 100
+        }
+      }
+    },
+    {
+      "name": "infomaniak_delete_mailbox",
+      "baselineMethod": "deleteMailbox",
+      "method": "DELETE",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 634
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "delete_mailbox",
+        "mailId": 4,
+        "mailboxId": 5
+      }
+    },
+    {
+      "name": "infomaniak_add_mailbox_alias",
+      "baselineMethod": "addMailboxAlias",
+      "method": "POST",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/alias",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 638
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5,
+        "alias": "alias+tag@example.test"
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "body": {
+        "alias": "alias+tag@example.test"
+      },
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "add_mailbox_alias",
+        "mailId": 4,
+        "mailboxId": 5,
+        "alias": "alias+tag@example.test"
+      }
+    },
+    {
+      "name": "infomaniak_delete_mailbox_alias",
+      "baselineMethod": "deleteMailboxAlias",
+      "method": "DELETE",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/alias/{alias}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 642
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5,
+        "alias": "alias+tag@example.test"
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "delete_mailbox_alias",
+        "mailId": 4,
+        "mailboxId": 5,
+        "alias": "alias+tag@example.test"
+      }
+    },
+    {
+      "name": "infomaniak_list_email_redirections",
+      "baselineMethod": "getEmailRedirections",
+      "method": "GET",
+      "path": "/1/mail/{mail_id}/redirection",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 646
+      },
+      "input": {
+        "mail_id": 4
+      },
+      "response": "redirection",
+      "outputKey": "redirections",
+      "list": true,
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": 21,
+            "mail_id": 4,
+            "from": "info@example.test",
+            "to": ["target@example.test"],
+            "keep_copy": true,
+            "created_at": "2026",
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "redirections": [
+          {
+            "id": 21,
+            "mailId": 4,
+            "from": "info@example.test",
+            "to": ["target@example.test"],
+            "keepCopy": true,
+            "createdAt": "2026"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_create_email_redirection",
+      "baselineMethod": "createEmailRedirection",
+      "method": "POST",
+      "path": "/1/mail/{mail_id}/redirection",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 650
+      },
+      "input": {
+        "mail_id": 4,
+        "from": "info@example.test",
+        "to": ["target@example.test"],
+        "keep_copy": true
+      },
+      "response": "redirection",
+      "outputKey": "redirection",
+      "list": false,
+      "body": {
+        "from": "info@example.test",
+        "to": ["target@example.test"],
+        "keep_copy": true
+      },
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "id": 21,
+          "mail_id": 4,
+          "from": "info@example.test",
+          "to": ["target@example.test"],
+          "keep_copy": true,
+          "created_at": "2026",
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "redirection": {
+          "id": 21,
+          "mailId": 4,
+          "from": "info@example.test",
+          "to": ["target@example.test"],
+          "keepCopy": true,
+          "createdAt": "2026"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_delete_email_redirection",
+      "baselineMethod": "deleteEmailRedirection",
+      "method": "DELETE",
+      "path": "/1/mail/{mail_id}/redirection/{redirection_id}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 654
+      },
+      "input": {
+        "mail_id": 4,
+        "redirection_id": 6
+      },
+      "response": "acknowledgement",
+      "list": false,
+      "providerResponse": {
+        "anything": "ignored",
+        "secret": "discard"
+      },
+      "domainOutput": {
+        "ok": true,
+        "action": "delete_email_redirection",
+        "mailId": 4,
+        "redirectionId": 6
+      }
+    },
+    {
+      "name": "infomaniak_get_mailbox_autoresponder",
+      "baselineMethod": "getMailboxAutoresponder",
+      "method": "GET",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/autoresponder",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 658
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5
+      },
+      "response": "autoresponder",
+      "outputKey": "autoresponder",
+      "list": false,
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "enabled": true,
+          "subject": "Absent",
+          "body": "Away",
+          "from_date": "2026-09-04",
+          "to_date": "2026-09-10",
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "autoresponder": {
+          "enabled": true,
+          "subject": "Absent",
+          "body": "Away",
+          "fromDate": "2026-09-04",
+          "toDate": "2026-09-10"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_update_mailbox_autoresponder",
+      "baselineMethod": "updateMailboxAutoresponder",
+      "method": "PUT",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/autoresponder",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 662
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5,
+        "enabled": true,
+        "subject": "Absent",
+        "body": "Away",
+        "from_date": "2026-09-04",
+        "to_date": "2026-09-10"
+      },
+      "response": "autoresponder",
+      "outputKey": "autoresponder",
+      "list": false,
+      "body": {
+        "enabled": true,
+        "subject": "Absent",
+        "body": "Away",
+        "from_date": "2026-09-04",
+        "to_date": "2026-09-10"
+      },
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "enabled": true,
+          "subject": "Absent",
+          "body": "Away",
+          "from_date": "2026-09-04",
+          "to_date": "2026-09-10",
+          "providerOnly": "discard"
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "autoresponder": {
+          "enabled": true,
+          "subject": "Absent",
+          "body": "Away",
+          "fromDate": "2026-09-04",
+          "toDate": "2026-09-10"
+        }
+      }
+    },
+    {
+      "name": "infomaniak_list_mailbox_folders",
+      "baselineMethod": "listMailboxFolders",
+      "method": "GET",
+      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/folder",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 666
+      },
+      "input": {
+        "mail_id": 4,
+        "mailbox_id": 5
+      },
+      "response": "folder",
+      "outputKey": "folders",
+      "list": true,
+      "providerResponse": {
+        "result": "success",
+        "data": [
+          {
+            "id": "inbox",
+            "name": "Inbox",
+            "path": "INBOX",
+            "messages_count": 3,
+            "unseen_count": 1,
+            "providerOnly": "discard"
+          }
+        ],
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "folders": [
+          {
+            "id": "inbox",
+            "name": "Inbox",
+            "path": "INBOX",
+            "messagesCount": 3,
+            "unseenCount": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_api_call",
+      "baselineMethod": "call",
+      "method": "input",
+      "path": "/{validated_relative_segments}",
+      "proof": "unproven",
+      "responseProof": "baseline",
+      "enabled": false,
+      "source": {
+        "path": "src/infomaniak-client.ts",
+        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "line": 1061
+      },
+      "input": {
+        "method": "GET",
+        "endpoint": "/2/synthetic",
+        "query_params": {
+          "limit": 2,
+          "enabled": true,
+          "search": "a & b"
+        }
+      },
+      "response": "raw",
+      "query": {
+        "limit": 2,
+        "enabled": true,
+        "search": "a & b"
+      },
+      "providerResponse": {
+        "result": "success",
+        "data": {
+          "items": [
+            {
+              "id": 21
+            }
+          ]
+        },
+        "providerOnly": "discard"
+      },
+      "domainOutput": {
+        "method": "GET",
+        "endpoint": "/2/synthetic",
+        "status": 200,
+        "data": {
+          "result": "success",
+          "data": {
+            "items": [
+              {
+                "id": 21
+              }
+            ]
+          },
+          "providerOnly": "discard"
+        }
+      }
+    }
+  ],
+  "rawStatusExamples": [
+    {
+      "method": "POST",
+      "status": 201,
+      "body": {
+        "created": 42
+      },
+      "output": {
+        "method": "POST",
+        "endpoint": "/2/synthetic",
+        "status": 201,
+        "data": {
+          "created": 42
+        }
+      }
+    },
+    {
+      "method": "DELETE",
+      "status": 204,
+      "bodyAbsent": true,
+      "output": {
+        "method": "DELETE",
+        "endpoint": "/2/synthetic",
+        "status": 204,
+        "data": null
+      }
+    }
+  ]
+}

@@ -21,6 +21,8 @@ export interface ToolContract {
   readonly outputSchema: z.ZodObject;
   readonly classification: 'read' | 'write' | 'destructive';
   readonly rawApi: boolean;
+  /** Dynamic HTTP tools must explicitly supply this method before a read-only invocation. */
+  readonly methodPolicy?: { readonly inputField: string; readonly readOnlyMethod: 'GET' };
   readonly idempotent: boolean;
   /** Null means the contract specifies no additional numeric bound. */
   readonly limits: Readonly<Record<string, number | null>>;
