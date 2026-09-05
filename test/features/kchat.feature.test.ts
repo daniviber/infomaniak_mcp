@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import {
   CLIENT_CAPABILITIES_META_KEY,
@@ -208,15 +208,14 @@ describe('kChat offline vertical slice', () => {
   });
 
   it.each([false, true])(
-    'discovers the existing six modules unchanged with configured=%s',
+    'discovers kChat and preserves the other tools with configured=%s',
     async (enabled) => {
       const deps = dependencies(enabled ? configured : { INFOMANIAK_API_TOKEN: 'main-secret' });
       const module = await discoverFeatureModules('src/features/**/*.feature.ts', deps);
       const names = module.tools.map((tool) => tool.name);
-      expect(
-        readdirSync('src/features').filter((name) => name.endsWith('.feature.ts')),
-      ).toHaveLength(7);
-      expect(names).toHaveLength(enabled ? 59 : 46);
+      expect(names.filter((name) => name.startsWith(prefix))).toEqual(
+        enabled ? tools.map((tool) => tool.name).sort() : [],
+      );
       expect(names).toEqual([...names].sort());
       expect(new Set(names).size).toBe(names.length);
       expect(names.filter((name) => name.startsWith(prefix))).toHaveLength(enabled ? 13 : 0);
@@ -224,6 +223,7 @@ describe('kChat offline vertical slice', () => {
         'src/features/**/*.feature.ts',
         dependencies({ INFOMANIAK_API_TOKEN: 'main-secret' }),
       );
+      expect(names).toHaveLength(without.tools.length + (enabled ? 13 : 0));
       expect(names.filter((name) => !name.startsWith(prefix))).toEqual(
         without.tools.map((tool) => tool.name),
       );
@@ -266,7 +266,13 @@ describe('kChat offline vertical slice', () => {
     try {
       expect(reads).toBe(1);
       expect(fetcher).not.toHaveBeenCalled();
-      expect((await rpc(server, 'tools/list')).result.tools).toHaveLength(59);
+      const without = await discoverFeatureModules(
+        'src/features/**/*.feature.ts',
+        dependencies({ INFOMANIAK_API_TOKEN: 'main-secret' }),
+      );
+      expect((await rpc(server, 'tools/list')).result.tools).toHaveLength(
+        without.tools.length + 13,
+      );
       const drive = await rpc(server, 'tools/call', {
         name: 'infomaniak_list_kdrives',
         arguments: { account_id: 123 },
@@ -298,7 +304,15 @@ describe('kChat offline vertical slice', () => {
       { pattern: 'src/features/**/*.feature.ts', fetch: fetcher },
     );
     try {
-      expect((await rpc(server, 'tools/list')).result.tools).toHaveLength(46);
+      const withChat = await discoverFeatureModules(
+        'src/features/**/*.feature.ts',
+        dependencies(configured),
+      );
+      const listed = (await rpc(server, 'tools/list')).result.tools;
+      expect(listed).toHaveLength(withChat.tools.length - 13);
+      expect(listed.map((tool: { name: string }) => tool.name)).toEqual(
+        withChat.tools.filter((tool) => !tool.name.startsWith(prefix)).map((tool) => tool.name),
+      );
       for (const tool of tools) {
         const result = await rpc(server, 'tools/call', { name: tool.name, arguments: {} });
         expect(result.error ?? result.result?.isError).toBeTruthy();
