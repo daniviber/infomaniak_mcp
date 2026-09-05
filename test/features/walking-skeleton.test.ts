@@ -18,7 +18,7 @@ import {
   discoverFeatureModules,
 } from '../../src/main/discover-feature-modules.js';
 import * as feature from '../fixtures/features/added/original.feature.js';
-import { existsSync, readdirSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { loadRuntimeConfig } from '../../src/config/runtime-config.js';
 import { createRuntime } from '../../src/main/index.js';
 
@@ -482,16 +482,36 @@ describe('walking skeleton', () => {
 });
 
 describe('generic feature discovery', () => {
-  it('has no production modules and discovers an empty default catalogue', async () => {
-    if (existsSync('src/features'))
-      expect(readdirSync('src/features', { recursive: true })).toEqual([]);
-    expect((await discoverFeatureModules(undefined, dependencies())).tools).toEqual([]);
+  it('discovers an empty fixture catalogue without advertising tools', async () => {
+    const directory = 'test/fixtures/features/empty-directory';
+    const pattern = `${directory}/**/*.feature.ts`;
+    expect(readdirSync(directory, { recursive: true })).toEqual(['.gitkeep']);
+    expect((await discoverFeatureModules(pattern, dependencies())).tools).toEqual([]);
     const server = await createRuntime(
       { INFOMANIAK_API_TOKEN: 'test' },
-      { fetch: dependencies().fetcher, clock: idleClock },
+      { pattern, fetch: dependencies().fetcher, clock: idleClock },
     );
     try {
       expect((await rpc(server, 'server/discover')).capabilities.tools).toBeUndefined();
+    } finally {
+      await server.close();
+    }
+  });
+
+  it('advertises tools when fixture modules are discovered', async () => {
+    expect(
+      (await discoverFeatureModules(positivePattern, dependencies())).tools.map(
+        (tool) => tool.name,
+      ),
+    ).toEqual([createEventContract.name, listDrivesContract.name]);
+    const server = await createRuntime(
+      { INFOMANIAK_API_TOKEN: 'test' },
+      { pattern: positivePattern, fetch: dependencies().fetcher, clock: idleClock },
+    );
+    try {
+      expect((await rpc(server, 'server/discover')).capabilities.tools).toEqual({
+        listChanged: true,
+      });
     } finally {
       await server.close();
     }
