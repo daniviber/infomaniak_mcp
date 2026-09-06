@@ -1,0 +1,335 @@
+[
+  {
+    "name": "infomaniak_add_kdrive_favorite"
+  },
+  {
+    "name": "infomaniak_add_mailbox_alias"
+  },
+  {
+    "name": "infomaniak_api_call"
+  },
+  {
+    "name": "infomaniak_boot_vps"
+  },
+  {
+    "name": "infomaniak_calendar_create_event"
+  },
+  {
+    "name": "infomaniak_calendar_delete_event"
+  },
+  {
+    "name": "infomaniak_calendar_get_event"
+  },
+  {
+    "name": "infomaniak_calendar_list_calendars"
+  },
+  {
+    "name": "infomaniak_calendar_list_events"
+  },
+  {
+    "name": "infomaniak_calendar_update_event"
+  },
+  {
+    "name": "infomaniak_copy_kdrive_file"
+  },
+  {
+    "name": "infomaniak_create_cron_job"
+  },
+  {
+    "name": "infomaniak_create_database"
+  },
+  {
+    "name": "infomaniak_create_dns_record"
+  },
+  {
+    "name": "infomaniak_create_email_redirection"
+  },
+  {
+    "name": "infomaniak_create_ftp_account"
+  },
+  {
+    "name": "infomaniak_create_kdrive_directory"
+  },
+  {
+    "name": "infomaniak_create_mailbox"
+  },
+  {
+    "name": "infomaniak_create_site"
+  },
+  {
+    "name": "infomaniak_delete_cron_job"
+  },
+  {
+    "name": "infomaniak_delete_database"
+  },
+  {
+    "name": "infomaniak_delete_dns_record"
+  },
+  {
+    "name": "infomaniak_delete_email_redirection"
+  },
+  {
+    "name": "infomaniak_delete_ftp_account"
+  },
+  {
+    "name": "infomaniak_delete_kdrive_file"
+  },
+  {
+    "name": "infomaniak_delete_kdrive_share_link"
+  },
+  {
+    "name": "infomaniak_delete_kdrive_trashed_file_permanently"
+  },
+  {
+    "name": "infomaniak_delete_mailbox"
+  },
+  {
+    "name": "infomaniak_delete_mailbox_alias"
+  },
+  {
+    "name": "infomaniak_delete_site"
+  },
+  {
+    "name": "infomaniak_download_kdrive_file"
+  },
+  {
+    "name": "infomaniak_empty_kdrive_trash"
+  },
+  {
+    "name": "infomaniak_get_account"
+  },
+  {
+    "name": "infomaniak_get_certificate"
+  },
+  {
+    "name": "infomaniak_get_database"
+  },
+  {
+    "name": "infomaniak_get_dedicated_server"
+  },
+  {
+    "name": "infomaniak_get_domain"
+  },
+  {
+    "name": "infomaniak_get_domain_nameservers"
+  },
+  {
+    "name": "infomaniak_get_invoice"
+  },
+  {
+    "name": "infomaniak_get_kdrive"
+  },
+  {
+    "name": "infomaniak_get_kdrive_activity"
+  },
+  {
+    "name": "infomaniak_get_kdrive_file"
+  },
+  {
+    "name": "infomaniak_get_kdrive_share_link"
+  },
+  {
+    "name": "infomaniak_get_mail_service"
+  },
+  {
+    "name": "infomaniak_get_mailbox"
+  },
+  {
+    "name": "infomaniak_get_mailbox_autoresponder"
+  },
+  {
+    "name": "infomaniak_get_profile"
+  },
+  {
+    "name": "infomaniak_get_site"
+  },
+  {
+    "name": "infomaniak_get_swiss_backup"
+  },
+  {
+    "name": "infomaniak_get_vps"
+  },
+  {
+    "name": "infomaniak_get_web_hosting"
+  },
+  {
+    "name": "infomaniak_invite_kdrive_access"
+  },
+  {
+    "name": "infomaniak_kchat_create_direct"
+  },
+  {
+    "name": "infomaniak_kchat_create_post"
+  },
+  {
+    "name": "infomaniak_kchat_delete_post"
+  },
+  {
+    "name": "infomaniak_kchat_get_channel"
+  },
+  {
+    "name": "infomaniak_kchat_get_channel_posts"
+  },
+  {
+    "name": "infomaniak_kchat_get_me"
+  },
+  {
+    "name": "infomaniak_kchat_list_channels"
+  },
+  {
+    "name": "infomaniak_kchat_list_my_channels"
+  },
+  {
+    "name": "infomaniak_kchat_list_my_teams"
+  },
+  {
+    "name": "infomaniak_kchat_list_teams"
+  },
+  {
+    "name": "infomaniak_kchat_list_users"
+  },
+  {
+    "name": "infomaniak_kchat_search_posts"
+  },
+  {
+    "name": "infomaniak_kchat_search_users"
+  },
+  {
+    "name": "infomaniak_list_accounts"
+  },
+  {
+    "name": "infomaniak_list_certificates"
+  },
+  {
+    "name": "infomaniak_list_cron_jobs"
+  },
+  {
+    "name": "infomaniak_list_databases"
+  },
+  {
+    "name": "infomaniak_list_dedicated_servers"
+  },
+  {
+    "name": "infomaniak_list_dns_records"
+  },
+  {
+    "name": "infomaniak_list_domains"
+  },
+  {
+    "name": "infomaniak_list_email_redirections"
+  },
+  {
+    "name": "infomaniak_list_ftp_accounts"
+  },
+  {
+    "name": "infomaniak_list_invoices"
+  },
+  {
+    "name": "infomaniak_list_kdrive_favorites"
+  },
+  {
+    "name": "infomaniak_list_kdrive_file_access"
+  },
+  {
+    "name": "infomaniak_list_kdrive_files"
+  },
+  {
+    "name": "infomaniak_list_kdrive_recents"
+  },
+  {
+    "name": "infomaniak_list_kdrive_shared_with_me"
+  },
+  {
+    "name": "infomaniak_list_kdrive_trash"
+  },
+  {
+    "name": "infomaniak_list_kdrives"
+  },
+  {
+    "name": "infomaniak_list_mail_services"
+  },
+  {
+    "name": "infomaniak_list_mailbox_folders"
+  },
+  {
+    "name": "infomaniak_list_mailboxes"
+  },
+  {
+    "name": "infomaniak_list_products"
+  },
+  {
+    "name": "infomaniak_list_sites"
+  },
+  {
+    "name": "infomaniak_list_swiss_backup_slots"
+  },
+  {
+    "name": "infomaniak_list_swiss_backups"
+  },
+  {
+    "name": "infomaniak_list_vps"
+  },
+  {
+    "name": "infomaniak_list_web_hostings"
+  },
+  {
+    "name": "infomaniak_move_kdrive_file"
+  },
+  {
+    "name": "infomaniak_ping"
+  },
+  {
+    "name": "infomaniak_reboot_dedicated_server"
+  },
+  {
+    "name": "infomaniak_reboot_vps"
+  },
+  {
+    "name": "infomaniak_remove_kdrive_favorite"
+  },
+  {
+    "name": "infomaniak_rename_kdrive_file"
+  },
+  {
+    "name": "infomaniak_renew_domain"
+  },
+  {
+    "name": "infomaniak_restore_kdrive_file"
+  },
+  {
+    "name": "infomaniak_search_kdrive_files"
+  },
+  {
+    "name": "infomaniak_share_kdrive_file"
+  },
+  {
+    "name": "infomaniak_shutdown_vps"
+  },
+  {
+    "name": "infomaniak_update_cron_job"
+  },
+  {
+    "name": "infomaniak_update_dns_record"
+  },
+  {
+    "name": "infomaniak_update_domain_nameservers"
+  },
+  {
+    "name": "infomaniak_update_ftp_account"
+  },
+  {
+    "name": "infomaniak_update_kdrive_share_link"
+  },
+  {
+    "name": "infomaniak_update_mailbox"
+  },
+  {
+    "name": "infomaniak_update_mailbox_autoresponder"
+  },
+  {
+    "name": "infomaniak_update_site"
+  },
+  {
+    "name": "infomaniak_upload_kdrive_file"
+  }
+]

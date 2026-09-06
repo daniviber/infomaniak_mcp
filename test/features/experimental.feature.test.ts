@@ -21,7 +21,8 @@ import {
 } from '../../src/main/discover-feature-modules.js';
 import { loadRuntimeConfig } from '../../src/config/runtime-config.js';
 import { createModernServer } from '../../src/adapters/inbound/mcp/modern-server.js';
-import { policyErrorSchema, type InvocationContext } from '../../src/domain/tool-contract.js';
+import type { InvocationContext } from '../../src/domain/tool-contract.js';
+import { policyErrorSchema } from '../../src/application/policy-error-schema.js';
 import type { EntityKind } from '../../src/domain/experimental/endpoint-proof.js';
 
 interface Example {
