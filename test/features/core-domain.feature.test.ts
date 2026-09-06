@@ -376,3 +376,15 @@ describe('FIX-12A domain', () => {
     },
   );
 });
+
+// Relevé /1/account: created_at:int, converted from Unix seconds.
+it('FIX-12B parses the account list and converts its creation date to UTC', async () => {
+  const s = setup(success([{ ...fixture.account, created_at: 1767225600 }]));
+  const result = await s.module.invoke('infomaniak_list_accounts', {}, policy);
+  expect(result.structuredContent).toStrictEqual({
+    accounts: [{ ...account, legalEntityType: undefined, createdAt: '2026-01-01T00:00:00.000Z' }],
+  });
+  expect(result.content).toEqual([
+    { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
+  ]);
+});
