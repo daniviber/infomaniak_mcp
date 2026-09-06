@@ -4,7 +4,7 @@ import { toNodeHandler } from '@modelcontextprotocol/node';
 import { ENVELOPE_RESERVE } from '../../../application/drive/transfer.feature.js';
 import { createSecurityGuard, rejectHttp, type HttpAuth, type SecurityLogger } from './security.js';
 
-function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer> {
+export function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let size = 0;
@@ -36,7 +36,7 @@ function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer> {
     req.once('aborted', failed);
   });
 }
-class BodyLimitError extends Error {}
+export class BodyLimitError extends Error {}
 
 export function createModernHttpHandler(options: {
   server: McpServerFactory;
