@@ -10,12 +10,12 @@
   },
   "externalSources": [],
   "proofPolicy": {
-    "endpoint": "unproven: these experimental destinations lack a public Infomaniak source in this lot; inherited route existence is not official endpoint proof.",
+    "endpoint": "FIX-12A : sources officielles pour les routes compatibles ; relevé opérateur pour A ; routes douteuses conservées unproven.",
     "response": "baseline: DTO shapes and generic ApiResponse envelope are inherited local types; void mutations ignore the deserialized body and return baseline acknowledgements. No official proof claimed.",
-    "optional": "Identity is used by domain mapping and required. Mailbox name/email occur in baseline doubles (lines 341-367) and remain required. Other ancillary fields absent from doubles are optional; no strict objects.",
+    "optional": "Mailbox identity is mailbox_name; legacy id and email are optional. Other entities retain baseline projections and ignore unknown fields.",
     "raw": "Addenda 10/11: every raw method returns method, endpoint, the actual HTTP status, and the complete provider JSON body in data, without endpoint-specific DTO validation. This is the explicit raw DTO exception. Empty HTTP bodies stay undefined in the gateway and map to null in MCP to retain four JSON fields. Configured credentials, sensitive credential fields, and their echoes are redacted recursively only in raw output. Gateway errors retain their existing expurgated messages.",
     "paths": "Raw paths start with / and a numeric version. Plain nonempty segments only; no URLs, bases, encoded segments, dot segments, query strings or fragments. Query parameters are separate. No GET body.",
-    "data": "All examples are synthetic. No provider HTTP calls or external source reads."
+    "data": "Synthetic values only. Official documentation read without provider API calls. Observed field names originate from the operator report of 2026-09-06."
   },
   "entities": {
     "domain": {
@@ -78,9 +78,7 @@
         "maxSize": 100
       },
       "minimal": {
-        "id": 21,
-        "mailbox_name": "info",
-        "email": "info@example.test"
+        "mailbox_name": "info"
       }
     },
     "redirection": {
@@ -199,15 +197,17 @@
       "baselineMethod": "getVpsList",
       "method": "GET",
       "path": "/1/vps",
-      "proof": "unproven",
+      "proof": "baseline",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "path": "relevé opérateur 2026-09-06, GET /1/vps, 200",
+        "revision": "2026-09-06",
         "line": 1009
       },
-      "input": {},
+      "input": {
+        "account_id": 3
+      },
       "response": "vps",
       "outputKey": "servers",
       "list": true,
@@ -243,6 +243,17 @@
             "ip": "192.0.2.1",
             "createdAt": "2026",
             "expiresAt": "2027"
+          }
+        ]
+      },
+      "query": {
+        "account_id": 3
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "baseline",
+            "description": "relevé opérateur 2026-09-06, GET /1/vps, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
           }
         ]
       }
@@ -296,6 +307,14 @@
           "createdAt": "2026",
           "expiresAt": "2027"
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "baseline",
+            "description": "relevé opérateur 2026-09-06, GET /1/vps/{vps_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+          }
+        ]
       }
     },
     {
@@ -387,15 +406,17 @@
       "baselineMethod": "getDedicatedServers",
       "method": "GET",
       "path": "/1/dedicated",
-      "proof": "unproven",
+      "proof": "baseline",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "path": "relevé opérateur 2026-09-06, GET /1/dedicated, 200",
+        "revision": "2026-09-06",
         "line": 1030
       },
-      "input": {},
+      "input": {
+        "account_id": 3
+      },
       "response": "dedicatedServer",
       "outputKey": "servers",
       "list": true,
@@ -425,6 +446,17 @@
             "ip": "192.0.2.2",
             "location": "synthetic",
             "expiresAt": "2027"
+          }
+        ]
+      },
+      "query": {
+        "account_id": 3
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "baseline",
+            "description": "relevé opérateur 2026-09-06, GET /1/dedicated, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
           }
         ]
       }
@@ -591,19 +623,28 @@
           "autoRenew": true,
           "status": "active"
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api/get/2/domains/domains/{domain}",
+            "description": "La fiche Domain v2 renvoie name et un tableau status ; correspondance avec la ressource produit customer_name du relevé non établie."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_list_mail_services",
       "baselineMethod": "getMailServices",
       "method": "GET",
-      "path": "/1/mail",
-      "proof": "unproven",
+      "path": "/1/mail_hostings",
+      "proof": "baseline",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "path": "relevé opérateur 2026-09-06, GET /1/mail_hostings, 200",
+        "revision": "2026-09-06",
         "line": 603
       },
       "input": {
@@ -637,6 +678,14 @@
             "customerName": "example.test",
             "mailboxCount": 2,
             "maxMailboxCount": 10
+          }
+        ]
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "baseline",
+            "description": "relevé opérateur 2026-09-06, GET /1/mail_hostings, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
           }
         ]
       }
@@ -680,19 +729,28 @@
           "mailboxCount": 2,
           "maxMailboxCount": 10
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api",
+            "description": "Aucune opération de même sémantique établie dans le portail officiel."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_list_mailboxes",
       "baselineMethod": "getMailboxes",
       "method": "GET",
-      "path": "/1/mail/{mail_id}/mailbox",
-      "proof": "unproven",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes",
+      "proof": "baseline",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
+        "path": "relevé opérateur 2026-09-06, GET /1/mail_hostings/{mail_id}/mailboxes, 200",
+        "revision": "2026-09-06",
         "line": 611
       },
       "input": {
@@ -729,24 +787,33 @@
             "maxSize": 100
           }
         ]
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "baseline",
+            "description": "relevé opérateur 2026-09-06, GET /1/mail_hostings/{mail_id}/mailboxes, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_get_mailbox",
       "baselineMethod": "getMailbox",
       "method": "GET",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
-      "proof": "unproven",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}",
+      "proof": "official",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
-        "line": 615
+        "path": "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+        "revision": "2026-09-06",
+        "line": 615,
+        "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}"
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": 5
+        "mailbox_id": "info"
       },
       "response": "mailbox",
       "outputKey": "mailbox",
@@ -775,6 +842,15 @@
           "sizeUsed": 12,
           "maxSize": 100
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "official",
+            "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+            "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
+          }
+        ]
       }
     },
     {
@@ -828,6 +904,15 @@
           "sizeUsed": 12,
           "maxSize": 100
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/mailboxes",
+            "description": "Création documentée sans password/max_size, réponse imbriquée CreatedMailbox ; sémantique du contrat existant non établie."
+          }
+        ]
       }
     },
     {
@@ -880,24 +965,34 @@
           "sizeUsed": 12,
           "maxSize": 100
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api/put/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+            "description": "PUT documenté pour préférences, sans password/max_size, réponse booléenne ; ne correspond pas à cet outil."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_delete_mailbox",
       "baselineMethod": "deleteMailbox",
       "method": "DELETE",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
-      "proof": "unproven",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}",
+      "proof": "official",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
-        "line": 634
+        "path": "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+        "revision": "2026-09-06",
+        "line": 634,
+        "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}"
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": 5
+        "mailbox_id": "info"
       },
       "response": "acknowledgement",
       "list": false,
@@ -909,25 +1004,35 @@
         "ok": true,
         "action": "delete_mailbox",
         "mailId": 4,
-        "mailboxId": 5
+        "mailboxId": "info"
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "official",
+            "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+            "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_add_mailbox_alias",
       "baselineMethod": "addMailboxAlias",
       "method": "POST",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/alias",
-      "proof": "unproven",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}/aliases",
+      "proof": "official",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
-        "line": 638
+        "path": "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases",
+        "revision": "2026-09-06",
+        "line": 638,
+        "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases"
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": 5,
+        "mailbox_id": "info",
         "alias": "alias+tag@example.test"
       },
       "response": "acknowledgement",
@@ -943,26 +1048,36 @@
         "ok": true,
         "action": "add_mailbox_alias",
         "mailId": 4,
-        "mailboxId": 5,
+        "mailboxId": "info",
         "alias": "alias+tag@example.test"
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "official",
+            "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases",
+            "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_delete_mailbox_alias",
       "baselineMethod": "deleteMailboxAlias",
       "method": "DELETE",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/alias/{alias}",
-      "proof": "unproven",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}/aliases/{alias}",
+      "proof": "official",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
-        "line": 642
+        "path": "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases/{alias}",
+        "revision": "2026-09-06",
+        "line": 642,
+        "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases/{alias}"
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": 5,
+        "mailbox_id": "info",
         "alias": "alias+tag@example.test"
       },
       "response": "acknowledgement",
@@ -975,8 +1090,17 @@
         "ok": true,
         "action": "delete_mailbox_alias",
         "mailId": 4,
-        "mailboxId": 5,
+        "mailboxId": "info",
         "alias": "alias+tag@example.test"
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "official",
+            "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases/{alias}",
+            "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
+          }
+        ]
       }
     },
     {
@@ -1022,6 +1146,15 @@
             "to": ["target@example.test"],
             "keepCopy": true,
             "createdAt": "2026"
+          }
+        ]
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/redirections",
+            "description": "Identité string, address/targets et horodatages ; correspondance avec le DTO redirection hors borne non établie."
           }
         ]
       }
@@ -1075,20 +1208,30 @@
           "keepCopy": true,
           "createdAt": "2026"
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/redirections",
+            "description": "Entrées name/targets et sortie chaîne ; ne correspond pas au contrat from/to/keep_copy et sortie entité."
+          }
+        ]
       }
     },
     {
       "name": "infomaniak_delete_email_redirection",
       "baselineMethod": "deleteEmailRedirection",
       "method": "DELETE",
-      "path": "/1/mail/{mail_id}/redirection/{redirection_id}",
-      "proof": "unproven",
+      "path": "/1/mail_hostings/{mail_id}/redirections/{redirection_id}",
+      "proof": "official",
       "responseProof": "baseline",
       "enabled": false,
       "source": {
-        "path": "src/infomaniak-client.ts",
-        "revision": "619219a6d23fba64959f960867f7b9a13ee5721a",
-        "line": 654
+        "path": "/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}",
+        "revision": "2026-09-06",
+        "line": 654,
+        "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}"
       },
       "input": {
         "mail_id": 4,
@@ -1105,6 +1248,15 @@
         "action": "delete_email_redirection",
         "mailId": 4,
         "redirectionId": 6
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "official",
+            "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}",
+            "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
+          }
+        ]
       }
     },
     {
@@ -1147,6 +1299,15 @@
           "fromDate": "2026-09-04",
           "toDate": "2026-09-10"
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api",
+            "description": "Aucune opération de même sémantique établie dans le portail officiel."
+          }
+        ]
       }
     },
     {
@@ -1201,6 +1362,15 @@
           "fromDate": "2026-09-04",
           "toDate": "2026-09-10"
         }
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api",
+            "description": "Aucune opération de même sémantique établie dans le portail officiel."
+          }
+        ]
       }
     },
     {
@@ -1245,6 +1415,15 @@
             "path": "INBOX",
             "messagesCount": 3,
             "unseenCount": 1
+          }
+        ]
+      },
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/folders",
+            "description": "Objet de configuration folders et dossiers nommés sans id ; ne correspond pas à la liste de dossiers identifiés du contrat."
           }
         ]
       }
@@ -1331,6 +1510,178 @@
         "endpoint": "/2/synthetic",
         "status": 204,
         "data": null
+      }
+    }
+  ],
+  "observed": [
+    {
+      "name": "infomaniak_list_mailboxes",
+      "input": {
+        "mail_id": 4
+      },
+      "data": [
+        {
+          "mailbox_name": "info",
+          "mailbox": "info@example.test",
+          "mailbox_idn": "info@example.test",
+          "note": null,
+          "type": null,
+          "is_limited": false,
+          "is_free_mail": false,
+          "is_used_for_account": "false",
+          "provider_extra": "PRIVATE"
+        }
+      ],
+      "output": {
+        "mailboxes": [
+          {
+            "mailboxName": "info",
+            "mailbox": "info@example.test",
+            "mailboxIdn": "info@example.test",
+            "note": null,
+            "type": null,
+            "isLimited": false,
+            "isFreeMail": false,
+            "isUsedForAccount": "false"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_mail_services",
+      "input": {
+        "account_id": 7
+      },
+      "data": [
+        {
+          "id": 12,
+          "account_id": 7,
+          "service_id": 9,
+          "service_name": "synthetic",
+          "customer_name": "example.test",
+          "internal_name": "synthetic",
+          "created_at": 123,
+          "expired_at": null,
+          "version": 1,
+          "maintenance": false,
+          "has_maintenance": false,
+          "locked": false,
+          "is_locked": false,
+          "operation_in_progress": false,
+          "has_operation_in_progress": false,
+          "provider_extra": "PRIVATE",
+          "tags": [],
+          "unique_id": "synthetic"
+        }
+      ],
+      "output": {
+        "services": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "customerName": "example.test"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_vps",
+      "input": {
+        "account_id": 7
+      },
+      "data": [
+        {
+          "id": 12,
+          "account_id": 7,
+          "service_id": 9,
+          "service_name": "synthetic",
+          "customer_name": "example.test",
+          "internal_name": "synthetic",
+          "created_at": 123,
+          "expired_at": null,
+          "version": 1,
+          "maintenance": false,
+          "has_maintenance": false,
+          "locked": false,
+          "is_locked": false,
+          "operation_in_progress": false,
+          "has_operation_in_progress": false,
+          "provider_extra": "PRIVATE"
+        }
+      ],
+      "output": {
+        "servers": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "createdAt": 123
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_dedicated_servers",
+      "input": {
+        "account_id": 7
+      },
+      "data": [
+        {
+          "id": 12,
+          "account_id": 7,
+          "service_id": 9,
+          "service_name": "synthetic",
+          "customer_name": "example.test",
+          "internal_name": "synthetic",
+          "created_at": 123,
+          "expired_at": null,
+          "version": 1,
+          "maintenance": false,
+          "has_maintenance": false,
+          "locked": false,
+          "is_locked": false,
+          "operation_in_progress": false,
+          "has_operation_in_progress": false,
+          "provider_extra": "PRIVATE"
+        }
+      ],
+      "output": {
+        "servers": [
+          {
+            "id": 12,
+            "accountId": 7
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_domains",
+      "input": {
+        "account_id": 7
+      },
+      "data": [
+        {
+          "id": 12,
+          "customer_name": "example.test",
+          "has_dnssec": true,
+          "has_error": false,
+          "has_trustee_contact": false,
+          "has_whois_antispam": true,
+          "info": {},
+          "is_city_domain": false,
+          "is_dns_managed_by_infomaniak": true,
+          "is_dnssec_pending": false,
+          "is_external": false,
+          "is_idn": false,
+          "provider_extra": "PRIVATE"
+        }
+      ],
+      "output": {
+        "domains": [
+          {
+            "id": 12,
+            "customerName": "example.test"
+          }
+        ]
       }
     }
   ]

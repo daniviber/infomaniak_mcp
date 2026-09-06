@@ -42,7 +42,7 @@ const mapHosting = (v: z.infer<typeof hostingDto>) =>
   );
 const siteDto = z.object({
   id: id,
-  fqdn: z.string(),
+  fqdn: z.string().optional(),
   path: z.string().optional(),
   php_version: z.string().optional(),
   ssl_enabled: z.boolean().optional(),
@@ -113,6 +113,14 @@ const mapFtpAccount = (v: z.infer<typeof ftpAccountDto>) =>
     }),
   );
 const backupSlotDto = z.object({
+  customer_name: z.string().optional(),
+  type: z.union([z.string(), z.number()]).optional(),
+  subtype: z.union([z.string(), z.number()]).optional(),
+  connection_type: z.union([z.string(), z.number()]).optional(),
+  size: z.number().optional(),
+  storage_used: z.number().optional(),
+  usage_last_check: z.union([z.string(), z.number()]).nullable().optional(),
+  created_at: z.union([z.string(), z.number()]).nullable().optional(),
   id: id,
   name: z.string().optional(),
   size_used: z.number().optional(),
@@ -122,6 +130,14 @@ const backupSlotDto = z.object({
 const mapBackupSlot = (v: z.infer<typeof backupSlotDto>) =>
   backupSlotSchema.parse(
     present({
+      customerName: v.customer_name,
+      type: v.type,
+      subtype: v.subtype,
+      connectionType: v.connection_type,
+      size: v.size,
+      storageUsed: v.storage_used,
+      usageLastCheck: v.usage_last_check,
+      createdAt: v.created_at,
       id: v.id,
       name: v.name,
       sizeUsed: v.size_used,
@@ -176,7 +192,7 @@ const invoiceDto = z.object({
   currency: z.string().optional(),
   status: z.string().optional(),
   due_date: z.string().optional(),
-  created_at: z.string().optional(),
+  created_at: z.union([z.string(), z.number()]).nullable().optional(),
   pdf_url: z.string().optional(),
 });
 const mapInvoice = (v: z.infer<typeof invoiceDto>) =>
@@ -357,21 +373,21 @@ export class ServicesAdapter implements ServicesPort {
   readonly backup: ServicesPort['backup'] = {
     list: async (accountId) => ({
       backups: await this.many(
-        { method: 'GET', pathSegments: ['1', 'swiss_backup'], query: { account_id: accountId } },
+        { method: 'GET', pathSegments: ['1', 'swiss_backups'], query: { account_id: accountId } },
         backupDto,
         mapBackup,
       ),
     }),
     get: async (backupId) => ({
       backup: await this.one(
-        { method: 'GET', pathSegments: ['1', 'swiss_backup', backupId] },
+        { method: 'GET', pathSegments: ['1', 'swiss_backups', backupId] },
         backupDto,
         mapBackup,
       ),
     }),
     listSlots: async (backupId) => ({
       slots: await this.many(
-        { method: 'GET', pathSegments: ['1', 'swiss_backup', backupId, 'slot'] },
+        { method: 'GET', pathSegments: ['1', 'swiss_backups', backupId, 'slots'] },
         backupSlotDto,
         mapBackupSlot,
       ),

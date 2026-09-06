@@ -16,7 +16,7 @@ export type Hosting = z.infer<typeof hostingSchema>;
 
 export const siteSchema = z.object({
   id: id,
-  fqdn: z.string(),
+  fqdn: z.string().optional(),
   path: z.string().optional(),
   phpVersion: z.string().optional(),
   sslEnabled: z.boolean().optional(),
@@ -53,6 +53,14 @@ export const ftpAccountSchema = z.object({
 export type FtpAccount = z.infer<typeof ftpAccountSchema>;
 
 export const backupSlotSchema = z.object({
+  customerName: z.string().optional(),
+  type: z.union([z.string(), z.number()]).optional(),
+  subtype: z.union([z.string(), z.number()]).optional(),
+  connectionType: z.union([z.string(), z.number()]).optional(),
+  size: z.number().optional(),
+  storageUsed: z.number().optional(),
+  usageLastCheck: z.union([z.string(), z.number()]).nullable().optional(),
+  createdAt: z.union([z.string(), z.number()]).nullable().optional(),
   id: id,
   name: z.string().optional(),
   sizeUsed: z.number().optional(),
@@ -90,7 +98,7 @@ export const invoiceSchema = z.object({
   currency: z.string().optional(),
   status: z.string().optional(),
   dueDate: z.string().optional(),
-  createdAt: z.string().optional(),
+  createdAt: z.union([z.string(), z.number()]).nullable().optional(),
   pdfUrl: z.string().optional(),
 });
 export type Invoice = z.infer<typeof invoiceSchema>;

@@ -13,7 +13,7 @@ import { loadRuntimeConfig } from '../../src/config/runtime-config.js';
 const fixture = JSON.parse(
   readFileSync(new URL('../fixtures/core-domain.json', import.meta.url), 'utf8'),
 );
-const policy = { readOnly: false, allowRawApi: false, allowExperimental: false };
+const policy = { readOnly: false, allowRawApi: false, allowExperimental: true };
 const domain = 'example.test';
 const account = { id: 7, name: 'Account' };
 const profile = {
@@ -81,8 +81,8 @@ const cases = [
     name: 'infomaniak_update_domain_nameservers',
     input: { domain, nameservers: [nameserver] },
     method: 'PUT',
-    path: '/1/domain/example.test/nameserver',
-    body: { nameservers: [nameserver] },
+    path: '/2/domains/domains/example.test/nameservers',
+    body: { nameservers: [nameserver.host] },
     dto: success(null),
     output: { ok: true, action: 'update_nameservers', domain },
   },
@@ -302,7 +302,10 @@ describe('FEAT-06 core/domain', () => {
   });
   it('auto-composes all twelve handlers and excludes FEAT-09', async () => {
     const s = setup(null);
-    const config = loadRuntimeConfig({ INFOMANIAK_API_TOKEN: 'SYNTHETIC' });
+    const config = loadRuntimeConfig({
+      INFOMANIAK_API_TOKEN: 'SYNTHETIC',
+      INFOMANIAK_ALLOW_EXPERIMENTAL: 'true',
+    });
     const module = await discoverFeatureModules('src/features/core-domain.feature.ts', {
       gateway: s.gateway,
       config,
@@ -317,4 +320,57 @@ describe('FEAT-06 core/domain', () => {
       expect((await module.invoke(c.name, c.input, policy)).structuredContent).toEqual(c.output);
     }
   });
+});
+
+describe('FIX-12A domain', () => {
+  it('accepts observed DNS target_idn without an invented target', async () => {
+    const s = setup(success([{ ...fixture.observedRecord, extra: 'PRIVATE' }]));
+    const result = await s.module.invoke('infomaniak_list_dns_records', { domain }, policy);
+    expect(result.structuredContent).toStrictEqual({ records: [fixture.observedRecord] });
+    expect(result.content).toEqual([
+      { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
+    ]);
+  });
+  it.each([false, true])(
+    'selects nameservers with experimental flag=%s',
+    async (allowExperimental) => {
+      const s = setup(success([fixture.nameserver]));
+      const config = loadRuntimeConfig({
+        INFOMANIAK_API_TOKEN: 'SYNTHETIC',
+        INFOMANIAK_ALLOW_EXPERIMENTAL: String(allowExperimental),
+      });
+      const module = await discoverFeatureModules('src/features/core-domain.feature.ts', {
+        gateway: s.gateway,
+        config,
+        clock: s.clock,
+        createGateway: () => s.gateway,
+      });
+      expect(module.tools.map((t) => t.name).sort()).toEqual(
+        tools
+          .filter((t) => !t.experimental || allowExperimental)
+          .map((t) => t.name)
+          .sort(),
+      );
+      const name = 'infomaniak_get_domain_nameservers';
+      if (allowExperimental)
+        expect((await module.invoke(name, { domain }, config.policy)).structuredContent).toEqual({
+          nameservers: [nameserver],
+        });
+      else {
+        await expect(module.invoke(name, { domain }, config.policy)).rejects.toThrow(
+          'Unknown tool',
+        );
+        expect(s.fetch).not.toHaveBeenCalled();
+      }
+      for (const name of [
+        'renew_domain',
+        'list_dns_records',
+        'create_dns_record',
+        'update_dns_record',
+        'delete_dns_record',
+      ]) {
+        expect(tools.find((t) => t.name === 'infomaniak_' + name)?.experimental).toBe(false);
+      }
+    },
+  );
 });

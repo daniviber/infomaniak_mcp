@@ -91,10 +91,10 @@
     "limits": {},
     "endpoint": {
       "method": "POST",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/alias",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}/aliases",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "official",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -115,9 +115,9 @@
             "maximum": 9007199254740991
           },
           "mailbox_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           },
           "alias": {
             "type": "string",
@@ -146,9 +146,9 @@
             "maximum": 9007199254740991
           },
           "mailboxId": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           },
           "alias": {
             "type": "string",
@@ -172,9 +172,14 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "official",
+          "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases",
+          "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route documentée par Infomaniak ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -1579,12 +1584,12 @@
       "path": "/1/web/{hosting_id}/cron",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -1671,11 +1676,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 730
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_create_database",
@@ -1849,6 +1862,24 @@
               "target": {
                 "type": "string"
               },
+              "target_idn": {
+                "type": "string"
+              },
+              "source_idn": {
+                "type": "string"
+              },
+              "ttl_idn": {
+                "type": ["string", "number"]
+              },
+              "updated_at": {
+                "type": ["string", "number", "null"]
+              },
+              "dyndns_id": {
+                "type": ["string", "number", "null"]
+              },
+              "delegated_zone_id": {
+                "type": ["string", "number", "null"]
+              },
               "ttl": {
                 "type": "number"
               },
@@ -1856,7 +1887,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "source", "type", "target", "ttl"],
+            "required": ["id", "source", "type", "ttl"],
             "additionalProperties": false
           }
         },
@@ -1876,9 +1907,13 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -1987,11 +2022,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/redirections",
+          "description": "Entrées name/targets et sortie chaîne ; ne correspond pas au contrat from/to/keep_copy et sortie entité."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Entrées name/targets et sortie chaîne ; ne correspond pas au contrat from/to/keep_copy et sortie entité."
+    ]
   },
   {
     "name": "infomaniak_create_ftp_account",
@@ -2006,12 +2049,12 @@
       "path": "/1/web/{hosting_id}/ftp",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -2089,11 +2132,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 746
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_create_kdrive_directory",
@@ -2306,6 +2357,36 @@
               "email": {
                 "type": "string"
               },
+              "mailbox": {
+                "type": "string"
+              },
+              "mailboxIdn": {
+                "type": "string"
+              },
+              "note": {
+                "type": ["string", "null"]
+              },
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "isLimited": {
+                "type": "boolean"
+              },
+              "isFreeMail": {
+                "type": "boolean"
+              },
+              "isUsedForAccount": {
+                "type": ["boolean", "string"]
+              },
               "aliases": {
                 "type": "array",
                 "items": {
@@ -2319,7 +2400,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "mailboxName", "email"],
+            "required": ["mailboxName"],
             "additionalProperties": false
           }
         },
@@ -2339,11 +2420,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api/post/1/mail_hostings/{mail_hosting_id}/mailboxes",
+          "description": "Création documentée sans password/max_size, réponse imbriquée CreatedMailbox ; sémantique du contrat existant non établie."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Création documentée sans password/max_size, réponse imbriquée CreatedMailbox ; sémantique du contrat existant non établie."
+    ]
   },
   {
     "name": "infomaniak_create_site",
@@ -2415,7 +2504,7 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "fqdn"],
+            "required": ["id"],
             "additionalProperties": false
           }
         },
@@ -2436,9 +2525,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 687
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -2453,12 +2546,12 @@
       "path": "/1/web/{hosting_id}/cron/{cron_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -2522,11 +2615,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 738
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_delete_database",
@@ -2704,10 +2805,10 @@
     "limits": {},
     "endpoint": {
       "method": "DELETE",
-      "path": "/1/mail/{mail_id}/redirection/{redirection_id}",
+      "path": "/1/mail_hostings/{mail_id}/redirections/{redirection_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "official",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -2775,9 +2876,14 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "official",
+          "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}",
+          "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route documentée par Infomaniak ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -2792,12 +2898,12 @@
       "path": "/1/web/{hosting_id}/ftp/{ftp_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -2861,11 +2967,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 754
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_delete_kdrive_file",
@@ -3132,10 +3246,10 @@
     "limits": {},
     "endpoint": {
       "method": "DELETE",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "official",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -3156,9 +3270,9 @@
             "maximum": 9007199254740991
           },
           "mailbox_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           }
         },
         "required": ["mail_id", "mailbox_id"],
@@ -3182,9 +3296,9 @@
             "maximum": 9007199254740991
           },
           "mailboxId": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           }
         },
         "required": ["ok", "action", "mailId", "mailboxId"],
@@ -3203,9 +3317,14 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "official",
+          "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+          "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route documentée par Infomaniak ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -3217,10 +3336,10 @@
     "limits": {},
     "endpoint": {
       "method": "DELETE",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}/alias/{alias}",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}/aliases/{alias}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "official",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -3241,9 +3360,9 @@
             "maximum": 9007199254740991
           },
           "mailbox_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           },
           "alias": {
             "type": "string",
@@ -3272,9 +3391,9 @@
             "maximum": 9007199254740991
           },
           "mailboxId": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           },
           "alias": {
             "type": "string",
@@ -3298,9 +3417,14 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "official",
+          "url": "https://developer.infomaniak.com/docs/api/delete/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases/{alias}",
+          "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route documentée par Infomaniak ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -4020,11 +4144,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api/get/2/domains/domains/{domain}",
+          "description": "La fiche Domain v2 renvoie name et un tableau status ; correspondance avec la ressource produit customer_name du relevé non établie."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "La fiche Domain v2 renvoie name et un tableau status ; correspondance avec la ressource produit customer_name du relevé non établie."
+    ]
   },
   {
     "name": "infomaniak_get_domain_nameservers",
@@ -4037,12 +4169,12 @@
       "path": "/1/domain/{domain}/nameserver",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -4097,11 +4229,19 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche GET nameservers : aucune opération correspondante trouvée."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Aucune route GET nameservers dans la navigation officielle ; les opérations PUT ne prouvent pas GET."
+    ]
   },
   {
     "name": "infomaniak_get_invoice",
@@ -4114,12 +4254,12 @@
       "path": "/1/invoicing/{account_id}/invoice/{invoice_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -4179,7 +4319,7 @@
                 "type": "string"
               },
               "createdAt": {
-                "type": "string"
+                "type": ["string", "number", "null"]
               },
               "pdfUrl": {
                 "type": "string"
@@ -4206,11 +4346,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 1056
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_get_kdrive",
@@ -4783,11 +4931,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Aucune opération de même sémantique établie dans le portail officiel."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Aucune opération de même sémantique établie dans le portail officiel."
+    ]
   },
   {
     "name": "infomaniak_get_mailbox",
@@ -4797,10 +4953,10 @@
     "limits": {},
     "endpoint": {
       "method": "GET",
-      "path": "/1/mail/{mail_id}/mailbox/{mailbox_id}",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "official",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -4821,9 +4977,9 @@
             "maximum": 9007199254740991
           },
           "mailbox_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1,
+            "description": "mailbox_name : partie avant @"
           }
         },
         "required": ["mail_id", "mailbox_id"],
@@ -4852,6 +5008,36 @@
               "email": {
                 "type": "string"
               },
+              "mailbox": {
+                "type": "string"
+              },
+              "mailboxIdn": {
+                "type": "string"
+              },
+              "note": {
+                "type": ["string", "null"]
+              },
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "isLimited": {
+                "type": "boolean"
+              },
+              "isFreeMail": {
+                "type": "boolean"
+              },
+              "isUsedForAccount": {
+                "type": ["boolean", "string"]
+              },
               "aliases": {
                 "type": "array",
                 "items": {
@@ -4865,7 +5051,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "mailboxName", "email"],
+            "required": ["mailboxName"],
             "additionalProperties": false
           }
         },
@@ -4885,9 +5071,14 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "official",
+          "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+          "description": "Portail officiel Infomaniak, consulté le 2026-09-06 ; noms des paramètres locaux conservés."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route documentée par Infomaniak ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -4973,11 +5164,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Aucune opération de même sémantique établie dans le portail officiel."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Aucune opération de même sémantique établie dans le portail officiel."
+    ]
   },
   {
     "name": "infomaniak_get_profile",
@@ -5128,7 +5327,7 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "fqdn"],
+            "required": ["id"],
             "additionalProperties": false
           }
         },
@@ -5149,9 +5348,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 683
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -5163,7 +5366,7 @@
     "limits": {},
     "endpoint": {
       "method": "GET",
-      "path": "/1/swiss_backup/{backup_id}",
+      "path": "/1/swiss_backups/{backup_id}",
       "base": "https://api.infomaniak.com"
     },
     "proof": "baseline",
@@ -5215,6 +5418,30 @@
                 "items": {
                   "type": "object",
                   "properties": {
+                    "customerName": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": ["string", "number"]
+                    },
+                    "subtype": {
+                      "type": ["string", "number"]
+                    },
+                    "connectionType": {
+                      "type": ["string", "number"]
+                    },
+                    "size": {
+                      "type": "number"
+                    },
+                    "storageUsed": {
+                      "type": "number"
+                    },
+                    "usageLastCheck": {
+                      "type": ["string", "number", "null"]
+                    },
+                    "createdAt": {
+                      "type": ["string", "number", "null"]
+                    },
                     "id": {
                       "type": "integer",
                       "exclusiveMinimum": 0,
@@ -5259,9 +5486,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 1000
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups/{backup_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": [
       "Route baseline /1/swiss_backup (singulier, sans pagination), /slot au singulier. OpenAPI officielle : /1/swiss_backups et /slots au pluriel avec pagination. Non vérifiable sans accès fournisseur (C3) ; aucune correction de route sans sandbox."
@@ -5338,7 +5569,7 @@
                 "type": "string"
               },
               "createdAt": {
-                "type": "string"
+                "type": ["string", "number", "null"]
               },
               "expiresAt": {
                 "type": "string"
@@ -5364,9 +5595,13 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/vps/{vps_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -7022,7 +7257,8 @@
           "account_id": {
             "type": "integer",
             "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "maximum": 9007199254740991,
+            "description": "identifiant du compte ; exigé par l'API"
           }
         },
         "required": ["account_id"],
@@ -7091,9 +7327,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 1043
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/certificate, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -7108,12 +7348,12 @@
       "path": "/1/web/{hosting_id}/cron",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -7192,11 +7432,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 726
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_list_databases",
@@ -7279,11 +7527,17 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 707
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/database, 400 not_available_for_this_hosting_type ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "Indisponible selon le type d'hébergement : not_available_for_this_hosting_type (relevé opérateur 2026-09-06)."
+    ]
   },
   {
     "name": "infomaniak_list_dedicated_servers",
@@ -7296,7 +7550,7 @@
       "path": "/1/dedicated",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "baseline",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -7310,7 +7564,15 @@
       "input": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
-        "properties": {},
+        "properties": {
+          "account_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "description": "identifiant du compte ; exigé par l'API"
+          }
+        },
+        "required": ["account_id"],
         "additionalProperties": false
       },
       "output": {
@@ -7369,9 +7631,13 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/dedicated, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -7432,6 +7698,24 @@
                 "target": {
                   "type": "string"
                 },
+                "target_idn": {
+                  "type": "string"
+                },
+                "source_idn": {
+                  "type": "string"
+                },
+                "ttl_idn": {
+                  "type": ["string", "number"]
+                },
+                "updated_at": {
+                  "type": ["string", "number", "null"]
+                },
+                "dyndns_id": {
+                  "type": ["string", "number", "null"]
+                },
+                "delegated_zone_id": {
+                  "type": ["string", "number", "null"]
+                },
                 "ttl": {
                   "type": "number"
                 },
@@ -7439,7 +7723,7 @@
                   "type": "number"
                 }
               },
-              "required": ["id", "source", "type", "target", "ttl"],
+              "required": ["id", "source", "type", "ttl"],
               "additionalProperties": false
             }
           }
@@ -7460,9 +7744,13 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -7649,11 +7937,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/redirections",
+          "description": "Identité string, address/targets et horodatages ; correspondance avec le DTO redirection hors borne non établie."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Identité string, address/targets et horodatages ; correspondance avec le DTO redirection hors borne non établie."
+    ]
   },
   {
     "name": "infomaniak_list_ftp_accounts",
@@ -7666,12 +7962,12 @@
       "path": "/1/web/{hosting_id}/ftp",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -7741,11 +8037,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 742
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_list_invoices",
@@ -7820,7 +8124,7 @@
                   "type": "string"
                 },
                 "createdAt": {
-                  "type": "string"
+                  "type": ["string", "number", "null"]
                 },
                 "pdfUrl": {
                   "type": "string"
@@ -7848,9 +8152,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 1052
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/invoicing/{account_id}/invoice/list, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -8812,10 +9120,10 @@
     "limits": {},
     "endpoint": {
       "method": "GET",
-      "path": "/1/mail",
+      "path": "/1/mail_hostings",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "baseline",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -8889,9 +9197,13 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/mail_hostings, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -8982,11 +9294,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api/get/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/folders",
+          "description": "Objet de configuration folders et dossiers nommés sans id ; ne correspond pas à la liste de dossiers identifiés du contrat."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Objet de configuration folders et dossiers nommés sans id ; ne correspond pas à la liste de dossiers identifiés du contrat."
+    ]
   },
   {
     "name": "infomaniak_list_mailboxes",
@@ -8996,10 +9316,10 @@
     "limits": {},
     "endpoint": {
       "method": "GET",
-      "path": "/1/mail/{mail_id}/mailbox",
+      "path": "/1/mail_hostings/{mail_id}/mailboxes",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "baseline",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -9048,6 +9368,36 @@
                 "email": {
                   "type": "string"
                 },
+                "mailbox": {
+                  "type": "string"
+                },
+                "mailboxIdn": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": ["string", "null"]
+                },
+                "type": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "isLimited": {
+                  "type": "boolean"
+                },
+                "isFreeMail": {
+                  "type": "boolean"
+                },
+                "isUsedForAccount": {
+                  "type": ["boolean", "string"]
+                },
                 "aliases": {
                   "type": "array",
                   "items": {
@@ -9061,7 +9411,7 @@
                   "type": "number"
                 }
               },
-              "required": ["id", "mailboxName", "email"],
+              "required": ["mailboxName"],
               "additionalProperties": false
             }
           }
@@ -9082,9 +9432,13 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/mail_hostings/{mail_id}/mailboxes, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -9243,7 +9597,7 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "fqdn"],
+              "required": ["id"],
               "additionalProperties": false
             }
           }
@@ -9265,9 +9619,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 679
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -9279,7 +9637,7 @@
     "limits": {},
     "endpoint": {
       "method": "GET",
-      "path": "/1/swiss_backup/{backup_id}/slot",
+      "path": "/1/swiss_backups/{backup_id}/slots",
       "base": "https://api.infomaniak.com"
     },
     "proof": "baseline",
@@ -9315,6 +9673,30 @@
             "items": {
               "type": "object",
               "properties": {
+                "customerName": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": ["string", "number"]
+                },
+                "subtype": {
+                  "type": ["string", "number"]
+                },
+                "connectionType": {
+                  "type": ["string", "number"]
+                },
+                "size": {
+                  "type": "number"
+                },
+                "storageUsed": {
+                  "type": "number"
+                },
+                "usageLastCheck": {
+                  "type": ["string", "number", "null"]
+                },
+                "createdAt": {
+                  "type": ["string", "number", "null"]
+                },
                 "id": {
                   "type": "integer",
                   "exclusiveMinimum": 0,
@@ -9355,9 +9737,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 1004
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups/{backup_id}/slots, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": [
       "Route baseline /1/swiss_backup (singulier, sans pagination), /slot au singulier. OpenAPI officielle : /1/swiss_backups et /slots au pluriel avec pagination. Non vérifiable sans accès fournisseur (C3) ; aucune correction de route sans sandbox."
@@ -9371,7 +9757,7 @@
     "limits": {},
     "endpoint": {
       "method": "GET",
-      "path": "/1/swiss_backup",
+      "path": "/1/swiss_backups",
       "base": "https://api.infomaniak.com"
     },
     "proof": "baseline",
@@ -9392,7 +9778,8 @@
           "account_id": {
             "type": "integer",
             "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "maximum": 9007199254740991,
+            "description": "identifiant du compte ; exigé par l'API"
           }
         },
         "required": ["account_id"],
@@ -9425,6 +9812,30 @@
                   "items": {
                     "type": "object",
                     "properties": {
+                      "customerName": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": ["string", "number"]
+                      },
+                      "subtype": {
+                        "type": ["string", "number"]
+                      },
+                      "connectionType": {
+                        "type": ["string", "number"]
+                      },
+                      "size": {
+                        "type": "number"
+                      },
+                      "storageUsed": {
+                        "type": "number"
+                      },
+                      "usageLastCheck": {
+                        "type": ["string", "number", "null"]
+                      },
+                      "createdAt": {
+                        "type": ["string", "number", "null"]
+                      },
                       "id": {
                         "type": "integer",
                         "exclusiveMinimum": 0,
@@ -9470,9 +9881,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 996
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": [
       "Route baseline /1/swiss_backup (singulier, sans pagination), /slot au singulier. OpenAPI officielle : /1/swiss_backups et /slots au pluriel avec pagination. Non vérifiable sans accès fournisseur (C3) ; aucune correction de route sans sandbox."
@@ -9489,7 +9904,7 @@
       "path": "/1/vps",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "unproven",
+    "proof": "baseline",
     "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
@@ -9503,7 +9918,15 @@
       "input": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
-        "properties": {},
+        "properties": {
+          "account_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "description": "identifiant du compte ; exigé par l'API"
+          }
+        },
+        "required": ["account_id"],
         "additionalProperties": false
       },
       "output": {
@@ -9544,7 +9967,7 @@
                   "type": "string"
                 },
                 "createdAt": {
-                  "type": "string"
+                  "type": ["string", "number", "null"]
                 },
                 "expiresAt": {
                   "type": "string"
@@ -9571,9 +9994,13 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/vps, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -9606,7 +10033,8 @@
           "account_id": {
             "type": "integer",
             "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "maximum": 9007199254740991,
+            "description": "identifiant du compte ; exigé par l'API"
           }
         },
         "required": ["account_id"],
@@ -9669,9 +10097,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 671
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/web, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -10695,12 +11127,12 @@
       "path": "/1/web/{hosting_id}/cron/{cron_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -10790,11 +11222,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 734
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_update_dns_record",
@@ -10882,6 +11322,24 @@
               "target": {
                 "type": "string"
               },
+              "target_idn": {
+                "type": "string"
+              },
+              "source_idn": {
+                "type": "string"
+              },
+              "ttl_idn": {
+                "type": ["string", "number"]
+              },
+              "updated_at": {
+                "type": ["string", "number", "null"]
+              },
+              "dyndns_id": {
+                "type": ["string", "number", "null"]
+              },
+              "delegated_zone_id": {
+                "type": ["string", "number", "null"]
+              },
               "ttl": {
                 "type": "number"
               },
@@ -10889,7 +11347,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "source", "type", "target", "ttl"],
+            "required": ["id", "source", "type", "ttl"],
             "additionalProperties": false
           }
         },
@@ -10909,9 +11367,13 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },
@@ -10923,10 +11385,10 @@
     "limits": {},
     "endpoint": {
       "method": "PUT",
-      "path": "/1/domain/{domain}/nameserver",
+      "path": "/2/domains/domains/{domain}/nameservers",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
+    "proof": "official",
     "experimental": false,
     "rawApi": false,
     "methodPolicy": null,
@@ -10999,11 +11461,18 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "proof": "official",
+          "url": "https://developer.infomaniak.com/docs/api/put/2/domains/domains/{domain}/nameservers",
+          "description": "Nameservers transmis comme tableau de host ; ip non envoyé. Le fournisseur documente au moins deux serveurs."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route documentée par Infomaniak ; aucun appel réel effectué par le builder."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "Le fournisseur exige au moins deux noms de serveurs ; les adresses ip du domaine ne sont pas transmises."
+    ]
   },
   {
     "name": "infomaniak_update_ftp_account",
@@ -11018,12 +11487,12 @@
       "path": "/1/web/{hosting_id}/ftp/{ftp_id}",
       "base": "https://api.infomaniak.com"
     },
-    "proof": "baseline",
-    "experimental": false,
+    "proof": "unproven",
+    "experimental": true,
     "rawApi": false,
     "methodPolicy": null,
     "visibility": {
-      "allowExperimental": false,
+      "allowExperimental": true,
       "allowRawApi": false,
       "kchatConfigured": false,
       "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
@@ -11105,11 +11574,19 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 750
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Navigation officielle : aucune route cron/FTP web ou fiche de facture correspondante trouvée."
+    ]
   },
   {
     "name": "infomaniak_update_kdrive_share_link",
@@ -11292,6 +11769,36 @@
               "email": {
                 "type": "string"
               },
+              "mailbox": {
+                "type": "string"
+              },
+              "mailboxIdn": {
+                "type": "string"
+              },
+              "note": {
+                "type": ["string", "null"]
+              },
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "isLimited": {
+                "type": "boolean"
+              },
+              "isFreeMail": {
+                "type": "boolean"
+              },
+              "isUsedForAccount": {
+                "type": ["boolean", "string"]
+              },
               "aliases": {
                 "type": "array",
                 "items": {
@@ -11305,7 +11812,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "mailboxName", "email"],
+            "required": ["mailboxName"],
             "additionalProperties": false
           }
         },
@@ -11325,11 +11832,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api/put/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}",
+          "description": "PUT documenté pour préférences, sans password/max_size, réponse booléenne ; ne correspond pas à cet outil."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "PUT documenté pour préférences, sans password/max_size, réponse booléenne ; ne correspond pas à cet outil."
+    ]
   },
   {
     "name": "infomaniak_update_mailbox_autoresponder",
@@ -11428,11 +11943,19 @@
         {
           "path": "src/infomaniak-client.ts",
           "revision": "619219a6d23fba64959f960867f7b9a13ee5721a"
+        },
+        {
+          "proof": "unproven",
+          "url": "https://developer.infomaniak.com/docs/api",
+          "description": "Aucune opération de même sémantique établie dans le portail officiel."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "Route non confirmée ; voir knownLimits."
     },
-    "knownLimits": []
+    "knownLimits": [
+      "route non confirmée : 404 method_not_found le 2026-09-06",
+      "Aucune opération de même sémantique établie dans le portail officiel."
+    ]
   },
   {
     "name": "infomaniak_update_site",
@@ -11505,7 +12028,7 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "fqdn"],
+            "required": ["id"],
             "additionalProperties": false
           }
         },
@@ -11526,9 +12049,13 @@
           "path": "src/infomaniak-client.ts",
           "revision": "433c7f47a1e7736351962e9c5959e58d4256a9b5",
           "line": 695
+        },
+        {
+          "proof": "baseline",
+          "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
     },
     "knownLimits": []
   },

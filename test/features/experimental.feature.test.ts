@@ -700,3 +700,40 @@ describe('raw HTTP status and JSON exception (addenda 10/11)', () => {
     },
   );
 });
+
+describe('FIX-12A observed resources and account filters', () => {
+  it.each(fixtureJson.observed)('$name accepts the observed field set', async (c) => {
+    const deps = dependencies(enabled, { result: 'success', data: c.data });
+    const result = await composeFeatureModules([feature], deps).invoke(c.name, c.input, enabled);
+    expect(result.structuredContent).toStrictEqual(c.output);
+    expect(result.content).toEqual([{ type: 'text', text: JSON.stringify(c.output, null, 2) }]);
+  });
+  it.each(['infomaniak_list_vps', 'infomaniak_list_dedicated_servers'])(
+    '%s requires a positive account and forwards it',
+    async (name) => {
+      const deps = dependencies();
+      const module = composeFeatureModules([feature], deps);
+      for (const account_id of [undefined, 0, -1, 1.5, '7']) {
+        await expect(module.invoke(name, { account_id }, enabled)).rejects.toThrow();
+      }
+      expect(deps.fetcher).not.toHaveBeenCalled();
+      await module.invoke(name, { account_id: 7 }, enabled);
+      expect(new URL(String(deps.fetcher.mock.calls[0][0])).searchParams.get('account_id')).toBe(
+        '7',
+      );
+    },
+  );
+  it('requires mailbox_name even though legacy id and email are optional', async () => {
+    const deps = dependencies(enabled, {
+      result: 'success',
+      data: [{ id: 21, email: 'info@example.test' }],
+    });
+    await expect(
+      composeFeatureModules([feature], deps).invoke(
+        'infomaniak_list_mailboxes',
+        { mail_id: 4 },
+        enabled,
+      ),
+    ).rejects.toThrow('Invalid Infomaniak response');
+  });
+});

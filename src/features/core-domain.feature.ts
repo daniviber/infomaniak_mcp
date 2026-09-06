@@ -26,3 +26,7 @@ export function createHandlers(deps: {
     ]),
   );
 }
+
+export function selectTools(deps: { config: { policy: InvocationContext } }) {
+  return tools.filter((tool) => !tool.experimental || deps.config.policy.allowExperimental);
+}

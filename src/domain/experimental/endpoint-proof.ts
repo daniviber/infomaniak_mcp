@@ -5,14 +5,15 @@ export interface EndpointProof {
   readonly name: string;
   readonly method: HttpMethod | 'input';
   readonly path: string;
-  /** These routes have no public proof recorded in this inventory. */
-  readonly proof: 'unproven';
+  /** Endpoint evidence is independent of experimental visibility. */
+  readonly proof: 'official' | 'baseline' | 'unproven';
   /** Acknowledgements and typed DTO mappings are inherited from the local baseline. */
   readonly responseProof: 'baseline';
   readonly enabled: false;
   readonly source: {
-    readonly path: 'src/infomaniak-client.ts';
-    readonly revision: '619219a6d23fba64959f960867f7b9a13ee5721a';
+    readonly path: string;
+    readonly revision: string;
+    readonly url?: string;
   };
 }
 
@@ -35,10 +36,17 @@ export const entitySchemas = {
     maxMailboxCount: z.number().optional(),
   }),
   mailbox: z.object({
-    id,
+    id: id.optional(),
     mailId: id.optional(),
     mailboxName: z.string(),
-    email: z.string(),
+    email: z.string().optional(),
+    mailbox: z.string().optional(),
+    mailboxIdn: z.string().optional(),
+    note: z.string().nullable().optional(),
+    type: z.number().int().nullable().optional(),
+    isLimited: z.boolean().optional(),
+    isFreeMail: z.boolean().optional(),
+    isUsedForAccount: z.union([z.boolean(), z.string()]).optional(),
     aliases: z.array(z.string()).optional(),
     sizeUsed: z.number().optional(),
     maxSize: z.number().optional(),
@@ -74,7 +82,7 @@ export const entitySchemas = {
     memory: z.number().optional(),
     disk: z.number().optional(),
     ip: z.string().optional(),
-    createdAt: z.string().optional(),
+    createdAt: z.union([z.string(), z.number()]).nullable().optional(),
     expiresAt: z.string().optional(),
   }),
   dedicatedServer: z.object({

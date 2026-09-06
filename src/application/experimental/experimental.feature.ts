@@ -33,9 +33,16 @@ const segment = z
   .min(1)
   .refine((v) => v !== '.' && v !== '..');
 const account = z.object({ account_id: id });
+const productAccount = z.object({
+  account_id: id.describe("identifiant du compte ; exigé par l'API"),
+});
+const namedMailbox = z.object({
+  mail_id: id,
+  mailbox_id: segment.describe('mailbox_name : partie avant @'),
+});
+const namedAlias = namedMailbox.extend({ alias: z.email() });
 const mail = z.object({ mail_id: id });
 const mailbox = mail.extend({ mailbox_id: id });
-const alias = mailbox.extend({ alias: z.email() });
 const vps = z.object({ vps_id: id });
 const server = z.object({ server_id: id });
 const createMailbox = mail.extend({
@@ -106,14 +113,36 @@ function define(
       ? 'destructive'
       : 'write',
 ) {
+  const official = path.startsWith('/1/mail_hostings/') && !name.endsWith('list_mailboxes');
+  const confirmed = [
+    'infomaniak_list_mail_services',
+    'infomaniak_list_mailboxes',
+    'infomaniak_list_vps',
+    'infomaniak_list_dedicated_servers',
+  ].includes(name);
   const endpoint: EndpointProof = {
     name,
     method,
     path,
-    proof: 'unproven',
+    proof: official ? 'official' : confirmed ? 'baseline' : 'unproven',
     responseProof: 'baseline',
     enabled: false,
-    source,
+    source: official
+      ? {
+          path: path
+            .replace('{mail_id}', '{mail_hosting_id}')
+            .replace('{mailbox_id}', '{mailbox_name}'),
+          revision: '2026-09-06',
+          url:
+            'https://developer.infomaniak.com/docs/api/' +
+            method.toLowerCase() +
+            path
+              .replace('{mail_id}', '{mail_hosting_id}')
+              .replace('{mailbox_id}', '{mailbox_name}'),
+        }
+      : confirmed
+        ? { path: 'relevé opérateur 2026-09-06, GET ' + path + ', 200', revision: '2026-09-06' }
+        : source,
   };
   const identifiers = [...path.matchAll(/\{([^}]+)\}/g)].map((match) => match[1]);
   if (name === 'infomaniak_add_mailbox_alias') identifiers.push('alias');
@@ -156,7 +185,11 @@ function define(
             .map((part) =>
               part.startsWith('{') ? (input[part.slice(1, -1)] as string | number) : part,
             ),
-          ...(name === 'infomaniak_list_mail_services'
+          ...([
+            'infomaniak_list_mail_services',
+            'infomaniak_list_vps',
+            'infomaniak_list_dedicated_servers',
+          ].includes(name)
             ? { query: { account_id: input.account_id as number } }
             : {}),
           ...(bodyFields.length ? { body: pick(input, bodyFields) } : {}),
@@ -175,7 +208,7 @@ function define(
 const one = (kind: EntityKind, key: string) => ({ kind, key, list: false });
 const many = (kind: EntityKind, key: string) => ({ kind, key, list: true });
 const definitions = [
-  define('infomaniak_list_vps', 'GET', '/1/vps', z.object({}), many('vps', 'servers')),
+  define('infomaniak_list_vps', 'GET', '/1/vps', productAccount, many('vps', 'servers')),
   define('infomaniak_get_vps', 'GET', '/1/vps/{vps_id}', vps, one('vps', 'server')),
   define(
     'infomaniak_reboot_vps',
@@ -200,7 +233,7 @@ const definitions = [
     'infomaniak_list_dedicated_servers',
     'GET',
     '/1/dedicated',
-    z.object({}),
+    productAccount,
     many('dedicatedServer', 'servers'),
   ),
   define(
@@ -236,7 +269,7 @@ const definitions = [
   define(
     'infomaniak_list_mail_services',
     'GET',
-    '/1/mail',
+    '/1/mail_hostings',
     account,
     many('mailService', 'services'),
   ),
@@ -250,15 +283,15 @@ const definitions = [
   define(
     'infomaniak_list_mailboxes',
     'GET',
-    '/1/mail/{mail_id}/mailbox',
+    '/1/mail_hostings/{mail_id}/mailboxes',
     mail,
     many('mailbox', 'mailboxes'),
   ),
   define(
     'infomaniak_get_mailbox',
     'GET',
-    '/1/mail/{mail_id}/mailbox/{mailbox_id}',
-    mailbox,
+    '/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}',
+    namedMailbox,
     one('mailbox', 'mailbox'),
   ),
   define(
@@ -277,20 +310,25 @@ const definitions = [
     one('mailbox', 'mailbox'),
     ['password', 'max_size'],
   ),
-  define('infomaniak_delete_mailbox', 'DELETE', '/1/mail/{mail_id}/mailbox/{mailbox_id}', mailbox),
+  define(
+    'infomaniak_delete_mailbox',
+    'DELETE',
+    '/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}',
+    namedMailbox,
+  ),
   define(
     'infomaniak_add_mailbox_alias',
     'POST',
-    '/1/mail/{mail_id}/mailbox/{mailbox_id}/alias',
-    alias,
+    '/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}/aliases',
+    namedAlias,
     undefined,
     ['alias'],
   ),
   define(
     'infomaniak_delete_mailbox_alias',
     'DELETE',
-    '/1/mail/{mail_id}/mailbox/{mailbox_id}/alias/{alias}',
-    alias,
+    '/1/mail_hostings/{mail_id}/mailboxes/{mailbox_id}/aliases/{alias}',
+    namedAlias,
   ),
   define(
     'infomaniak_list_email_redirections',
@@ -310,7 +348,7 @@ const definitions = [
   define(
     'infomaniak_delete_email_redirection',
     'DELETE',
-    '/1/mail/{mail_id}/redirection/{redirection_id}',
+    '/1/mail_hostings/{mail_id}/redirections/{redirection_id}',
     redirection,
   ),
   define(
