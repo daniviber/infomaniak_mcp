@@ -323,10 +323,12 @@ describe('FEAT-06 core/domain', () => {
 });
 
 describe('FIX-12A domain', () => {
-  it('accepts observed DNS target_idn without an invented target', async () => {
+  it('accepts additional DNS fields without exposing them', async () => {
     const s = setup(success([{ ...fixture.observedRecord, extra: 'PRIVATE' }]));
     const result = await s.module.invoke('infomaniak_list_dns_records', { domain }, policy);
-    expect(result.structuredContent).toStrictEqual({ records: [fixture.observedRecord] });
+    expect(result.structuredContent).toStrictEqual({
+      records: [{ id: 12, source: '@', type: 'A', target: '192.0.2.1', ttl: 3600 }],
+    });
     expect(result.content).toEqual([
       { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
     ]);

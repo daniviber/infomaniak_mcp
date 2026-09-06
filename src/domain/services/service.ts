@@ -54,12 +54,8 @@ export type FtpAccount = z.infer<typeof ftpAccountSchema>;
 
 export const backupSlotSchema = z.object({
   customerName: z.string().optional(),
-  type: z.union([z.string(), z.number()]).optional(),
-  subtype: z.union([z.string(), z.number()]).optional(),
-  connectionType: z.union([z.string(), z.number()]).optional(),
   size: z.number().optional(),
   storageUsed: z.number().optional(),
-  usageLastCheck: z.union([z.string(), z.number()]).nullable().optional(),
   createdAt: z.union([z.string(), z.number()]).nullable().optional(),
   id: id,
   name: z.string().optional(),
@@ -98,7 +94,7 @@ export const invoiceSchema = z.object({
   currency: z.string().optional(),
   status: z.string().optional(),
   dueDate: z.string().optional(),
-  createdAt: z.union([z.string(), z.number()]).nullable().optional(),
+  createdAt: z.string().optional(),
   pdfUrl: z.string().optional(),
 });
 export type Invoice = z.infer<typeof invoiceSchema>;

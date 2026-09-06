@@ -82,7 +82,7 @@ export const entitySchemas = {
     memory: z.number().optional(),
     disk: z.number().optional(),
     ip: z.string().optional(),
-    createdAt: z.union([z.string(), z.number()]).nullable().optional(),
+    createdAt: z.string().optional(),
     expiresAt: z.string().optional(),
   }),
   dedicatedServer: z.object({

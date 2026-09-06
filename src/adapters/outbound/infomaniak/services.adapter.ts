@@ -114,12 +114,8 @@ const mapFtpAccount = (v: z.infer<typeof ftpAccountDto>) =>
   );
 const backupSlotDto = z.object({
   customer_name: z.string().optional(),
-  type: z.union([z.string(), z.number()]).optional(),
-  subtype: z.union([z.string(), z.number()]).optional(),
-  connection_type: z.union([z.string(), z.number()]).optional(),
   size: z.number().optional(),
   storage_used: z.number().optional(),
-  usage_last_check: z.union([z.string(), z.number()]).nullable().optional(),
   created_at: z.union([z.string(), z.number()]).nullable().optional(),
   id: id,
   name: z.string().optional(),
@@ -131,12 +127,8 @@ const mapBackupSlot = (v: z.infer<typeof backupSlotDto>) =>
   backupSlotSchema.parse(
     present({
       customerName: v.customer_name,
-      type: v.type,
-      subtype: v.subtype,
-      connectionType: v.connection_type,
       size: v.size,
       storageUsed: v.storage_used,
-      usageLastCheck: v.usage_last_check,
       createdAt: v.created_at,
       id: v.id,
       name: v.name,
@@ -192,7 +184,7 @@ const invoiceDto = z.object({
   currency: z.string().optional(),
   status: z.string().optional(),
   due_date: z.string().optional(),
-  created_at: z.union([z.string(), z.number()]).nullable().optional(),
+  created_at: z.string().optional(),
   pdf_url: z.string().optional(),
 });
 const mapInvoice = (v: z.infer<typeof invoiceDto>) =>

@@ -82,6 +82,7 @@
     "target_idn": "192.0.2.1",
     "updated_at": 123,
     "dyndns_id": null,
-    "delegated_zone_id": null
+    "delegated_zone_id": null,
+    "target": "192.0.2.1"
   }
 }

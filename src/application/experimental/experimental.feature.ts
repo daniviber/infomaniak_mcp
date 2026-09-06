@@ -38,7 +38,7 @@ const productAccount = z.object({
 });
 const namedMailbox = z.object({
   mail_id: id,
-  mailbox_id: segment.describe('mailbox_name : partie avant @'),
+  mailbox_name: segment.describe('partie avant @'),
 });
 const namedAlias = namedMailbox.extend({ alias: z.email() });
 const mail = z.object({ mail_id: id });
@@ -144,6 +144,8 @@ function define(
         ? { path: 'relevé opérateur 2026-09-06, GET ' + path + ', 200', revision: '2026-09-06' }
         : source,
   };
+  const inputKey = (key: string) =>
+    key === 'mailbox_id' && 'mailbox_name' in inputSchema.shape ? 'mailbox_name' : key;
   const identifiers = [...path.matchAll(/\{([^}]+)\}/g)].map((match) => match[1]);
   if (name === 'infomaniak_add_mailbox_alias') identifiers.push('alias');
   const action = name.replace('infomaniak_', '');
@@ -156,7 +158,9 @@ function define(
     : z.object({
         ok: z.literal(true),
         action: z.literal(action),
-        ...Object.fromEntries(identifiers.map((key) => [camel(key), inputSchema.shape[key]])),
+        ...Object.fromEntries(
+          identifiers.map((key) => [camel(key), inputSchema.shape[inputKey(key)]]),
+        ),
       });
   const contract: ExperimentalContract = {
     name,
@@ -183,7 +187,7 @@ function define(
             .slice(1)
             .split('/')
             .map((part) =>
-              part.startsWith('{') ? (input[part.slice(1, -1)] as string | number) : part,
+              part.startsWith('{') ? (input[inputKey(part.slice(1, -1))] as string | number) : part,
             ),
           ...([
             'infomaniak_list_mail_services',
@@ -198,7 +202,7 @@ function define(
             value: {
               ok: true,
               action,
-              ...Object.fromEntries(identifiers.map((key) => [camel(key), input[key]])),
+              ...Object.fromEntries(identifiers.map((key) => [camel(key), input[inputKey(key)]])),
             },
           },
         }),

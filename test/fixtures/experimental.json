@@ -813,7 +813,7 @@
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": "info"
+        "mailbox_name": "info"
       },
       "response": "mailbox",
       "outputKey": "mailbox",
@@ -992,7 +992,7 @@
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": "info"
+        "mailbox_name": "info"
       },
       "response": "acknowledgement",
       "list": false,
@@ -1032,7 +1032,7 @@
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": "info",
+        "mailbox_name": "info",
         "alias": "alias+tag@example.test"
       },
       "response": "acknowledgement",
@@ -1077,7 +1077,7 @@
       },
       "input": {
         "mail_id": 4,
-        "mailbox_id": "info",
+        "mailbox_name": "info",
         "alias": "alias+tag@example.test"
       },
       "response": "acknowledgement",
@@ -1597,7 +1597,7 @@
           "service_name": "synthetic",
           "customer_name": "example.test",
           "internal_name": "synthetic",
-          "created_at": 123,
+          "created_at": "2026-09-01",
           "expired_at": null,
           "version": 1,
           "maintenance": false,
@@ -1614,7 +1614,7 @@
           {
             "id": 12,
             "accountId": 7,
-            "createdAt": 123
+            "createdAt": "2026-09-01"
           }
         ]
       }

@@ -114,10 +114,10 @@
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
           },
-          "mailbox_id": {
+          "mailbox_name": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           },
           "alias": {
             "type": "string",
@@ -125,7 +125,7 @@
             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
           }
         },
-        "required": ["mail_id", "mailbox_id", "alias"],
+        "required": ["mail_id", "mailbox_name", "alias"],
         "additionalProperties": false
       },
       "output": {
@@ -148,7 +148,7 @@
           "mailboxId": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           },
           "alias": {
             "type": "string",
@@ -1862,24 +1862,6 @@
               "target": {
                 "type": "string"
               },
-              "target_idn": {
-                "type": "string"
-              },
-              "source_idn": {
-                "type": "string"
-              },
-              "ttl_idn": {
-                "type": ["string", "number"]
-              },
-              "updated_at": {
-                "type": ["string", "number", "null"]
-              },
-              "dyndns_id": {
-                "type": ["string", "number", "null"]
-              },
-              "delegated_zone_id": {
-                "type": ["string", "number", "null"]
-              },
               "ttl": {
                 "type": "number"
               },
@@ -1887,7 +1869,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "source", "type", "ttl"],
+            "required": ["id", "source", "type", "target", "ttl"],
             "additionalProperties": false
           }
         },
@@ -3269,13 +3251,13 @@
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
           },
-          "mailbox_id": {
+          "mailbox_name": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           }
         },
-        "required": ["mail_id", "mailbox_id"],
+        "required": ["mail_id", "mailbox_name"],
         "additionalProperties": false
       },
       "output": {
@@ -3298,7 +3280,7 @@
           "mailboxId": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           }
         },
         "required": ["ok", "action", "mailId", "mailboxId"],
@@ -3359,10 +3341,10 @@
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
           },
-          "mailbox_id": {
+          "mailbox_name": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           },
           "alias": {
             "type": "string",
@@ -3370,7 +3352,7 @@
             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
           }
         },
-        "required": ["mail_id", "mailbox_id", "alias"],
+        "required": ["mail_id", "mailbox_name", "alias"],
         "additionalProperties": false
       },
       "output": {
@@ -3393,7 +3375,7 @@
           "mailboxId": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           },
           "alias": {
             "type": "string",
@@ -4319,7 +4301,7 @@
                 "type": "string"
               },
               "createdAt": {
-                "type": ["string", "number", "null"]
+                "type": "string"
               },
               "pdfUrl": {
                 "type": "string"
@@ -4976,13 +4958,13 @@
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
           },
-          "mailbox_id": {
+          "mailbox_name": {
             "type": "string",
             "minLength": 1,
-            "description": "mailbox_name : partie avant @"
+            "description": "partie avant @"
           }
         },
-        "required": ["mail_id", "mailbox_id"],
+        "required": ["mail_id", "mailbox_name"],
         "additionalProperties": false
       },
       "output": {
@@ -5421,23 +5403,11 @@
                     "customerName": {
                       "type": "string"
                     },
-                    "type": {
-                      "type": ["string", "number"]
-                    },
-                    "subtype": {
-                      "type": ["string", "number"]
-                    },
-                    "connectionType": {
-                      "type": ["string", "number"]
-                    },
                     "size": {
                       "type": "number"
                     },
                     "storageUsed": {
                       "type": "number"
-                    },
-                    "usageLastCheck": {
-                      "type": ["string", "number", "null"]
                     },
                     "createdAt": {
                       "type": ["string", "number", "null"]
@@ -5569,7 +5539,7 @@
                 "type": "string"
               },
               "createdAt": {
-                "type": ["string", "number", "null"]
+                "type": "string"
               },
               "expiresAt": {
                 "type": "string"
@@ -7698,24 +7668,6 @@
                 "target": {
                   "type": "string"
                 },
-                "target_idn": {
-                  "type": "string"
-                },
-                "source_idn": {
-                  "type": "string"
-                },
-                "ttl_idn": {
-                  "type": ["string", "number"]
-                },
-                "updated_at": {
-                  "type": ["string", "number", "null"]
-                },
-                "dyndns_id": {
-                  "type": ["string", "number", "null"]
-                },
-                "delegated_zone_id": {
-                  "type": ["string", "number", "null"]
-                },
                 "ttl": {
                   "type": "number"
                 },
@@ -7723,7 +7675,7 @@
                   "type": "number"
                 }
               },
-              "required": ["id", "source", "type", "ttl"],
+              "required": ["id", "source", "type", "target", "ttl"],
               "additionalProperties": false
             }
           }
@@ -8124,7 +8076,7 @@
                   "type": "string"
                 },
                 "createdAt": {
-                  "type": ["string", "number", "null"]
+                  "type": "string"
                 },
                 "pdfUrl": {
                   "type": "string"
@@ -9676,23 +9628,11 @@
                 "customerName": {
                   "type": "string"
                 },
-                "type": {
-                  "type": ["string", "number"]
-                },
-                "subtype": {
-                  "type": ["string", "number"]
-                },
-                "connectionType": {
-                  "type": ["string", "number"]
-                },
                 "size": {
                   "type": "number"
                 },
                 "storageUsed": {
                   "type": "number"
-                },
-                "usageLastCheck": {
-                  "type": ["string", "number", "null"]
                 },
                 "createdAt": {
                   "type": ["string", "number", "null"]
@@ -9815,23 +9755,11 @@
                       "customerName": {
                         "type": "string"
                       },
-                      "type": {
-                        "type": ["string", "number"]
-                      },
-                      "subtype": {
-                        "type": ["string", "number"]
-                      },
-                      "connectionType": {
-                        "type": ["string", "number"]
-                      },
                       "size": {
                         "type": "number"
                       },
                       "storageUsed": {
                         "type": "number"
-                      },
-                      "usageLastCheck": {
-                        "type": ["string", "number", "null"]
                       },
                       "createdAt": {
                         "type": ["string", "number", "null"]
@@ -9967,7 +9895,7 @@
                   "type": "string"
                 },
                 "createdAt": {
-                  "type": ["string", "number", "null"]
+                  "type": "string"
                 },
                 "expiresAt": {
                   "type": "string"
@@ -11322,24 +11250,6 @@
               "target": {
                 "type": "string"
               },
-              "target_idn": {
-                "type": "string"
-              },
-              "source_idn": {
-                "type": "string"
-              },
-              "ttl_idn": {
-                "type": ["string", "number"]
-              },
-              "updated_at": {
-                "type": ["string", "number", "null"]
-              },
-              "dyndns_id": {
-                "type": ["string", "number", "null"]
-              },
-              "delegated_zone_id": {
-                "type": ["string", "number", "null"]
-              },
               "ttl": {
                 "type": "number"
               },
@@ -11347,7 +11257,7 @@
                 "type": "number"
               }
             },
-            "required": ["id", "source", "type", "ttl"],
+            "required": ["id", "source", "type", "target", "ttl"],
             "additionalProperties": false
           }
         },

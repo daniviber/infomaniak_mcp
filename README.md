@@ -140,8 +140,6 @@ succès sur compte fournisseur. Les preuves et leurs sources figurent par outil.
   dans l'inventaire. Les autres routes douteuses restent inchangées, expérimentales
   et `unproven` ; leurs incompatibilités sont détaillées dans `knownLimits`.
   Le PUT nameservers transmet les noms de serveurs ; l'API en exige au moins deux.
-- `/1/web/{hosting_id}/database` est reconnue mais peut répondre
-  `not_available_for_this_hosting_type` selon l'hébergement.
 - `infomaniak_kchat_search_users` diverge de GET vers POST. La source d’invalidité
   baseline est `mattermost/mattermost`, `api/v4/source/users.yaml`, chemin
   `/api/v4/users/search`, `post` uniquement. La forme corrigée vient de
