@@ -1,119 +1,65 @@
-# CLAUDE.md - Infomaniak MCP Server
+# Guide du dépôt après refonte
 
-This file provides guidance to Claude Code when working with this codebase.
+Lire le contrat du lot avant d’agir ; il est la frontière de modification. Les
+instructions de contribution sont dans `CONTRIBUTING.md`. Le rapport historique
+`SECURITY_AUDIT.md` est conservé ; son addendum « état après refonte » décrit la cible
+actuelle et ses limites de preuve.
 
-## Project Overview
+## Architecture actuelle
 
-MCP (Model Context Protocol) server for the Infomaniak API. It lets AI assistants manage
-Infomaniak services: domains and DNS, mail hosting, web hosting, kDrive files, kSuite
-Calendar events, Swiss Backup, VPS, dedicated servers, SSL certificates, invoicing and kChat.
+- `src/domain/` : modèles validés Zod et `ToolContract` ; classe, idempotence,
+  expérimental, raw, schémas et limites explicites.
+- `src/application/` : ports, cas d’usage, bindings, politique et `FeatureModule`.
+  La politique précède validation d’entrée et invocation fournisseur.
+- `src/adapters/outbound/` : passerelle partagée, DTO et projections domaine,
+  adaptateurs Infomaniak et kChat. Les URL ne sont pas assemblées dans le domaine.
+- `src/adapters/inbound/` : SDK MCP v2, stdio moderne/legacy, handlers HTTP,
+  admission bearer/Host/Origin et borne de corps.
+- `src/config/runtime-config.ts` : configuration validée et capturée au démarrage.
+- `src/features/*.feature.ts` : modules déclaratifs exportant `tools`,
+  `createHandlers` et éventuellement `selectTools`.
+- `src/main/bootstrap.ts` : découverte, composition, injection des gateways,
+  du fetch borné et de l’horloge, bucket partagé entre produits et tokens.
+- `src/main/stdio.ts` : exécutable moderne à effets de bord, aucun export.
+  Importer `startModernStdio` pour un test, jamais cet exécutable.
+- `src/main/http.ts`, `src/main/legacy.ts` : applications testables et entrées
+  explicites, sans sélecteur `MCP_TRANSPORT`.
 
-Read `SECURITY_AUDIT.md` before changing anything security related (transport, policy, tokens).
+Node de référence 20.19.2, npm 9.2.0 ; TypeScript ES2022/Node16 ESM, Zod 4,
+Express 5 et paquets MCP `core`, `server`, `node`, `client` v2. `npm run build`
+utilise `tsc -p tsconfig.build.json`. Les chemins main/bin/start/inspector sont
+ceux de `package.json`, conservés et vérifiés par `test/transports/stdio-2026.test.ts`.
 
-## Tech Stack
+## Politique et sorties
 
-- **Language**: TypeScript (ES2022), Node16 ESM, Node.js >= 18
-- **Key dependencies**: `@modelcontextprotocol/sdk` (>= 1.30), `zod`, `express`, `cors`
-- **Tests**: Vitest (+ supertest for HTTP)
-- **Build output**: `./build/` (tests excluded via `tsconfig.build.json`)
+Les indicateurs expérimental et raw gouvernent visibilité **et appelabilité**.
+L’outil raw exige les deux ; kChat exige hôte et token. `readOnly` conserve le
+catalogue et refuse writes/destructives ; pour raw il limite la méthode à GET.
+Les classifications sont déclarées, jamais déduites des préfixes de noms.
 
-## Project Structure
+Refus figé : `[POLICY_DENIED] <reason>: <toolName>` et son `structuredContent`
+d’erreur. Succès : JSON indenté de 2 espaces identique à `structuredContent`.
+Les DTO sont validés puis projetés en modèles de domaine. Seul raw retourne
+`{ method, endpoint, status, data }`, avec `data` validé uniquement comme JSON.
 
-```
-src/
-├── index.ts                  # Entry point: env parsing, clients, policy, transport selection
-├── server.ts                 # createMcpServer(): core tools + module composition + policy enforcement
-├── infomaniak-client.ts      # Infomaniak REST client (rate limit, retries, JSON + binary requests)
-├── calendar-client.ts        # kSuite Calendar client (/1/calendar/pim/*), date/timezone helpers
-├── kchat-client.ts           # kChat (Mattermost-compatible) client
-├── schemas.ts                # Zod schemas for every tool input + validate()
-├── tools/
-│   ├── module.ts             # ToolModule interface (tools + canHandle + handle)
-│   ├── policy.ts             # read/write/destructive classification, annotations, read-only / raw-API policy
-│   ├── kdrive.ts             # kDrive tool module (28 tools)
-│   └── calendar.ts           # Calendar tool module (6 tools)
-└── transports/
-    ├── stdio.ts              # stdio transport (default)
-    └── http.ts               # Streamable HTTP transport: bearer auth, Host/Origin checks, session store
-```
+Ne pas ouvrir les unions de droits, corriger les routes Swiss Backup ou masquer
+la divergence kChat GET → POST : leurs limites et preuves sont consignées dans
+`product/inventory/tools.json` et le README. Toute correction nécessite son cadrage.
 
-## Build and Run Commands
+## Transports et vérification
 
-```bash
-npm install            # (if npm 10 fails with "edgesOut", use: npx -y npm@12 install)
-npm run build          # Compile to build/ (tsconfig.build.json)
-npm run dev            # Watch mode
-npm start              # Run the built server
-npm test               # Unit + integration tests (vitest)
-npm run typecheck      # tsc --noEmit (includes tests)
-npm audit              # Must stay at 0 vulnerabilities
-npm run inspector      # MCP Inspector (requires INFOMANIAK_API_TOKEN)
-```
+MCP 2026-07-28 sur stdio et HTTP est la cible ; 2025-11-25 reste accessible via
+`build/main/legacy.js` (option `--http` pour HTTP) jusqu’au gate FEAT-13. HTTP est
+sans session, POST `/mcp`, sans reprise SSE. OAuth/OIDC et capacités MCP hors outils
+sont exclus. Ne pas réintroduire d’options de session ou d’ancien SDK v1.
 
-## Architecture
+`npm run verify:mvp` construit puis vérifie inventaire et scénario hors ligne sur
+les vrais transports SDK, avec tokens sentinelles, fetchs doubles et sockets
+loopback uniquement. Le script ne lit pas de token opérateur. Les cycles kDrive et
+Calendar DST restent « non prouvés côté fournisseur » ; nettoyage sans objet sous
+C3. La suite complète et l’audit restent exigés séparément par CONTRIBUTING.
 
-### Tool catalog and policy (`src/server.ts`, `src/tools/policy.ts`)
-- `buildToolCatalog()` merges the core `tools` array with the tool modules, annotates every
-  tool (`readOnlyHint`, `destructiveHint`, ...) from its **name** (`classifyTool`), and
-  filters by policy:
-  - `INFOMANIAK_READ_ONLY=true` → only `readOnlyHint` tools are listed *and* callable.
-  - `infomaniak_api_call` is hidden unless `INFOMANIAK_ALLOW_RAW_API=true`; in read-only
-    mode it only accepts `GET`.
-  - kChat / Calendar tools appear only when their client is configured.
-- `createMcpServer(client, options)` enforces the policy in the `tools/call` handler too
-  (never rely on listing alone).
-
-### API clients
-- `InfomaniakClient` (`https://api.infomaniak.com`, fixed): token bucket 60 req/min, retries on
-  429/5xx, 30 s timeout. `request()` for JSON, `requestBinary()` for uploads/downloads
-  (size caps). **Always** wrap string path segments with `seg()`.
-- kDrive endpoints follow Infomaniak's official `mcp-server-kdrive` / Android app: v3
-  `/3/drive/{id}/files/{dir}/files`, `/files/{parent}/directory`, `/files/{id}/move/{dest}`,
-  `/files/{id}/copy/{dest}`, `/upload`, `/trash`; v2 `/files/{id}/rename`, `/files/{id}`
-  (DELETE), `/files/{id}/link`, `/files/{id}/download`, `/trash/{id}/restore`. Root dir id = 1.
-- `CalendarClient` wraps an `InfomaniakClient` (possibly with a different token). The API is
-  user scoped; dates are `YYYY-MM-DD HH:mm:ss` wall-clock + IANA timezone (`toApiDateTime`).
-
-### HTTP transport (`src/transports/http.ts`)
-- `createHttpApp(createServer, options)` is the testable core; `startHttpServer` listens.
-- Auth token mandatory (`MCP_HTTP_AUTH_TOKEN`), loopback bind by default, Host header
-  validation (SDK middleware), Origin guard + opt-in CORS, session cap + TTL, no session
-  listing, generic 500s. Keep it that way.
-
-## Development Guidelines
-
-### Adding a tool
-1. Add a Zod schema in `src/schemas.ts`.
-2. **Core services**: add the definition to `tools` in `src/server.ts` and a `case` in
-   `handleToolCall`. **kDrive / Calendar**: add to the module in `src/tools/`.
-3. Name it `infomaniak_<verb>_<object>` using `list_/get_/search_/download_` for read-only
-   tools and `delete_/empty_/reboot_/shutdown_/remove_/renew_` for destructive ones — the
-   policy and annotations are derived from the name (see `classifyTool` tests).
-4. Add a client method; encode path segments with `seg()`.
-5. Tests: `src/server.test.ts` has a test that calls every listed tool; add unit tests for the
-   client method (mocked `fetch`) and the schema.
-
-### API endpoint patterns
-- Version in path: `/1/...`, `/2/...` (drive, profile), `/3/...` (drive v3).
-- Never build URLs from unvalidated strings; never add hosts other than the fixed base URL.
-- Endpoints not verified against a live account: mail admin (`/1/mail/...`, official docs use
-  `/1/mail_hostings/{id}/mailboxes/{mailbox_name}`), `/1/domain/account/{id}`, `/1/vps`,
-  `/1/dedicated`. Verify on a test account before relying on them.
-
-## Testing
-
-```bash
-npm test
-INFOMANIAK_API_TOKEN=your-token npm run inspector
-# HTTP mode
-MCP_TRANSPORT=http MCP_HTTP_AUTH_TOKEN=$(openssl rand -hex 32) INFOMANIAK_API_TOKEN=... npm start
-```
-
-## Common Issues
-
-- **401**: invalid/expired token. **403**: token missing a scope (kDrive: `drive`; calendar:
-  `workspace:calendar user_info`). **429**: rate limit (60 req/min).
-- **"HTTP transport requires MCP_HTTP_AUTH_TOKEN"**: expected — set a shared secret.
-- **Calendar "No calendar found"**: the calendar token must belong to the mailbox user.
-- **kDrive "Only directory can be created here"**: files cannot be uploaded to the drive
-  root or category folders; use a sub-directory.
+Les tests d’un lot ne figent aucun compte global. Les totaux sont recalculés dans
+le script composé FEAT-12. Les inventaires restent des tableaux JSON d’entrées
+nommées, avec le même jeu de noms que le registre complet. Ne pas confondre
+couverture de liaison et succès d’une opération sur le backend fournisseur.

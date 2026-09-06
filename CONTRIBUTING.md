@@ -1,145 +1,71 @@
-# Contributing to Infomaniak MCP Server
+# Contribution
 
-Thank you for your interest in contributing to the Infomaniak MCP Server! This document provides guidelines and instructions for contributing.
+Chaque lot possède un contrat, une branche `feat/NN` ou `fix/NN` issue de
+`integration` et son propre worktree. Outcome, Touches, Constraints et Verification
+fixent la contribution ; toute question non tranchée se remonte avant modification.
+Ne pas modifier les points d’entrée, dépendances ou fichiers voisins hors contrat.
+Committer sur la branche du lot, sans force-push, et arrêter dès la condition de fin
+satisfaite. Trois échecs consécutifs du même test imposent un arrêt et un rapport.
 
-## Code of Conduct
+## Environnement
 
-By participating in this project, you agree to maintain a respectful and inclusive environment for everyone.
+Référence : Node 20.19.2, npm 9.2.0, Git et shell POSIX. Conserver le lockfile v3.
+`npm ci` installe uniquement les dépendances déjà verrouillées. Un runtime absent du
+PATH, un besoin root ou de gestionnaire de paquets système se rapporte à l’opérateur :
+aucune installation système, binaire vendored ou shim de substitution.
 
-## How to Contribute
+## Vérification composée
 
-### Reporting Bugs
+Depuis le worktree du lot, exécuter dans cet ordre :
 
-Before creating a bug report, please check existing issues to avoid duplicates. When creating a bug report, include:
-
-- A clear, descriptive title
-- Steps to reproduce the issue
-- Expected behavior vs actual behavior
-- Your environment (Node.js version, OS, etc.)
-- Any relevant error messages or logs
-
-### Suggesting Features
-
-Feature suggestions are welcome! When suggesting a feature:
-
-- Provide a clear description of the feature
-- Explain the use case and why it would be valuable
-- Consider if it aligns with the Infomaniak API capabilities
-
-### Pull Requests
-
-1. **Fork the repository** and create your branch from `main`
-2. **Install dependencies**: `npm install`
-3. **Make your changes** following the coding style
-4. **Build the project**: `npm run build`
-5. **Test your changes** manually with the MCP Inspector: `npm run inspector`
-6. **Update documentation** if needed
-7. **Submit a pull request** with a clear description
-
-## Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-
-# Install dependencies
-npm install
-
-# Build
+```sh
+npm ci
+npm run lint
+npm run format:check
+npm run typecheck
+npm test
+npm exec -- vitest run test/acceptance/mvp-demo.test.ts
+node scripts/verify-mvp.mjs
 npm run build
-
-# Watch mode for development
-npm run dev
-
-# Test with MCP Inspector
-INFOMANIAK_API_TOKEN=your-token npm run inspector
+npm audit --audit-level=high
 ```
 
-## Coding Guidelines
+Tous les codes doivent être 0, lint/format sans écart, suite complète et scénario
+Vitest verts, `MVP OFFLINE PASS` et `orphan tools: 0`, build vert et zéro vulnérabilité
+haute/critique. `npm run verify:mvp` est le raccourci autonome du script ; il construit
+ses imports même si aucun build n’existe. Il ne remplace pas lint, format, la suite
+complète ou l’audit de cette procédure.
 
-### TypeScript
+Le périmètre de `format:check` est celui de `.prettierignore`. Formater explicitement
+les nouveaux scripts et documents du lot s’ils en sont exclus. `typecheck` suit le
+tsconfig existant ; Vitest exécute les tests hors de son périmètre.
 
-- Use TypeScript strict mode
-- Define proper types for all function parameters and return values
-- Avoid using `any` type when possible
-- Use meaningful variable and function names
+C3 impose des tokens sentinelles et des doubles, sans aucun socket fournisseur.
+L’écoute loopback des tests HTTP est admise, le registry sert uniquement à
+l’installation et à l’audit. Aucune attente réelle à délai littéral dans les tests :
+employer horloges injectées, fake timers ou synchronisation par événements.
+L’Inspector et les comptes fournisseur ne font pas partie de cette acceptation.
 
-### Code Style
+## Contrats et preuves
 
-- Use 2 spaces for indentation
-- Use single quotes for strings
-- Add trailing commas in multi-line arrays/objects
-- Document public functions with JSDoc comments
+Les définitions sous `src/features/` exportent leurs outils et leurs handlers ; la
+composition rejette doublons et handlers manquants. Les schémas d’entrée/sortie, la
+classe, l’idempotence et les limites sont déclarés explicitement. Respecter les
+frontières domaine → application → adaptateurs → composition, et le test
+architectural existant.
 
-### Commit Messages
+Conserver `product/inventory/tools.json` et `test/fixtures/baseline-tools.json` en
+tableaux de premier niveau, avec `name` dans chaque entrée. Enrichir l’entrée de
+l’inventaire, jamais son enveloppe. Les noms doivent correspondre aux déclarations
+et au registre complet, indépendamment des indicateurs de visibilité.
 
-Follow conventional commit format:
+Les tests d’un lot comparent des ensembles ou des mesures entre elles ; ils ne
+figent pas les totaux globaux du dépôt, même via un ternaire. Les totaux absolus
+appartiennent à la vérification composée et au script FEAT-12. Les preuves
+`official`/`baseline`/`unproven` restent distinctes de la preuve fournisseur : les
+cycles sur doubles sont « non prouvés côté fournisseur ».
 
-```
-type(scope): description
-
-[optional body]
-
-[optional footer]
-```
-
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-
-Examples:
-- `feat(dns): add support for CAA records`
-- `fix(mail): handle empty mailbox list response`
-- `docs: update installation instructions`
-
-## Adding New Tools
-
-When adding new tools to the MCP server:
-
-1. **Add the API method** in `src/infomaniak-client.ts`:
-   ```typescript
-   async newMethod(param: string): Promise<ApiResponse<ResultType>> {
-     return this.request<ApiResponse<ResultType>>('GET', `/1/endpoint/${param}`);
-   }
-   ```
-
-2. **Define the tool** in `src/index.ts` tools array:
-   ```typescript
-   {
-     name: "infomaniak_new_tool",
-     description: "Clear description of what this tool does",
-     inputSchema: {
-       type: "object",
-       properties: {
-         param: {
-           type: "string",
-           description: "Description of the parameter",
-         },
-       },
-       required: ["param"],
-     },
-   },
-   ```
-
-3. **Add the handler** in the switch statement:
-   ```typescript
-   case "infomaniak_new_tool":
-     result = await client.newMethod(args?.param as string);
-     break;
-   ```
-
-4. **Update README.md** with the new tool documentation
-
-## Testing
-
-Currently, the project uses manual testing with the MCP Inspector. When testing:
-
-1. Set your `INFOMANIAK_API_TOKEN` environment variable
-2. Run `npm run inspector`
-3. Test each modified tool with various inputs
-4. Verify error handling with invalid inputs
-
-## Questions?
-
-Feel free to open an issue for any questions about contributing.
-
-Thank you for contributing! 🎉
+Le rapport de livraison fournit SHA des commits et parents, `git status --porcelain`
+avant/après, neuf commandes et codes de sortie, mesures d’invariants et limites de
+preuve. Il doit être confirmé indépendamment par reviewer et verif sur le SHA livré.
+Aucune publication, release ou déploiement n’est implicite.
