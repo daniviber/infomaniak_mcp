@@ -29,10 +29,9 @@ function violations(path: string, layer: Layer, text = readFileSync(path, 'utf8'
       if (
         layer === 'main' &&
         target === 'adapters' &&
-        ![
-          'adapters/inbound/mcp/modern-server.js',
-          'adapters/outbound/infomaniak/gateway.js',
-        ].includes(relative(root, resolve(dirname(path), specifier)))
+        !relative(root, resolve(dirname(path), specifier)).startsWith('adapters/inbound/') &&
+        relative(root, resolve(dirname(path), specifier)) !==
+          'adapters/outbound/infomaniak/gateway.js'
       )
         errors.push('main -> family adapter');
     } else if (!['adapters', 'main'].includes(layer) && specifier !== 'zod')
@@ -164,6 +163,8 @@ describe('two composition layers, including when production features are empty',
       '../config/runtime-config',
       '../adapters/outbound/infomaniak/gateway',
       '../adapters/inbound/mcp/modern-server',
+      '../adapters/inbound/mcp/modern-stdio',
+      '../adapters/inbound/mcp/modern-http',
     ]) {
       expect(
         violations(
@@ -188,4 +189,101 @@ describe('two composition layers, including when production features are empty',
       ),
     ).toEqual(['main -> features']);
   });
+});
+
+function runtimeStatements(text: string): string[] {
+  const source = ts.createSourceFile('tool-contract.ts', text, ts.ScriptTarget.Latest, true);
+  return source.statements
+    .filter((node) => {
+      if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) return false;
+      if (ts.isImportDeclaration(node)) {
+        const clause = node.importClause;
+        if (clause?.isTypeOnly) return false;
+        const bindings = clause?.namedBindings;
+        if (
+          !clause?.name &&
+          bindings &&
+          ts.isNamedImports(bindings) &&
+          bindings.elements.length > 0 &&
+          bindings.elements.every((entry) => entry.isTypeOnly)
+        )
+          return false;
+      }
+      if (ts.isExportDeclaration(node)) {
+        if (node.isTypeOnly) return false;
+        const clause = node.exportClause;
+        if (
+          clause &&
+          ts.isNamedExports(clause) &&
+          clause.elements.length > 0 &&
+          clause.elements.every((entry) => entry.isTypeOnly)
+        )
+          return false;
+      }
+      return true;
+    })
+    .map((node) => node.getText(source));
+}
+
+describe('domain/tool-contract.ts is exclusively types (addendum 12)', () => {
+  it('contains no runtime imports, exports or declarations', () => {
+    expect(
+      runtimeStatements(readFileSync(resolve(root, 'domain/tool-contract.ts'), 'utf8')),
+    ).toEqual([]);
+  });
+  it.each([
+    "import type { z } from 'zod';",
+    "import { type z } from 'zod';",
+    "export type { Example } from './example.js';",
+    "export { type Example } from './example.js';",
+    "export interface Example { schema: import('zod').ZodObject }",
+    'export type Example = string;',
+  ])('accepts pure types: %s', (source) => {
+    expect(runtimeStatements(source)).toEqual([]);
+  });
+  it.each([
+    "import { z } from 'zod';",
+    "import { z, type ZodObject } from 'zod';",
+    "import 'zod';",
+    "export { policyErrorSchema } from '../application/policy-error-schema.js';",
+    "export * from 'zod';",
+    "const schema = import('zod');",
+    "const schema = require('zod');",
+    'export const schema = z.object({});',
+  ])('rejects runtime code: %s', (source) => {
+    expect(runtimeStatements(source)).toEqual([source]);
+  });
+  it('keeps runtime Zod authorized in the other domain schema files', () => {
+    expect(
+      violations(
+        resolve(root, 'domain/example.ts'),
+        'domain',
+        "import { z } from 'zod'; export const schema = z.object({});",
+      ),
+    ).toEqual([]);
+  });
+  it.each(['import', 'import type', 'export', 'export type'])(
+    'rejects every outbound family and direct feature composition using %s',
+    (syntax) => {
+      for (const target of [
+        'adapters/outbound/infomaniak/calendar.adapter',
+        'adapters/outbound/kchat/kchat.adapter',
+      ]) {
+        expect(
+          violations(
+            resolve(root, 'main/bootstrap.ts'),
+            'main',
+            syntax + " { Example } from '../" + target + ".js';",
+          ),
+        ).toEqual(['main -> family adapter']);
+      }
+      expect(
+        violations(
+          resolve(root, 'main/bootstrap.ts'),
+          'main',
+          syntax + " { Example } from '../features/example.feature.js';",
+        ),
+      ).toEqual(['main -> features']);
+    },
+  );
 });

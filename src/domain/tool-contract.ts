@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
 export interface InvocationContext {
   readonly readOnly: boolean;
@@ -29,11 +29,3 @@ export interface ToolContract {
   readonly experimental: boolean;
   readonly text: (output: Record<string, unknown>) => string;
 }
-
-export const policyErrorSchema = z.object({
-  error: z.object({
-    code: z.literal('POLICY_DENIED'),
-    reason: z.enum(['read_only', 'raw_api_disabled', 'experimental_disabled']),
-    tool: z.string(),
-  }),
-});
