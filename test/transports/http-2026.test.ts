@@ -333,7 +333,7 @@ describe('modern Node HTTP transport', () => {
     const name = 'infomaniak_delete_dns_record';
     const denied = await rpc(readonly, 'tools/call', {
       name,
-      arguments: { domain: 'example.test', record_id: 1 },
+      arguments: { domain: 'example.test', record_id: '1' },
     });
     expect(denied.body.result).toMatchObject({
       isError: true,
