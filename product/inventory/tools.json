@@ -2346,19 +2346,12 @@
                 "type": "string"
               },
               "note": {
-                "type": ["string", "null"]
+                "type": "string"
               },
               "type": {
-                "anyOf": [
-                  {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
               },
               "isLimited": {
                 "type": "boolean"
@@ -2367,7 +2360,7 @@
                 "type": "boolean"
               },
               "isUsedForAccount": {
-                "type": ["boolean", "string"]
+                "type": "boolean"
               },
               "aliases": {
                 "type": "array",
@@ -4997,19 +4990,12 @@
                 "type": "string"
               },
               "note": {
-                "type": ["string", "null"]
+                "type": "string"
               },
               "type": {
-                "anyOf": [
-                  {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
               },
               "isLimited": {
                 "type": "boolean"
@@ -5018,7 +5004,7 @@
                 "type": "boolean"
               },
               "isUsedForAccount": {
-                "type": ["boolean", "string"]
+                "type": "boolean"
               },
               "aliases": {
                 "type": "array",
@@ -5410,7 +5396,7 @@
                       "type": "number"
                     },
                     "createdAt": {
-                      "type": ["string", "number", "null"]
+                      "type": "string"
                     },
                     "id": {
                       "type": "integer",
@@ -9327,19 +9313,12 @@
                   "type": "string"
                 },
                 "note": {
-                  "type": ["string", "null"]
+                  "type": "string"
                 },
                 "type": {
-                  "anyOf": [
-                    {
-                      "type": "integer",
-                      "minimum": -9007199254740991,
-                      "maximum": 9007199254740991
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
                 },
                 "isLimited": {
                   "type": "boolean"
@@ -9348,7 +9327,7 @@
                   "type": "boolean"
                 },
                 "isUsedForAccount": {
-                  "type": ["boolean", "string"]
+                  "type": "boolean"
                 },
                 "aliases": {
                   "type": "array",
@@ -9635,7 +9614,7 @@
                   "type": "number"
                 },
                 "createdAt": {
-                  "type": ["string", "number", "null"]
+                  "type": "string"
                 },
                 "id": {
                   "type": "integer",
@@ -9762,7 +9741,7 @@
                         "type": "number"
                       },
                       "createdAt": {
-                        "type": ["string", "number", "null"]
+                        "type": "string"
                       },
                       "id": {
                         "type": "integer",
@@ -11686,19 +11665,12 @@
                 "type": "string"
               },
               "note": {
-                "type": ["string", "null"]
+                "type": "string"
               },
               "type": {
-                "anyOf": [
-                  {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
               },
               "isLimited": {
                 "type": "boolean"
@@ -11707,7 +11679,7 @@
                 "type": "boolean"
               },
               "isUsedForAccount": {
-                "type": ["boolean", "string"]
+                "type": "boolean"
               },
               "aliases": {
                 "type": "array",

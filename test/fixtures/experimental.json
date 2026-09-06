@@ -1524,11 +1524,11 @@
           "mailbox_name": "info",
           "mailbox": "info@example.test",
           "mailbox_idn": "info@example.test",
-          "note": null,
-          "type": null,
+          "note": "Synthetic note",
+          "type": 1,
           "is_limited": false,
           "is_free_mail": false,
-          "is_used_for_account": "false",
+          "is_used_for_account": false,
           "provider_extra": "PRIVATE"
         }
       ],
@@ -1538,11 +1538,11 @@
             "mailboxName": "info",
             "mailbox": "info@example.test",
             "mailboxIdn": "info@example.test",
-            "note": null,
-            "type": null,
+            "note": "Synthetic note",
+            "type": 1,
             "isLimited": false,
             "isFreeMail": false,
-            "isUsedForAccount": "false"
+            "isUsedForAccount": false
           }
         ]
       }

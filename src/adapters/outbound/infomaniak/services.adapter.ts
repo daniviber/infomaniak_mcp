@@ -116,7 +116,7 @@ const backupSlotDto = z.object({
   customer_name: z.string().optional(),
   size: z.number().optional(),
   storage_used: z.number().optional(),
-  created_at: z.union([z.string(), z.number()]).nullable().optional(),
+  created_at: z.string().optional(),
   id: id,
   name: z.string().optional(),
   size_used: z.number().optional(),

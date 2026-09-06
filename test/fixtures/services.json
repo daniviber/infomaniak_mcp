@@ -1957,7 +1957,7 @@
           "size": 100,
           "storage_used": 20,
           "usage_last_check": null,
-          "created_at": 123,
+          "created_at": "2026-09-01",
           "provider_extra": "PRIVATE"
         }
       ],
@@ -1967,7 +1967,7 @@
             "customerName": "Archive",
             "size": 100,
             "storageUsed": 20,
-            "createdAt": 123,
+            "createdAt": "2026-09-01",
             "id": 13
           }
         ]

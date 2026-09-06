@@ -56,7 +56,7 @@ export const backupSlotSchema = z.object({
   customerName: z.string().optional(),
   size: z.number().optional(),
   storageUsed: z.number().optional(),
-  createdAt: z.union([z.string(), z.number()]).nullable().optional(),
+  createdAt: z.string().optional(),
   id: id,
   name: z.string().optional(),
   sizeUsed: z.number().optional(),
