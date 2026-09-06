@@ -23,7 +23,8 @@
     "prepublishOnly": "npm run typecheck && npm run test && npm run build",
     "inspector": "npx @modelcontextprotocol/inspector build/main/stdio.js",
     "lint": "eslint .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "verify:mvp": "node scripts/verify-mvp.mjs"
   },
   "keywords": [
     "mcp",
