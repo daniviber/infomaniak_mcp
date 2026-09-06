@@ -1,0 +1,423 @@
+{
+  "provenance": {
+    "data": "Synthetic offline examples, never captured from a provider",
+    "routes": {
+      "repository": "https://github.com/Infomaniak/mobile-kchat",
+      "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+      "path": "app/client/rest/base.ts",
+      "symbols": "getUsersRoute, getUserRoute, getTeamsRoute, getTeamRoute, getChannelsRoute, getChannelRoute, getPostsRoute, getPostRoute"
+    },
+    "baseline": {
+      "repository": "local:infomaniak_mcp",
+      "revision": "92c2536c2c713c1cd4306ad9acc33bb8c54ef59c",
+      "path": "src/kchat-client.ts"
+    },
+    "validation": "Admission addendum 6 rule 2: descriptive baseline fields are optional; post id/channel_id/user_id/message are required by domain mapping. Unknown provider fields are discarded. Direct channels may have an empty team_id."
+  },
+  "endpoints": [
+    {
+      "name": "infomaniak_kchat_get_me",
+      "method": "GET",
+      "path": "/users/me",
+      "input": {},
+      "response": "user",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/users.ts",
+          "symbols": "getMe"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/users.d.ts",
+          "symbols": "UserProfile"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_list_teams",
+      "method": "GET",
+      "path": "/teams",
+      "input": {},
+      "response": "teams",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/teams.ts",
+          "symbols": "getTeams"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/teams.d.ts",
+          "symbols": "Team"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_list_my_teams",
+      "method": "GET",
+      "path": "/users/me/teams",
+      "input": {},
+      "response": "teams",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/teams.ts",
+          "symbols": "getMyTeams"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/teams.d.ts",
+          "symbols": "Team"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_list_channels",
+      "method": "GET",
+      "path": "/teams/t1/channels",
+      "input": {
+        "team_id": "t1"
+      },
+      "response": "channels",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/channels.ts",
+          "symbols": "getChannels"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/channels.d.ts",
+          "symbols": "Channel"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_list_my_channels",
+      "method": "GET",
+      "path": "/users/me/teams/t1/channels",
+      "input": {
+        "team_id": "t1"
+      },
+      "response": "channels",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/channels.ts",
+          "symbols": "getMyChannels"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/channels.d.ts",
+          "symbols": "Channel"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_get_channel",
+      "method": "GET",
+      "path": "/channels/c1",
+      "input": {
+        "channel_id": "c1"
+      },
+      "response": "channel",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/channels.ts",
+          "symbols": "getChannel"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/channels.d.ts",
+          "symbols": "Channel"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_get_channel_posts",
+      "method": "GET",
+      "path": "/channels/c1/posts",
+      "input": {
+        "channel_id": "c1",
+        "page": 0,
+        "per_page": 200
+      },
+      "response": "posts",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/posts.ts",
+          "symbols": "getPosts"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/posts.d.ts",
+          "symbols": "PostResponse"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_create_post",
+      "method": "POST",
+      "path": "/posts",
+      "input": {
+        "channel_id": "c1",
+        "message": "Bonjour **équipe**",
+        "root_id": "p0"
+      },
+      "response": "post",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/posts.ts",
+          "symbols": "createPost"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/posts.d.ts",
+          "symbols": "Post"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_delete_post",
+      "method": "DELETE",
+      "path": "/posts/p1",
+      "input": {
+        "post_id": "p1"
+      },
+      "response": "deletion",
+      "proof": "baseline",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/posts.ts",
+          "symbols": "deletePost"
+        },
+        {
+          "repository": "local:infomaniak_mcp",
+          "revision": "92c2536c2c713c1cd4306ad9acc33bb8c54ef59c",
+          "path": "src/kchat-client.ts"
+        }
+      ],
+      "note": "Route confirmed by Infomaniak; response is Promise<any>, baseline Promise<void>. Domain acknowledgement from input, admission addendum 6 rule 1, not an official response DTO."
+    },
+    {
+      "name": "infomaniak_kchat_search_posts",
+      "method": "POST",
+      "path": "/teams/t1/posts/search",
+      "input": {
+        "team_id": "t1",
+        "terms": "bonjour",
+        "is_or_search": true
+      },
+      "response": "posts",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/posts.ts",
+          "symbols": "searchPosts, searchPostsWithParams"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/posts.d.ts",
+          "symbols": "PostResponse, SearchPostResponse"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_create_direct",
+      "method": "POST",
+      "path": "/channels/direct",
+      "input": {
+        "user_ids": ["u1", "u2"]
+      },
+      "response": "direct",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/channels.ts",
+          "symbols": "createDirectChannel"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/channels.d.ts",
+          "symbols": "Channel"
+        }
+      ]
+    },
+    {
+      "name": "infomaniak_kchat_search_users",
+      "method": "POST",
+      "path": "/users/search",
+      "input": {
+        "term": "alice"
+      },
+      "response": "users",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/users.ts",
+          "symbols": "searchUsers"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/users.d.ts",
+          "symbols": "UserProfile"
+        }
+      ],
+      "note": "Official POST with JSON {term} supersedes baseline GET query. Public tool name and input unchanged."
+    },
+    {
+      "name": "infomaniak_kchat_list_users",
+      "method": "GET",
+      "path": "/users",
+      "input": {
+        "in_team_id": "t1",
+        "in_channel_id": "c1"
+      },
+      "response": "users",
+      "proof": "official",
+      "sources": [
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "app/client/rest/users.ts",
+          "symbols": "getProfiles, getProfilesInTeam, getProfilesInChannel"
+        },
+        {
+          "repository": "https://github.com/Infomaniak/mobile-kchat",
+          "revision": "99f2c88f843dcbcc631cb6e587298a4611f020a1",
+          "path": "types/api/users.d.ts",
+          "symbols": "UserProfile"
+        }
+      ]
+    }
+  ],
+  "responses": {
+    "user": {
+      "id": "u1",
+      "username": "alice",
+      "email": "alice@example.test",
+      "first_name": "Alice",
+      "last_name": "Example",
+      "nickname": "Al",
+      "provider_only": "chat-secret"
+    },
+    "users": [
+      {
+        "id": "u1",
+        "username": "alice",
+        "email": "alice@example.test",
+        "first_name": "Alice",
+        "last_name": "Example",
+        "nickname": "Al",
+        "provider_only": "chat-secret"
+      }
+    ],
+    "teams": [
+      {
+        "id": "t1",
+        "name": "team",
+        "display_name": "Team",
+        "type": "O",
+        "provider_only": "chat-secret"
+      }
+    ],
+    "channel": {
+      "id": "c1",
+      "team_id": "t1",
+      "name": "general",
+      "display_name": "General",
+      "type": "O",
+      "header": "Welcome",
+      "purpose": "Discussion",
+      "provider_only": "chat-secret"
+    },
+    "channels": [
+      {
+        "id": "c1",
+        "team_id": "t1",
+        "name": "general",
+        "display_name": "General",
+        "type": "O",
+        "header": "Welcome",
+        "purpose": "Discussion",
+        "provider_only": "chat-secret"
+      }
+    ],
+    "direct": {
+      "id": "c1",
+      "team_id": "",
+      "name": "general",
+      "display_name": "General",
+      "type": "D",
+      "header": "Welcome",
+      "purpose": "Discussion",
+      "provider_only": "chat-secret"
+    },
+    "post": {
+      "id": "p1",
+      "channel_id": "c1",
+      "user_id": "u1",
+      "message": "Bonjour **équipe**",
+      "create_at": 1000,
+      "update_at": 2000,
+      "provider_only": "chat-secret"
+    },
+    "posts": {
+      "order": ["p1"],
+      "posts": {
+        "p1": {
+          "id": "p1",
+          "channel_id": "c1",
+          "user_id": "u1",
+          "message": "Bonjour **équipe**",
+          "create_at": 1000,
+          "update_at": 2000,
+          "provider_only": "chat-secret"
+        }
+      },
+      "provider_only": "chat-secret"
+    },
+    "deletion": {
+      "undocumented": "chat-secret"
+    }
+  }
+}

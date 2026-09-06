@@ -1,0 +1,19 @@
+{
+  "item": {
+    "result": "success",
+    "data": {
+      "id": 42,
+      "name": "été.txt",
+      "type": "file",
+      "size": 3,
+      "parent_id": 7,
+      "mime_type": "text/plain",
+      "provider_secret": "PRIVATE_DTO"
+    }
+  },
+  "directory": {
+    "result": "success",
+    "data": { "id": 43, "name": "Archives", "type": "dir", "parent_id": 7 }
+  },
+  "mutation": { "result": "success", "data": { "provider_secret": "PRIVATE_DTO" } }
+}

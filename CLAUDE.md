@@ -1,118 +1,65 @@
-# CLAUDE.md - Infomaniak MCP Server
+# Guide du dépôt après refonte
 
-This file provides guidance to Claude Code when working with this codebase.
+Lire le contrat du lot avant d’agir ; il est la frontière de modification. Les
+instructions de contribution sont dans `CONTRIBUTING.md`. Le rapport historique
+`SECURITY_AUDIT.md` est conservé ; son addendum « état après refonte » décrit la cible
+actuelle et ses limites de preuve.
 
-## Project Overview
+## Architecture actuelle
 
-This is an MCP (Model Context Protocol) server that provides tools for interacting with the Infomaniak API. It allows AI assistants to manage Infomaniak services including domains, DNS, email, web hosting, kDrive, Swiss Backup, VPS, dedicated servers, SSL certificates, and invoicing.
+- `src/domain/` : modèles validés Zod et `ToolContract` ; classe, idempotence,
+  expérimental, raw, schémas et limites explicites.
+- `src/application/` : ports, cas d’usage, bindings, politique et `FeatureModule`.
+  La politique précède validation d’entrée et invocation fournisseur.
+- `src/adapters/outbound/` : passerelle partagée, DTO et projections domaine,
+  adaptateurs Infomaniak et kChat. Les URL ne sont pas assemblées dans le domaine.
+- `src/adapters/inbound/` : SDK MCP v2, stdio moderne/legacy, handlers HTTP,
+  admission bearer/Host/Origin et borne de corps.
+- `src/config/runtime-config.ts` : configuration validée et capturée au démarrage.
+- `src/features/*.feature.ts` : modules déclaratifs exportant `tools`,
+  `createHandlers` et éventuellement `selectTools`.
+- `src/main/bootstrap.ts` : découverte, composition, injection des gateways,
+  du fetch borné et de l’horloge, bucket partagé entre produits et tokens.
+- `src/main/stdio.ts` : exécutable moderne à effets de bord, aucun export.
+  Importer `startModernStdio` pour un test, jamais cet exécutable.
+- `src/main/http.ts`, `src/main/legacy.ts` : applications testables et entrées
+  explicites, sans sélecteur `MCP_TRANSPORT`.
 
-## Tech Stack
+Node de référence 20.19.2, npm 9.2.0 ; TypeScript ES2022/Node16 ESM, Zod 4,
+Express 5 et paquets MCP `core`, `server`, `node`, `client` v2. `npm run build`
+utilise `tsc -p tsconfig.build.json`. Les chemins main/bin/start/inspector sont
+ceux de `package.json`, conservés et vérifiés par `test/transports/stdio-2026.test.ts`.
 
-- **Language**: TypeScript (ES2022)
-- **Module System**: Node16 ESM
-- **Runtime**: Node.js >= 18
-- **Key Dependencies**:
-  - `@modelcontextprotocol/sdk` - MCP server SDK
-  - `zod` - Schema validation
-- **Build Output**: `./build/`
+## Politique et sorties
 
-## Project Structure
+Les indicateurs expérimental et raw gouvernent visibilité **et appelabilité**.
+L’outil raw exige les deux ; kChat exige hôte et token. `readOnly` conserve le
+catalogue et refuse writes/destructives ; pour raw il limite la méthode à GET.
+Les classifications sont déclarées, jamais déduites des préfixes de noms.
 
-```
-src/
-├── index.ts              # MCP server entry point, tool definitions and handlers
-└── infomaniak-client.ts  # Infomaniak API client with typed methods
-```
+Refus figé : `[POLICY_DENIED] <reason>: <toolName>` et son `structuredContent`
+d’erreur. Succès : JSON indenté de 2 espaces identique à `structuredContent`.
+Les DTO sont validés puis projetés en modèles de domaine. Seul raw retourne
+`{ method, endpoint, status, data }`, avec `data` validé uniquement comme JSON.
 
-## Build and Run Commands
+Ne pas ouvrir les unions de droits, corriger les routes Swiss Backup ou masquer
+la divergence kChat GET → POST : leurs limites et preuves sont consignées dans
+`product/inventory/tools.json` et le README. Toute correction nécessite son cadrage.
 
-```bash
-npm install          # Install dependencies
-npm run build        # Compile TypeScript to build/
-npm run dev          # Watch mode for development
-npm start            # Run the built server
-npm test             # Run unit tests
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage report
-npm run typecheck    # Type check without emitting
-npm run inspector    # Test with MCP Inspector (requires INFOMANIAK_API_TOKEN env var)
-```
+## Transports et vérification
 
-## Architecture
+MCP 2026-07-28 sur stdio et HTTP est la cible ; 2025-11-25 reste accessible via
+`build/main/legacy.js` (option `--http` pour HTTP) jusqu’au gate FEAT-13. HTTP est
+sans session, POST `/mcp`, sans reprise SSE. OAuth/OIDC et capacités MCP hors outils
+sont exclus. Ne pas réintroduire d’options de session ou d’ancien SDK v1.
 
-### MCP Server (`src/index.ts`)
-- Defines 50+ tools organized by service category (domains, mail, hosting, etc.)
-- Uses stdio transport for communication
-- Requires `INFOMANIAK_API_TOKEN` environment variable
-- Each tool maps to one or more `InfomaniakClient` methods
+`npm run verify:mvp` construit puis vérifie inventaire et scénario hors ligne sur
+les vrais transports SDK, avec tokens sentinelles, fetchs doubles et sockets
+loopback uniquement. Le script ne lit pas de token opérateur. Les cycles kDrive et
+Calendar DST restent « non prouvés côté fournisseur » ; nettoyage sans objet sous
+C3. La suite complète et l’audit restent exigés séparément par CONTRIBUTING.
 
-### API Client (`src/infomaniak-client.ts`)
-- Base URL: `https://api.infomaniak.com`
-- Authentication: OAuth 2.0 Bearer Token
-- Rate Limit: 60 requests/minute
-- Typed interfaces for all API responses
-
-### Validation (`src/schemas.ts`)
-- Zod schemas for all tool inputs
-- `validate()` helper function for runtime validation
-- Provides clear error messages with field paths
-
-### Tests (`src/*.test.ts`)
-- Unit tests for `InfomaniakClient` with mocked fetch
-- Validation schema tests for all input types
-- Uses Vitest framework
-
-## Tool Categories
-
-1. **Profile & Account**: ping, profile, accounts, products
-2. **Domains**: list domains, get domain details
-3. **DNS**: full CRUD for DNS records (A, AAAA, CNAME, MX, TXT, NS, SRV, CAA)
-4. **Mail Services**: manage mailboxes and aliases
-5. **Web Hosting**: sites, PHP versions, databases
-6. **kDrive**: list and get kDrive details
-7. **Swiss Backup**: backup products and slots
-8. **VPS**: list, get, reboot, shutdown, boot
-9. **Dedicated Servers**: list, get, reboot
-10. **SSL Certificates**: list and get certificates
-11. **Invoicing**: list and get invoices
-12. **Generic API**: custom API calls for advanced operations
-
-## Development Guidelines
-
-### Adding a New Tool
-
-1. Add tool definition to the `tools` array in `src/index.ts` with:
-   - `name`: Prefixed with `infomaniak_`
-   - `description`: Clear description of what it does
-   - `inputSchema`: JSON Schema for parameters
-
-2. Add the handler in the `switch` statement in `CallToolRequestSchema` handler
-
-3. If needed, add corresponding method to `InfomaniakClient` class with proper TypeScript types
-
-### API Endpoint Patterns
-
-- API version is in the path: `/1/` (v1) or `/2/` (v2 for kDrive)
-- Account-scoped endpoints: `/1/account/{account_id}/...`
-- Service-specific: `/1/domain/`, `/1/mail/`, `/1/web/`, etc.
-
-### Type Safety
-
-- All API responses use the `ApiResponse<T>` wrapper type
-- Create specific interfaces for response data types
-- Use `unknown` for endpoints where response structure isn't fully typed
-
-## Testing
-
-Use the MCP Inspector for testing:
-
-```bash
-INFOMANIAK_API_TOKEN=your-token npm run inspector
-```
-
-## Common Issues
-
-- **401 errors**: Invalid or expired API token
-- **403 errors**: Token missing required scope
-- **429 errors**: Rate limit exceeded (60 req/min)
-- Build errors: Ensure `npm install` was run and TypeScript is installed
+Les tests d’un lot ne figent aucun compte global. Les totaux sont recalculés dans
+le script composé FEAT-12. Les inventaires restent des tableaux JSON d’entrées
+nommées, avec le même jeu de noms que le registre complet. Ne pas confondre
+couverture de liaison et succès d’une opération sur le backend fournisseur.

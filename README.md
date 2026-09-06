@@ -1,397 +1,175 @@
 # Infomaniak MCP Server
 
-[![npm version](https://badge.fury.io/js/infomaniak-mcp-server.svg)](https://www.npmjs.com/package/infomaniak-mcp-server)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/YOUR_USERNAME/infomaniak-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/infomaniak-mcp-server/actions/workflows/ci.yml)
+Serveur TypeScript composé de contrats d’outils, de modèles de domaine validés et
+d’adaptateurs Infomaniak. La cible admise est MCP **2026-07-28**, SDK v2, stdio ou
+HTTP sans session. La compatibilité **2025-11-25** reste explicite jusqu’au gate FEAT-13.
+OAuth/OIDC et les capacités MCP autres que les outils (resources, prompts, sampling,
+elicitation, tasks, subscriptions) sont hors cible.
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for interacting with the [Infomaniak API](https://developer.infomaniak.com/). This server enables AI assistants like Claude to manage Infomaniak services including domains, email, web hosting, kDrive, and more.
+## Installation et lancement
 
-<p align="center">
-  <img src="https://www.infomaniak.com/img/common/logo_infomaniak.jpg" alt="Infomaniak" height="60">
-</p>
+Référence vérifiée : Node **20.19.2**, npm **9.2.0**, Git, shell POSIX.
+Le lockfile v3 fait autorité ; aucune installation système n’est requise.
 
-## ✨ Features
-
-- 🌐 **Domain Management** - List domains, full DNS record CRUD operations
-- 📧 **Email Services** - Manage mailboxes, aliases, and mail configurations  
-- 🖥️ **Web Hosting** - Manage sites, PHP versions, and MySQL databases
-- 💾 **kDrive** - Access and manage kDrive cloud storage
-- 🔒 **Swiss Backup** - View and manage backup products
-- 🖧 **VPS & Servers** - Control VPS instances and dedicated servers
-- 📜 **SSL Certificates** - View certificate information
-- 💰 **Invoicing** - Access billing and invoice data
-- 🔧 **Generic API** - Make custom API calls for advanced operations
-
-## 📋 Prerequisites
-
-- Node.js 18 or higher
-- An Infomaniak account with API access
-- An API token from Infomaniak
-
-## 🔑 Getting Your API Token
-
-1. Log in to your [Infomaniak Manager](https://manager.infomaniak.com)
-2. Navigate to **Account** → **API Tokens** or visit [token management](https://manager.infomaniak.com/v3/ng/accounts/token/list)
-3. Click **"Create a token"**
-4. Select the appropriate scopes for your needs:
-   - `account` - Account management
-   - `domain` - Domain management
-   - `mail` - Email services
-   - `web` - Web hosting
-   - `drive` - kDrive access
-   - `swiss_backup` - Backup services
-   - `vps` - VPS management
-   - `dedicated` - Dedicated servers
-   - `certificate` - SSL certificates
-   - `invoicing` - Billing access
-5. Copy and securely store your token
-
-## 📦 Installation
-
-### Using npm (recommended)
-
-```bash
-npm install -g infomaniak-mcp-server
-```
-
-### From source
-
-```bash
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-npm install
+```sh
+npm ci
 npm run build
+# Après configuration des variables d’environnement par le client ou le shell :
+npm start
 ```
 
-## ⚙️ Configuration
+`npm start`, `main` et le binaire `infomaniak-mcp-server` désignent
+`build/main/stdio.js`. `npm run inspector` reste
+`npx @modelcontextprotocol/inspector build/main/stdio.js` ; il ne fait pas partie de
+l’acceptation hors ligne. `.env.example` décrit les variables ; le serveur ne charge
+pas automatiquement un fichier `.env`.
 
-### Claude Desktop
+| Protocole                | Transport | Commande                           |
+| ------------------------ | --------- | ---------------------------------- |
+| 2026-07-28               | stdio     | `node build/main/stdio.js`         |
+| 2026-07-28               | HTTP      | `node build/main/http.js`          |
+| 2025-11-25               | stdio     | `node build/main/legacy.js`        |
+| 2025-11-25 et 2026-07-28 | HTTP      | `node build/main/legacy.js --http` |
 
-Add to your Claude Desktop configuration file:
+HTTP reçoit `POST /mcp`, avec `Authorization: Bearer <MCP_HTTP_AUTH_TOKEN>` et les
+métadonnées du protocole négocié. Il n’expose ni sessions, ni reprise par
+`Last-Event-ID`, ni écoute GET/SSE. L’admission contrôle bearer, Host et Origin avant
+le corps et la construction MCP. Le serveur moderne refuse les requêtes legacy ;
+l’entrée legacy HTTP dirige chaque requête vers l’ère SDK correspondante. Les
+clients SDK isolent leurs échanges ; le registre et la configuration sont partagés,
+avec une nouvelle instance serveur par requête HTTP.
 
-| OS | Path |
-|----|------|
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Linux | `~/.config/Claude/claude_desktop_config.json` |
+## Catalogue et politique
 
-```json
-{
-  "mcpServers": {
-    "infomaniak": {
-      "command": "npx",
-      "args": ["-y", "infomaniak-mcp-server"],
-      "env": {
-        "INFOMANIAK_API_TOKEN": "your-api-token-here"
-      }
-    }
-  }
-}
+L’[inventaire](product/inventory/tools.json) contient **111 définitions uniques**,
+indépendamment de leur visibilité. La [baseline](test/fixtures/baseline-tools.json)
+conserve le même jeu de noms. Les deux fichiers sont des tableaux JSON de premier
+niveau, jamais des objets enveloppes. Le script d’acceptation contrôle séparément
+la composition des **9 modules**, les handlers, les schémas et la visibilité.
+
+Le catalogue par défaut contient **72 outils** : comptes/profil, DNS, kDrive,
+Calendar, hébergement web, bases, cron, FTP, Swiss Backup, certificats et factures.
+Les outils expérimentaux couvrent notamment mail administratif, domaines par compte,
+VPS, serveurs dédiés et API brute. kChat nécessite `KCHAT_HOST` **et** `KCHAT_TOKEN`.
+Avec les deux indicateurs et kChat configuré, le catalogue contient **111 outils**.
+
+- `INFOMANIAK_ALLOW_EXPERIMENTAL` autorise visibilité **et appelabilité** des
+  outils expérimentaux.
+- `INFOMANIAK_ALLOW_RAW_API` est également nécessaire à `infomaniak_api_call` :
+  **les deux indicateurs** doivent être vrais.
+- `INFOMANIAK_READ_ONLY` ne masque aucun outil. Il refuse les appels d’écriture
+  et destructifs ; pour l’API brute, il gouverne la méthode et n’autorise que GET.
+  Les recherches kChat en POST restent des opérations de lecture classées par contrat.
+
+Un refus conserve exactement `[POLICY_DENIED] <reason>: <toolName>` et
+`structuredContent: { error: { code: "POLICY_DENIED", reason, tool } }`, avec
+`isError: true`. Il précède l’appel fournisseur. Les classifications et annotations
+proviennent des contrats, pas d’une inférence à partir du nom.
+
+Le texte d’un succès est le JSON indenté de **2 espaces**, identique au contenu
+structuré domaine. Les DTO sont validés puis projetés ; les champs fournisseur
+inconnus ne deviennent pas automatiquement des sorties. **Exception unique :**
+`infomaniak_api_call` retourne `{ method, endpoint, status, data }`, où `data` est
+validé uniquement comme JSON, sans modèle de domaine.
+
+## Configuration et limites
+
+| Variable                                                    | Défaut / effet                                                       |
+| ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| `INFOMANIAK_API_TOKEN`                                      | Obligatoire ; token principal                                        |
+| `INFOMANIAK_CALENDAR_TOKEN`                                 | Si absent, réutilise le principal ; token du propriétaire de mailbox |
+| `KCHAT_HOST`, `KCHAT_TOKEN`                                 | Paire optionnelle ; hôte nu, sans schéma ni chemin                   |
+| `INFOMANIAK_READ_ONLY`                                      | `false`                                                              |
+| `INFOMANIAK_ALLOW_EXPERIMENTAL`, `INFOMANIAK_ALLOW_RAW_API` | `false`                                                              |
+| `INFOMANIAK_TIMEOUT_MS`                                     | `30000`, entier positif                                              |
+| `MCP_TOOLS_TTL_MS`                                          | `60000`, entier ≥ 0 ; cache privé tools/list                         |
+| `KDRIVE_MAX_DOWNLOAD_BYTES`                                 | `10485760` (10 Mio)                                                  |
+| `KDRIVE_MAX_UPLOAD_BYTES`                                   | `52428800` (50 Mio)                                                  |
+| `MCP_HTTP_BODY_LIMIT`                                       | `20971520` (20 Mio), minimum 65536 ; unités b/kb/mb/gb admises       |
+| `MCP_HOST`                                                  | `127.0.0.1`                                                          |
+| `MCP_PORT`                                                  | `3000` ; `PORT` sert de repli si MCP_PORT est absent                 |
+| `MCP_HTTP_AUTH_TOKEN`                                       | ≥16 caractères ; obligatoire sauf dérogation loopback explicite      |
+| `MCP_HTTP_ALLOW_UNAUTHENTICATED`                            | `false` ; `true` seulement avec bind loopback                        |
+| `MCP_ALLOWED_HOSTS`                                         | `localhost,127.0.0.1,[::1]`                                          |
+| `MCP_CORS_ORIGINS`                                          | Liste vide ; origines explicites séparées par virgule                |
+
+Les booléens acceptent `true/false`, `1/0`, `yes/no`, `on/off`. Une variable
+optionnelle vide n’équivaut pas en général à son absence ; laisser Calendar et kChat
+non définis s’ils sont inutilisés. Aucun switch `MCP_TRANSPORT`, `MCP_STATELESS`,
+de session ou `INFOMANIAK_DISABLE_CALENDAR` n’est pris en charge.
+
+Les limites de transfert/HTTP sont configurables. L’admission des arguments JSON
+UTF-8 d’un upload vaut `min(uploadLimit, bodyLimit - 65536)` ; les octets décodés
+sont aussi bornés et le base64 augmente la taille des arguments. Les limites affichées
+par les déclarations sont les valeurs par défaut ; les handlers appliquent celles
+capturées au démarrage.
+
+La pagination est distincte : constantes kDrive `limit` **1..200**, défaut **50**,
+curseur à renvoyer tant que `hasMore` est vrai ; aucune variable d’environnement ne
+les modifie. kChat borne `per_page` à **200** pour les posts. Les listes de services
+baseline sans pagination n’inventent ni curseur, ni troncature. Les limites propres
+aux champs sont détaillées dans chaque entrée de l’inventaire.
+
+La passerelle partage un bucket de capacité 60, réapprovisionné à un jeton/seconde,
+entre produits et tokens. Les retries sont bornés et liés à l’idempotence ; les
+mutations ne sont pas automatiquement rejouées. Les URL fournisseur restent fixes
+(API Infomaniak, ou base kChat configurée), les segments sont encodés et les
+redirections refusées. En exploitation, employer des tokens de portée minimale et
+un proxy TLS pour HTTP ; les noms, contenus et descriptions fournisseur restent des
+données non fiables pour l’assistant.
+
+## Limites connues et niveau de preuve
+
+`official`, `baseline`, `unproven` décrivent la provenance documentaire, jamais un
+succès sur compte fournisseur. Les preuves et leurs sources figurent par outil.
+
+- Les unions fermées `accessRightSchema` et les droits de lien de partage provoquent
+  un **rejet DTO explicite** si le fournisseur renvoie une valeur inconnue, pas une
+  dégradation. Leur ouverture éventuelle relève d’un cadrage distinct.
+- Les trois outils Swiss Backup utilisent la route baseline `/1/swiss_backup`
+  (singulier, sans pagination), avec `/slot`. La spécification OpenAPI officielle
+  publie `/1/swiss_backups` et `/slots` au pluriel avec pagination. Non vérifiable
+  sans accès fournisseur (C3) ; **aucune correction de route sans sandbox**.
+- `infomaniak_kchat_search_users` diverge de GET vers POST. La source d’invalidité
+  baseline est `mattermost/mattermost`, `api/v4/source/users.yaml`, chemin
+  `/api/v4/users/search`, `post` uniquement. La forme corrigée vient de
+  `Infomaniak/mobile-kchat` @ `99f2c88f843dcbcc631cb6e587298a4611f020a1`,
+  `app/client/rest/users.ts:searchUsers`. Côté kChat, `proof: official` signifie
+  « client livré par Infomaniak contre leur backend propriétaire », pas
+  « spécification auditée par Infomaniak » (reviewer, 2026-09-05).
+- Calendar conserve les dates murales ; les dates avec offset sont converties dans
+  le fuseau IANA explicite ou du profil. Les heures ambiguës ou inexistantes lors
+  des changements DST ne sont pas désambiguïsées. Calendar utilise l’identité du
+  propriétaire du token, pas un identifiant de boîte mail.
+- Les routes expérimentales restent non prouvées, notamment les conventions mail
+  `/1/mail/...`, domaines par compte, VPS et serveurs dédiés.
+
+## Acceptation hors ligne
+
+```sh
+npm ci
+npm run verify:mvp
 ```
 
-Or if installed globally or from source:
-
-```json
-{
-  "mcpServers": {
-    "infomaniak": {
-      "command": "node",
-      "args": ["/path/to/infomaniak-mcp-server/build/index.js"],
-      "env": {
-        "INFOMANIAK_API_TOKEN": "your-api-token-here"
-      }
-    }
-  }
-}
-```
-
-### Environment Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `INFOMANIAK_API_TOKEN` | Yes | - | Your Infomaniak API token |
-| `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
-| `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
-| `MCP_STATELESS` | No | `false` | Set to `true` for stateless mode |
-
-## 🌐 HTTP Transport
-
-The server supports HTTP transport with SSE streaming, enabling web-based MCP clients and remote connections.
-
-### Starting in HTTP Mode
-
-```bash
-# Using npx
-MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token npx infomaniak-mcp-server
-
-# From source
-MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/index.js
-```
-
-### HTTP Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check - returns server status |
-| `/mcp` | POST | Send JSON-RPC messages (initialize, tool calls, etc.) |
-| `/mcp` | GET | Open SSE stream for server-to-client notifications |
-| `/mcp` | DELETE | Terminate a session |
-| `/mcp/sessions` | GET | List active sessions (for debugging) |
-
-### Session Modes
-
-- **Stateful** (default): Maintains session state across requests. Each client gets a unique session ID returned in the `Mcp-Session-Id` header after initialization.
-- **Stateless**: Each request is independent. Set `MCP_STATELESS=true` for serverless deployments.
-
-### Docker Deployment
-
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-RUN npm install -g infomaniak-mcp-server
-ENV MCP_TRANSPORT=http
-ENV MCP_PORT=3000
-EXPOSE 3000
-CMD ["infomaniak-mcp-server"]
-```
-
-```bash
-# Build and run
-docker build -t infomaniak-mcp .
-docker run -p 3000:3000 -e INFOMANIAK_API_TOKEN=your-token infomaniak-mcp
-```
-
-### Connecting from Web Clients
-
-```javascript
-// Step 1: Initialize session
-const initResponse = await fetch('http://localhost:3000/mcp', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json, text/event-stream'
-  },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    method: 'initialize',
-    params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'my-client', version: '1.0.0' } },
-    id: 1
-  })
-});
-const sessionId = initResponse.headers.get('Mcp-Session-Id');
-
-// Step 2: Use session for subsequent requests
-const response = await fetch('http://localhost:3000/mcp', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json, text/event-stream',
-    'Mcp-Session-Id': sessionId
-  },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    method: 'tools/list',
-    id: 2
-  })
-});
-```
-
-## 🛠️ Available Tools
-
-### Account & Profile
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_ping` | Test API connectivity |
-| `infomaniak_get_profile` | Get current user profile |
-| `infomaniak_list_accounts` | List all accessible accounts |
-| `infomaniak_get_account` | Get account details |
-| `infomaniak_list_products` | List account products |
-
-### Domain Management
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_domains` | List all domains |
-| `infomaniak_get_domain` | Get domain details |
-| `infomaniak_list_dns_records` | List DNS records |
-| `infomaniak_create_dns_record` | Create DNS record (A, AAAA, CNAME, MX, TXT, etc.) |
-| `infomaniak_update_dns_record` | Update DNS record |
-| `infomaniak_delete_dns_record` | Delete DNS record |
-
-### Email Services
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_mail_services` | List mail services |
-| `infomaniak_get_mail_service` | Get mail service details |
-| `infomaniak_list_mailboxes` | List mailboxes |
-| `infomaniak_get_mailbox` | Get mailbox details |
-| `infomaniak_create_mailbox` | Create new mailbox |
-| `infomaniak_update_mailbox` | Update mailbox |
-| `infomaniak_delete_mailbox` | Delete mailbox |
-| `infomaniak_add_mailbox_alias` | Add email alias |
-| `infomaniak_delete_mailbox_alias` | Remove email alias |
-
-### Web Hosting
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_web_hostings` | List web hostings |
-| `infomaniak_get_web_hosting` | Get hosting details |
-| `infomaniak_list_sites` | List sites |
-| `infomaniak_get_site` | Get site details |
-| `infomaniak_create_site` | Create new site |
-| `infomaniak_update_site` | Update site |
-| `infomaniak_delete_site` | Delete site |
-| `infomaniak_list_databases` | List databases |
-| `infomaniak_get_database` | Get database details |
-| `infomaniak_create_database` | Create database |
-| `infomaniak_delete_database` | Delete database |
-
-### Cloud Storage
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_kdrives` | List kDrives |
-| `infomaniak_get_kdrive` | Get kDrive details |
-| `infomaniak_list_swiss_backups` | List Swiss Backups |
-| `infomaniak_get_swiss_backup` | Get backup details |
-| `infomaniak_list_swiss_backup_slots` | List backup slots |
-
-### Infrastructure
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_vps` | List VPS instances |
-| `infomaniak_get_vps` | Get VPS details |
-| `infomaniak_reboot_vps` | Reboot VPS |
-| `infomaniak_shutdown_vps` | Shutdown VPS |
-| `infomaniak_boot_vps` | Boot VPS |
-| `infomaniak_list_dedicated_servers` | List dedicated servers |
-| `infomaniak_get_dedicated_server` | Get server details |
-| `infomaniak_reboot_dedicated_server` | Reboot server |
-
-### Certificates & Billing
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_list_certificates` | List SSL certificates |
-| `infomaniak_get_certificate` | Get certificate details |
-| `infomaniak_list_invoices` | List invoices |
-| `infomaniak_get_invoice` | Get invoice details |
-
-### Advanced
-
-| Tool | Description |
-|------|-------------|
-| `infomaniak_api_call` | Make custom API calls to any endpoint |
-
-## 💬 Usage Examples
-
-### List all accounts
-```
-"List all my Infomaniak accounts"
-```
-
-### Manage DNS Records
-```
-"Add an A record for www.example.com pointing to 192.168.1.100"
-"Show all DNS records for mydomain.ch"
-"Delete the TXT record with ID 12345 from example.com"
-```
-
-### Create a Mailbox
-```
-"Create a new email address info@mydomain.com with password SecurePass123"
-```
-
-### Check Infrastructure
-```
-"Show me the status of all my VPS instances"
-"Reboot my VPS with ID 456"
-```
-
-### Custom API Call
-```
-"Make a GET request to /1/account to see all account details"
-```
-
-## 🔧 Development
-
-### Setup
-
-```bash
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-npm install
-```
-
-### Build
-
-```bash
-npm run build
-```
-
-### Watch Mode
-
-```bash
-npm run dev
-```
-
-### Test with MCP Inspector
-
-```bash
-INFOMANIAK_API_TOKEN=your-token npm run inspector
-```
-
-## ⚠️ API Rate Limits
-
-The Infomaniak API has a rate limit of **60 requests per minute**. Be mindful of request frequency when using automation.
-
-## 🐛 Troubleshooting
-
-### "INFOMANIAK_API_TOKEN environment variable is required"
-Ensure you've set the `INFOMANIAK_API_TOKEN` in your MCP client configuration.
-
-### "Infomaniak API Error (401)"
-Your API token may be invalid or expired. Generate a new token from Infomaniak Manager.
-
-### "Infomaniak API Error (403)"  
-Your token doesn't have the required scope. Create a new token with appropriate permissions.
-
-### "Infomaniak API Error (429)"
-Rate limit exceeded. Wait before making more requests.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔗 Resources
-
-- [Infomaniak API Documentation](https://developer.infomaniak.com/docs/api)
-- [Infomaniak Getting Started](https://developer.infomaniak.com/getting-started)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
-
-## 🙏 Acknowledgments
-
-- [Infomaniak](https://www.infomaniak.com/) for their comprehensive API
-- [Anthropic](https://www.anthropic.com/) for the Model Context Protocol
-- The open-source community
-
----
-
-<p align="center">
-  Made with ❤️ for the Infomaniak and MCP community
-</p>
+Après installation, cette commande est autonome : elle construit le code, contrôle
+l’inventaire et rejoue découverte, lectures kDrive/Calendar en read-only, refus de
+permanent-delete et POST raw, cycles kDrive et Calendar DST, DTO invalide, refus
+HTTP et matrice 2026/2025 sur stdio/HTTP. Elle exécute aussi les tests transports et
+interop existants. Elle imprime SHA, état dirty, versions réellement utilisées,
+codes de sortie, preuve par outil, matrice, `orphan tools: 0` et `MVP OFFLINE PASS`.
+Un handler manquant, une dérive de schéma, un nom orphelin ou un échec de scénario
+rend le code non nul. La preuve par outil atteste liaison/schéma et référence de
+tests ; elle ne prétend pas exécuter les 111 opérations métier dans la démonstration.
+
+**C3 : zéro token réel, zéro socket vers Infomaniak.** Les appels fournisseur sont
+remplacés par des doubles, sans repli réseau. Seule l’écoute locale de transport est
+utilisée. Les cycles sont **non prouvés côté fournisseur** ; aucune ressource sandbox
+créée, nettoyage sans objet. Le registre reçoit des sentinelles explicites et les
+sous-processus de vérification un environnement isolé des secrets opérateur.
+L’accès registry est limité à l’installation et à l’audit.
+
+La procédure complète est dans [CONTRIBUTING.md](CONTRIBUTING.md), les limites de
+preuve dans [evidence/mvp/README.md](evidence/mvp/README.md), l’architecture dans
+[CLAUDE.md](CLAUDE.md) et l’état après refonte dans [SECURITY_AUDIT.md](SECURITY_AUDIT.md).
+
+Licence MIT : [LICENSE](LICENSE).

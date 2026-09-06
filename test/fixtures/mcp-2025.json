@@ -1,0 +1,29 @@
+{
+  "provenance": "FEAT-11: synthetic offline provider and protocol fixtures; no provider credentials or traffic.",
+  "legacyVersion": "2025-11-25",
+  "modernVersion": "2026-07-28",
+  "meta": {
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+    "io.modelcontextprotocol/clientCapabilities": {}
+  },
+  "initialize": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-11-25",
+      "capabilities": {},
+      "clientInfo": { "name": "legacy-fixture", "version": "1" }
+    }
+  },
+  "providerAccounts": {
+    "result": "success",
+    "data": [{ "id": 7, "name": "Compte été", "extra": "PROVIDER_PRIVATE_SENTINEL" }]
+  },
+  "accounts": { "accounts": [{ "id": 7, "name": "Compte été" }] },
+  "read": { "name": "infomaniak_list_accounts", "arguments": {} },
+  "write": {
+    "name": "infomaniak_delete_dns_record",
+    "arguments": { "domain": "example.test", "record_id": 1 }
+  }
+}
