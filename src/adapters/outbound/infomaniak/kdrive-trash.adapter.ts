@@ -9,14 +9,15 @@ import type { DriveTrashPort } from '../../../application/drive/trash.port.js';
 import type { PageRequest } from '../../../application/drive/navigation.port.js';
 import type { InfomaniakGateway } from './gateway.js';
 
+// Relevé /3/drive/{id}/trash: same item fields; Unix integer dates and nullable created_at inherited from the folder row.
 const itemDto = z.object({
   id: z.number().int().positive(),
   name: z.string(),
   type: z.enum(['dir', 'file']),
   size: z.number().int().nonnegative().optional(),
-  created_at: z.number().optional(),
-  last_modified_at: z.number().optional(),
-  added_at: z.number().optional(),
+  created_at: z.number().int().nullable().optional(),
+  last_modified_at: z.number().int().optional(),
+  added_at: z.number().int().optional(),
   parent_id: z.number().int().nonnegative().optional(),
   mime_type: z.string().optional(),
   extension_type: z.string().optional(),
@@ -39,9 +40,12 @@ function mapItem(dto: z.infer<typeof itemDto>) {
     name: dto.name,
     type: dto.type,
     sizeBytes: dto.size,
-    createdAt: dto.created_at,
-    modifiedAt: dto.last_modified_at,
-    addedAt: dto.added_at,
+    ...(dto.created_at == null ? {} : { createdAt: new Date(dto.created_at * 1000).toISOString() }),
+    modifiedAt:
+      dto.last_modified_at === undefined
+        ? undefined
+        : new Date(dto.last_modified_at * 1000).toISOString(),
+    addedAt: dto.added_at === undefined ? undefined : new Date(dto.added_at * 1000).toISOString(),
     parentId: dto.parent_id,
     mimeType: dto.mime_type,
     extensionType: dto.extension_type,

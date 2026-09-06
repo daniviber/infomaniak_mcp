@@ -132,7 +132,7 @@ describe('stdio 2026 retirement and shared bootstrap', () => {
       const name = 'infomaniak_delete_dns_record';
       const result = await session.connection.callTool({
         name,
-        arguments: { domain: 'example.test', record_id: 1 },
+        arguments: { domain: 'example.test', record_id: '1' },
       });
       expect(result).toMatchObject({
         content: [{ type: 'text', text: `[POLICY_DENIED] read_only: ${name}` }],

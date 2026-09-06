@@ -4,7 +4,11 @@
     "data": {
       "email": "owner@example.test",
       "display_name": "Owner",
-      "preferences": { "timezone": { "name": "Europe/Zurich" } }
+      "preferences": {
+        "timezone": {
+          "name": "Europe/Zurich"
+        }
+      }
     }
   },
   "calendars": {
@@ -46,10 +50,34 @@
           "state": "ACCEPTED"
         }
       ],
-      "alarms": [{ "action": "DISPLAY" }],
+      "alarms": [
+        {
+          "action": "DISPLAY"
+        }
+      ],
       "attachments": [],
       "provider_only": "hidden"
     }
   },
-  "deleted": { "result": "success", "data": true }
+  "deleted": {
+    "result": "success",
+    "data": true
+  },
+  "observedEvents": {
+    "result": "success",
+    "data": [
+      {
+        "id": 42,
+        "calendar_id": 7,
+        "title": "Meeting",
+        "start": "2026-03-29T01:30:00+01:00",
+        "end": "2026-03-29T03:30:00+02:00",
+        "rrule": null,
+        "meet_room_url": null,
+        "bookable_resource_id": null,
+        "created_at": "2026-03-01 10:00:00",
+        "updated_at": "2026-03-02 10:00:00"
+      }
+    ]
+  }
 }

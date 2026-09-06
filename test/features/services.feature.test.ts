@@ -184,18 +184,35 @@ describe('FEAT-07 services', () => {
     '$name accepts the documented minimum without inventing ancillary fields',
     async (c) => {
       const endpoint = fixture.endpoints.find((e) => e.name === c.name)!;
-      const minimum = fixture.entities[endpoint.response].minimal;
+      const baselineMinimum = fixture.entities[endpoint.response].minimal;
+      // Relevé /1/invoicing/{id}/invoice/list: id:string; detail DTO is unchanged.
+      const minimum =
+        c.name === 'infomaniak_list_invoices'
+          ? { ...baselineMinimum, id: String(baselineMinimum.id) }
+          : baselineMinimum;
       const value = endpoint.list ? [minimum] : minimum;
       const s = setup(success(value));
       expect((await s.module.invoke(c.name, c.input, policy)).structuredContent).toStrictEqual({
-        [endpoint.outputKey!]: value,
+        [endpoint.outputKey!]:
+          endpoint.response === 'invoice'
+            ? endpoint.list
+              ? [{ id: String(minimum.id) }]
+              : { id: String(minimum.id) }
+            : value,
       });
     },
   );
 
   it.each(mapped)('$name rejects malformed envelopes and required DTO identities', async (c) => {
     const endpoint = fixture.endpoints.find((e) => e.name === c.name)!;
-    for (const data of [null, {}, 'PRIVATE', { id: 'PRIVATE' }, { id: 0 }, { id: 1.5 }]) {
+    for (const data of [
+      null,
+      {},
+      'PRIVATE',
+      { id: c.name === 'infomaniak_list_invoices' ? 12 : 'PRIVATE' },
+      { id: 0 },
+      { id: 1.5 },
+    ]) {
       const s = setup(success(endpoint.list ? [data] : data));
       await expect(s.module.invoke(c.name, c.input, policy)).rejects.toThrow(
         'Invalid Infomaniak response',
@@ -283,7 +300,7 @@ describe('FEAT-07 services', () => {
     const module = createFeatureModule(createServicesBindings(port));
     await expect(module.invoke(c.name, {}, policy)).rejects.toThrow();
     for (const key of Object.keys(c.input).filter((key) => key.endsWith('_id'))) {
-      for (const invalid of [0, -1, 1.5, '1', undefined]) {
+      for (const invalid of [0, -1, 1.5, key === 'invoice_id' ? '' : '1', undefined]) {
         await expect(
           module.invoke(c.name, { ...c.input, [key]: invalid }, policy),
         ).rejects.toThrow();

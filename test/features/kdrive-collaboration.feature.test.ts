@@ -308,7 +308,7 @@ describe('kDrive collaboration', () => {
         const { module, fetcher, wait } = await setup();
         fetcher.mockResolvedValueOnce(Response.json(success([], page)));
         await expect(module.invoke(c.name, c.input, policy)).rejects.toThrow(
-          /^Invalid Infomaniak response$/,
+          /^Invalid Infomaniak response: /,
         );
         expect(fetcher).toHaveBeenCalledTimes(1);
         expect(wait).not.toHaveBeenCalled();
@@ -367,7 +367,7 @@ describe('kDrive collaboration', () => {
     const { module, fetcher, wait } = await setup();
     fetcher.mockResolvedValueOnce(Response.json({ result: 'error', data: 'SYNTHETIC_SECRET' }));
     await expect(module.invoke(c.name, c.input, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(wait).not.toHaveBeenCalled();
@@ -377,7 +377,7 @@ describe('kDrive collaboration', () => {
     const { module, fetcher } = await setup();
     fetcher.mockResolvedValueOnce(Response.json(success({ invalid: 'SYNTHETIC_SECRET' })));
     await expect(module.invoke(c.name, c.input, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
   });
   it.each([
@@ -388,7 +388,7 @@ describe('kDrive collaboration', () => {
     const { module, fetcher } = await setup();
     fetcher.mockResolvedValueOnce(Response.json(success(dto)));
     await expect(module.invoke(cases[4].name, fileInput, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
   });
   it('maps file activity with the file route and drops actor data', async () => {

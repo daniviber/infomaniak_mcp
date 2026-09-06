@@ -3,9 +3,9 @@
     "id": 9,
     "name": "Équipe",
     "account_id": 123,
-    "size_used": 12,
     "size": 1000,
-    "provider_secret": "RAW_SECRET"
+    "provider_secret": "RAW_SECRET",
+    "used_size": 12
   },
   "file": {
     "id": 42,
@@ -24,6 +24,12 @@
     "is_favorite": true,
     "provider_secret": "RAW_SECRET"
   },
-  "directory": { "id": 43, "name": "Archives", "type": "dir", "parent_id": 1 },
+  "directory": {
+    "id": 43,
+    "name": "Archives",
+    "type": "dir",
+    "parent_id": 1,
+    "created_at": null
+  },
   "cursor": "opaque+/=&?é"
 }

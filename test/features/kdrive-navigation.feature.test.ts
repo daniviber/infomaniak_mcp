@@ -23,9 +23,9 @@ const file = {
   name: 'rapport.txt',
   type: 'file',
   sizeBytes: 12,
-  createdAt: 10,
-  modifiedAt: 20,
-  addedAt: 15,
+  createdAt: '1970-01-01T00:00:10.000Z',
+  modifiedAt: '1970-01-01T00:00:20.000Z',
+  addedAt: '1970-01-01T00:00:15.000Z',
   parentId: 1,
   mimeType: 'text/plain',
   extensionType: 'text',
@@ -156,7 +156,7 @@ describe('kDrive navigation', () => {
         { type: 'text', text: JSON.stringify(entry.output, null, 2) },
       ]);
       expect(JSON.stringify(result)).not.toMatch(
-        /RAW_SECRET|TOKEN_SECRET|provider_secret|account_id|size_used|last_modified_at/,
+        /RAW_SECRET|TOKEN_SECRET|provider_secret|account_id|used_size|last_modified_at/,
       );
       assertRequest(fetcher, entry.path, entry.query);
       expect(fetcher).toHaveBeenCalledTimes(1);
@@ -285,7 +285,7 @@ describe('kDrive navigation', () => {
     const { module, fetcher } = await setup();
     fetcher.mockResolvedValueOnce(Response.json(success({ invalid: 'RAW_SECRET' })));
     await expect(module.invoke(entry.name, entry.input, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
@@ -302,7 +302,7 @@ describe('kDrive navigation', () => {
     const { module, fetcher, wait } = await setup();
     fetcher.mockResolvedValueOnce(Response.json(dto));
     await expect(module.invoke(cases[2].name, cases[2].input, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(wait).not.toHaveBeenCalled();

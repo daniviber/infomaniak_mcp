@@ -265,3 +265,33 @@ describe('kDrive trash', () => {
     ).rejects.toThrow();
   });
 });
+
+// Relevé /3/drive/{id}/trash: integer Unix dates; deletion metadata is not consumed.
+it('FIX-12B parses observed trash types and converts dates to UTC', async () => {
+  const app = harness(fixture.observed);
+  const result = await app.module.invoke('infomaniak_list_kdrive_trash', { drive_id: 9 }, policy);
+  expect(result.structuredContent).toStrictEqual({
+    items: [
+      {
+        id: 42,
+        name: 'été.txt',
+        type: 'file',
+        sizeBytes: 3,
+        parentId: undefined,
+        extensionType: undefined,
+        path: undefined,
+        visibility: undefined,
+        status: undefined,
+        isFavorite: undefined,
+        mimeType: 'text/plain',
+        createdAt: '1970-01-01T00:00:10.000Z',
+        addedAt: '1970-01-01T00:00:15.000Z',
+        modifiedAt: '1970-01-01T00:00:20.000Z',
+      },
+    ],
+    hasMore: false,
+  });
+  expect(result.content).toEqual([
+    { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
+  ]);
+});

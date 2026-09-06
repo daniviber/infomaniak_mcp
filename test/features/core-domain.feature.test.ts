@@ -25,7 +25,7 @@ const profile = {
 };
 const product = { id: 8, serviceId: 9, serviceName: 'domain', accountId: 7, customerName: domain };
 const nameserver = { host: 'ns.example.test', ip: '192.0.2.1' };
-const record = { id: 12, source: '@', type: 'A', target: '192.0.2.1', ttl: 3600, priority: 0 };
+const record = { id: '12', source: '@', type: 'A', target: '192.0.2.1', ttl: 3600, priority: 0 };
 const recordBody = { source: '@', type: 'A', target: '192.0.2.1', ttl: 3600, priority: 0 };
 const success = (data: unknown) => ({ result: 'success', data, extra: 'PRIVATE' });
 const cases = [
@@ -35,7 +35,7 @@ const cases = [
     method: 'GET',
     path: '/1/ping',
     dto: success(fixture.ping),
-    output: { message: 'pong' },
+    output: { message: 'Pong' },
   },
   {
     name: 'infomaniak_get_profile',
@@ -100,7 +100,7 @@ const cases = [
     input: { domain },
     method: 'GET',
     path: '/1/domain/example.test/dns/record',
-    dto: success([fixture.record]),
+    dto: success([fixture.readRecord]),
     output: { records: [record] },
   },
   {
@@ -114,7 +114,7 @@ const cases = [
   },
   {
     name: 'infomaniak_update_dns_record',
-    input: { domain, record_id: 12, target: '192.0.2.1' },
+    input: { domain, record_id: '12', target: '192.0.2.1' },
     method: 'PUT',
     path: '/1/domain/example.test/dns/record/12',
     body: { target: '192.0.2.1' },
@@ -123,11 +123,11 @@ const cases = [
   },
   {
     name: 'infomaniak_delete_dns_record',
-    input: { domain, record_id: 12 },
+    input: { domain, record_id: '12' },
     method: 'DELETE',
     path: '/1/domain/example.test/dns/record/12',
     dto: success(null),
-    output: { ok: true, action: 'delete_dns_record', domain, recordId: 12 },
+    output: { ok: true, action: 'delete_dns_record', domain, recordId: '12' },
   },
 ];
 const mutations = cases.filter((c) => c.method !== 'GET');
@@ -252,7 +252,7 @@ describe('FEAT-06 core/domain', () => {
     s.fetch.mockResolvedValueOnce(
       new Response('', { status: 429, headers: { 'Retry-After': '2' } }),
     );
-    expect(await s.adapter.ping()).toEqual({ message: 'pong' });
+    expect(await s.adapter.ping()).toEqual({ message: 'Pong' });
     expect(s.clock.wait).toHaveBeenCalledExactlyOnceWith(2000);
   });
   it('maps optional baseline fields when present without identity caching', async () => {
@@ -285,8 +285,8 @@ describe('FEAT-06 core/domain', () => {
     ['infomaniak_create_dns_record', { domain, ...recordBody, ttl: 59 }],
     ['infomaniak_create_dns_record', { domain, ...recordBody, ttl: 86401 }],
     ['infomaniak_create_dns_record', { domain, ...recordBody, type: 'INVALID' }],
-    ['infomaniak_update_dns_record', { domain, record_id: 12, priority: 65536 }],
-    ['infomaniak_update_dns_record', { domain, record_id: 12, priority: -1 }],
+    ['infomaniak_update_dns_record', { domain, record_id: '12', priority: 65536 }],
+    ['infomaniak_update_dns_record', { domain, record_id: '12', priority: -1 }],
     ['infomaniak_delete_dns_record', { domain, record_id: -1 }],
   ])('%s rejects invalid inputs before HTTP', async (name, input) => {
     const s = setup(null);
@@ -327,7 +327,7 @@ describe('FIX-12A domain', () => {
     const s = setup(success([{ ...fixture.observedRecord, extra: 'PRIVATE' }]));
     const result = await s.module.invoke('infomaniak_list_dns_records', { domain }, policy);
     expect(result.structuredContent).toStrictEqual({
-      records: [{ id: 12, source: '@', type: 'A', target: '192.0.2.1', ttl: 3600 }],
+      records: [{ id: '12', source: '@', type: 'A', target: '192.0.2.1', ttl: 3600 }],
     });
     expect(result.content).toEqual([
       { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
@@ -375,4 +375,16 @@ describe('FIX-12A domain', () => {
       }
     },
   );
+});
+
+// Relevé /1/account: created_at:int, converted from Unix seconds.
+it('FIX-12B parses the account list and converts its creation date to UTC', async () => {
+  const s = setup(success([{ ...fixture.account, created_at: 1767225600 }]));
+  const result = await s.module.invoke('infomaniak_list_accounts', {}, policy);
+  expect(result.structuredContent).toStrictEqual({
+    accounts: [{ ...account, legalEntityType: undefined, createdAt: '2026-01-01T00:00:00.000Z' }],
+  });
+  expect(result.content).toEqual([
+    { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
+  ]);
 });
