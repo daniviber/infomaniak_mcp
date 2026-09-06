@@ -257,7 +257,9 @@ describe('kDrive transfer contracts', () => {
       const { module, fetcher } = setup();
       fetcher.mockResolvedValue(Response.json({ result: 'error', data: 'SECRET' }));
       await expect(module.invoke(c.name, c.input, policy)).rejects.toThrow(
-        /^Invalid Infomaniak response: /,
+        c.name === 'infomaniak_upload_kdrive_file'
+          ? /^Invalid Infomaniak response$/
+          : /^Invalid Infomaniak response: /,
       );
     },
   );
