@@ -11,7 +11,7 @@ const driveDto = z.object({
   id: z.number().int().positive(),
   name: z.string(),
   account_id: z.number().int().positive(),
-  size_used: z.number().int().nonnegative(),
+  used_size: z.number().int().nonnegative(),
   size: z.number().int().nonnegative(),
 });
 const itemDto = z.object({
@@ -19,9 +19,9 @@ const itemDto = z.object({
   name: z.string(),
   type: z.enum(['dir', 'file']),
   size: z.number().int().nonnegative().optional(),
-  created_at: z.number().optional(),
-  last_modified_at: z.number().optional(),
-  added_at: z.number().optional(),
+  created_at: z.number().int().nullable().optional(),
+  last_modified_at: z.number().int().optional(),
+  added_at: z.number().int().optional(),
   parent_id: z.number().int().nonnegative().optional(),
   mime_type: z.string().optional(),
   extension_type: z.string().optional(),
@@ -43,7 +43,7 @@ function mapDrive(dto: z.infer<typeof driveDto>) {
     id: dto.id,
     name: dto.name,
     accountId: dto.account_id,
-    usedBytes: dto.size_used,
+    usedBytes: dto.used_size,
     capacityBytes: dto.size,
   });
 }
@@ -53,9 +53,9 @@ function mapItem(dto: z.infer<typeof itemDto>) {
     name: dto.name,
     type: dto.type,
     sizeBytes: dto.size,
-    createdAt: dto.created_at,
-    modifiedAt: dto.last_modified_at,
-    addedAt: dto.added_at,
+    ...(dto.created_at == null ? {} : { createdAt: new Date(dto.created_at * 1000).toISOString() }),
+    modifiedAt: dto.last_modified_at === undefined ? undefined : new Date(dto.last_modified_at * 1000).toISOString(),
+    addedAt: dto.added_at === undefined ? undefined : new Date(dto.added_at * 1000).toISOString(),
     parentId: dto.parent_id,
     mimeType: dto.mime_type,
     extensionType: dto.extension_type,

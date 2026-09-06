@@ -278,8 +278,11 @@ export class InfomaniakGateway {
         outputSchema.parse(payload);
         // Validation only: retain provider key order for the frozen legacy text mapping.
         return { status: response.status, data: payload as T };
-      } catch {
-        throw new Error('Invalid Infomaniak response');
+       } catch (error) {
+        const issues = error instanceof z.ZodError
+          ? error.issues.map((issue) => `${issue.path.join('.')}: ${issue.code}`).join('; ')
+          : 'invalid_json';
+        throw new Error(`Invalid Infomaniak response: ${issues}`);
       }
     }
     throw new Error('Infomaniak request failed');

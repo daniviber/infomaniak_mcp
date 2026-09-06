@@ -183,3 +183,5 @@ preuve dans [evidence/mvp/README.md](evidence/mvp/README.md), l’architecture d
 [CLAUDE.md](CLAUDE.md) et l’état après refonte dans [SECURITY_AUDIT.md](SECURITY_AUDIT.md).
 
 Licence MIT : [LICENSE](LICENSE).
+
+Types réels alignés le 2026-09-06 : dates ISO 8601 issues d’entiers Unix, identifiants DNS et factures en chaînes.

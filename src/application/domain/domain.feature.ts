@@ -15,7 +15,7 @@ const nameserversInput = domainInput.extend({
   nameservers: z.array(z.object({ host: z.string().min(1), ip: z.string().optional() })).min(1),
 });
 const renewInput = domainInput.extend({ duration: z.number().int().positive() });
-const recordInput = domainInput.extend({ record_id: z.number().int().positive() });
+const recordInput = domainInput.extend({ record_id: z.string().min(1) });
 const recordFields = z.object({
   source: z.string(),
   type: z.enum(['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'NS', 'SRV', 'CAA']),

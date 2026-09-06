@@ -880,7 +880,9 @@
         "id": 12,
         "account_id": 7,
         "common_name": "example.test",
-        "alternative_names": ["www.example.test"],
+        "alternative_names": [
+          "www.example.test"
+        ],
         "type": "ssl",
         "status": "active",
         "not_before": "2026-01-01",
@@ -890,7 +892,9 @@
         "id": 12,
         "accountId": 7,
         "commonName": "example.test",
-        "alternativeNames": ["www.example.test"],
+        "alternativeNames": [
+          "www.example.test"
+        ],
         "type": "ssl",
         "status": "active",
         "notBefore": "2026-01-01",
@@ -1700,7 +1704,9 @@
             "id": 12,
             "account_id": 7,
             "common_name": "example.test",
-            "alternative_names": ["www.example.test"],
+            "alternative_names": [
+              "www.example.test"
+            ],
             "type": "ssl",
             "status": "active",
             "not_before": "2026-01-01",
@@ -1717,7 +1723,9 @@
             "id": 12,
             "accountId": 7,
             "commonName": "example.test",
-            "alternativeNames": ["www.example.test"],
+            "alternativeNames": [
+              "www.example.test"
+            ],
             "type": "ssl",
             "status": "active",
             "notBefore": "2026-01-01",
@@ -1739,7 +1747,9 @@
           "id": 12,
           "account_id": 7,
           "common_name": "example.test",
-          "alternative_names": ["www.example.test"],
+          "alternative_names": [
+            "www.example.test"
+          ],
           "type": "ssl",
           "status": "active",
           "not_before": "2026-01-01",
@@ -1754,7 +1764,9 @@
           "id": 12,
           "accountId": 7,
           "commonName": "example.test",
-          "alternativeNames": ["www.example.test"],
+          "alternativeNames": [
+            "www.example.test"
+          ],
           "type": "ssl",
           "status": "active",
           "notBefore": "2026-01-01",
@@ -1773,7 +1785,7 @@
         "result": "success",
         "data": [
           {
-            "id": 12,
+            "id": "12",
             "account_id": 7,
             "reference": "INV-12",
             "amount_ttc": 108.1,
@@ -1781,7 +1793,7 @@
             "currency": "CHF",
             "status": "paid",
             "due_date": "2026-09-30",
-            "created_at": "2026-09-01",
+            "created_at": 1788220800,
             "pdf_url": "https://example.invalid/invoice.pdf",
             "password": "PRIVATE",
             "extra": "PRIVATE"
@@ -1792,7 +1804,7 @@
       "output": {
         "invoices": [
           {
-            "id": 12,
+            "id": "12",
             "accountId": 7,
             "reference": "INV-12",
             "amountTtc": 108.1,
@@ -1800,7 +1812,7 @@
             "currency": "CHF",
             "status": "paid",
             "dueDate": "2026-09-30",
-            "createdAt": "2026-09-01",
+            "createdAt": "2026-09-01T00:00:00.000Z",
             "pdfUrl": "https://example.invalid/invoice.pdf"
           }
         ]
@@ -1810,7 +1822,7 @@
       "name": "infomaniak_get_invoice",
       "input": {
         "account_id": 7,
-        "invoice_id": 12
+        "invoice_id": "12"
       },
       "method": "GET",
       "path": "/1/invoicing/7/invoice/12",
@@ -1834,7 +1846,7 @@
       },
       "output": {
         "invoice": {
-          "id": 12,
+          "id": "12",
           "accountId": 7,
           "reference": "INV-12",
           "amountTtc": 108.1,
@@ -1956,8 +1968,8 @@
           "connection_type": "swift",
           "size": 100,
           "storage_used": 20,
-          "usage_last_check": null,
-          "created_at": "2026-09-01",
+          "usage_last_check": 123,
+          "created_at": 1788220800,
           "provider_extra": "PRIVATE"
         }
       ],
@@ -1967,7 +1979,7 @@
             "customerName": "Archive",
             "size": 100,
             "storageUsed": 20,
-            "createdAt": "2026-09-01",
+            "createdAt": "2026-09-01T00:00:00.000Z",
             "id": 13
           }
         ]
@@ -1980,13 +1992,17 @@
       },
       "data": [
         {
-          "id": 12,
+          "id": "12",
           "name": "Invoice",
-          "amount": 123,
+          "amount": {
+            "synthetic": 123
+          },
           "account_id": 7,
           "alternative_amounts": [],
-          "created_at": "2026-09-01",
-          "payment": {},
+          "created_at": 1788220800,
+          "payment": [
+            {}
+          ],
           "address": {},
           "document": {},
           "status": "paid",
@@ -1998,10 +2014,10 @@
       "output": {
         "invoices": [
           {
-            "id": 12,
+            "id": "12",
             "accountId": 7,
             "status": "paid",
-            "createdAt": "2026-09-01"
+            "createdAt": "2026-09-01T00:00:00.000Z"
           }
         ]
       }

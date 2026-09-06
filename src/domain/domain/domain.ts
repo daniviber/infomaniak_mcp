@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const nameserverSchema = z.object({ host: z.string(), ip: z.string().optional() });
 export const dnsRecordSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.string(),
   source: z.string(),
   type: z.string(),
   target: z.string(),
@@ -23,7 +23,7 @@ export const dnsDeletedSchema = z.object({
   ok: z.literal(true),
   action: z.literal('delete_dns_record'),
   domain: z.string(),
-  recordId: z.number().int().positive(),
+  recordId: z.string(),
 });
 export type Nameserver = z.infer<typeof nameserverSchema>;
 export type DnsRecord = z.infer<typeof dnsRecordSchema>;

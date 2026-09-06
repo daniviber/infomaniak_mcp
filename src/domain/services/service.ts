@@ -86,7 +86,7 @@ export const certificateSchema = z.object({
 export type Certificate = z.infer<typeof certificateSchema>;
 
 export const invoiceSchema = z.object({
-  id: id,
+  id: z.string(),
   accountId: id.optional(),
   reference: z.string().optional(),
   amountTtc: z.number().optional(),

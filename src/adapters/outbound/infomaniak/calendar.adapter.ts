@@ -44,6 +44,11 @@ const eventDto = z.object({
   meet_room_url: z.string().optional(),
   bookable_resource_id: z.number().nullable().optional(),
 });
+// Relevé /1/calendar/pim/event: rrule:null, meet_room_url:null.
+const readEventDto = eventDto.extend({
+  rrule: eventDto.shape.rrule.nullable(),
+  meet_room_url: eventDto.shape.meet_room_url.nullable(),
+});
 const profileDto = z.object({
   email: z.email(),
   display_name: z.string().optional(),
@@ -57,7 +62,7 @@ const calendarsDto = z.union([
   z.object({ calendars: z.array(calendar).optional() }),
 ]);
 const path = ['1', 'calendar', 'pim', 'event'] as const;
-function mapEvent(dto: z.infer<typeof eventDto>) {
+function mapEvent(dto: z.infer<typeof readEventDto>) {
   return event.parse({
     id: dto.id,
     calendarId: dto.calendar_id,
@@ -71,7 +76,7 @@ function mapEvent(dto: z.infer<typeof eventDto>) {
     fullday: dto.fullday,
     freebusy: dto.freebusy,
     private: dto.private,
-    rrule: dto.rrule,
+    ...(dto.rrule == null ? {} : { rrule: dto.rrule }),
     attendees: dto.attendees?.map(({ address, name, organizer, state }) => ({
       email: address,
       name,
@@ -154,7 +159,7 @@ export class CalendarAdapter implements CalendarPort {
           to: toApiDateTime(query.to, timezone, true),
         },
       },
-      envelope(z.array(eventDto)),
+      envelope(z.array(readEventDto)),
     );
     return { events: response.data.map(mapEvent) };
   }

@@ -40,7 +40,7 @@ const cronInput = hostingInput.extend({ cron_id: id });
 const ftpInput = hostingInput.extend({ ftp_id: id });
 const backupInput = z.object({ backup_id: id });
 const certificateInput = z.object({ certificate_id: id });
-const invoiceInput = accountInput.extend({ invoice_id: id });
+const invoiceInput = accountInput.extend({ invoice_id: z.string().min(1) });
 const createSiteInput = hostingInput.extend({
   fqdn: z.string().min(1),
   path: z.string().optional(),
