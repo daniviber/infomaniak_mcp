@@ -46,9 +46,15 @@ const fixture = JSON.parse(
     }
   >;
   cases: Case[];
+  observed: {
+    name: string;
+    input: Record<string, unknown>;
+    data: unknown;
+    output: Record<string, unknown>;
+  }[];
   deferred: { family: string; owner: string; proof: string; enabled: boolean }[];
 };
-const policy = { readOnly: false, allowRawApi: false, allowExperimental: false };
+const policy = { readOnly: false, allowRawApi: false, allowExperimental: true };
 const cases = fixture.cases;
 const mutations = cases.filter((c) => c.method !== 'GET');
 const mapped = cases.filter((c) => c.method !== 'DELETE');
@@ -116,9 +122,9 @@ describe('FEAT-07 services', () => {
         limits,
       })),
     );
-    expect(endpoints.every((endpoint) => endpoint.proof === 'baseline' && endpoint.enabled)).toBe(
-      true,
-    );
+    for (const endpoint of endpoints) {
+      expect(endpoint.proof).toBe(endpoint.enabled ? 'baseline' : 'unproven');
+    }
     expect(endpoints.every((endpoint) => !endpoint.path.startsWith('/1/mail/'))).toBe(true);
     expect(fixture.deferred).toEqual([
       {
@@ -168,7 +174,9 @@ describe('FEAT-07 services', () => {
       );
       expect(contract.idempotent).toBe(c.method === 'GET');
       expect(contract.rawApi).toBe(false);
-      expect(contract.experimental).toBe(false);
+      expect(contract.experimental).toBe(
+        !fixture.endpoints.find((e) => e.name === c.name)!.enabled,
+      );
     },
   );
 
@@ -362,7 +370,10 @@ describe('FEAT-07 services', () => {
 
   it('auto-composes every service handler and preserves the read-only refusal rendering', async () => {
     const s = setup(null);
-    const config = loadRuntimeConfig({ INFOMANIAK_API_TOKEN: 'SYNTHETIC-token' });
+    const config = loadRuntimeConfig({
+      INFOMANIAK_API_TOKEN: 'SYNTHETIC-token',
+      INFOMANIAK_ALLOW_EXPERIMENTAL: 'true',
+    });
     const module = await discoverFeatureModules('src/features/services.feature.ts', {
       gateway: s.gateway,
       config,
@@ -390,4 +401,49 @@ describe('FEAT-07 services', () => {
     }
     expect(s.fetch).not.toHaveBeenCalled();
   });
+});
+
+describe('FIX-12A services', () => {
+  it.each(fixture.observed)('$name accepts observed fields and unknown additions', async (c) => {
+    const s = setup(success(c.data));
+    const result = await s.module.invoke(c.name, c.input, policy);
+    expect(result.structuredContent).toStrictEqual(c.output);
+    expect(result.content).toEqual([{ type: 'text', text: JSON.stringify(c.output, null, 2) }]);
+  });
+  it.each([false, true])(
+    'selects experimental services with flag=%s',
+    async (allowExperimental) => {
+      const s = setup(null);
+      const config = loadRuntimeConfig({
+        INFOMANIAK_API_TOKEN: 'SYNTHETIC',
+        INFOMANIAK_ALLOW_EXPERIMENTAL: String(allowExperimental),
+      });
+      const module = await discoverFeatureModules('src/features/services.feature.ts', {
+        gateway: s.gateway,
+        config,
+        clock: s.clock,
+        createGateway: () => s.gateway,
+      });
+      expect(module.tools.map((t) => t.name).sort()).toEqual(
+        tools
+          .filter((t) => !t.experimental || allowExperimental)
+          .map((t) => t.name)
+          .sort(),
+      );
+      for (const tool of tools.filter((t) => t.experimental)) {
+        const c = cases.find((c) => c.name === tool.name)!;
+        if (allowExperimental) {
+          s.fetch.mockResolvedValueOnce(Response.json(c.dto));
+          expect(
+            (await module.invoke(c.name, c.input, config.policy)).structuredContent,
+          ).toStrictEqual(c.output);
+        } else {
+          await expect(module.invoke(c.name, c.input, config.policy)).rejects.toThrow(
+            'Unknown tool',
+          );
+        }
+      }
+      if (!allowExperimental) expect(s.fetch).not.toHaveBeenCalled();
+    },
+  );
 });

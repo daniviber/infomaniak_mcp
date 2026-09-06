@@ -263,7 +263,13 @@ describe('experimental adapter and validated domain output', () => {
       example.name === rawName
         ? String(example.input.endpoint)
         : example.path.replace(/\{([^}]+)\}/g, (_, key: string) =>
-            encodeURIComponent(String(example.input[key])),
+            encodeURIComponent(
+              String(
+                example.input[
+                  key === 'mailbox_id' && 'mailbox_name' in example.input ? 'mailbox_name' : key
+                ],
+              ),
+            ),
           );
     expect(url.pathname).toBe(path);
     expect(Object.fromEntries(url.searchParams)).toEqual(
@@ -356,7 +362,7 @@ describe('experimental adapter and validated domain output', () => {
     ['infomaniak_get_dedicated_server', { server_id: '7' }],
     ['infomaniak_get_domain', { account_id: 3, domain: '..' }],
     ['infomaniak_create_mailbox', { mail_id: 4, mailbox_name: 'info', password: 'short' }],
-    ['infomaniak_add_mailbox_alias', { mail_id: 4, mailbox_id: 5, alias: 'invalid' }],
+    ['infomaniak_add_mailbox_alias', { mail_id: 4, mailbox_name: 'info', alias: 'invalid' }],
     ['infomaniak_create_email_redirection', { mail_id: 4, from: 'info@example.test', to: [] }],
     ['infomaniak_update_mailbox_autoresponder', { mail_id: 4, mailbox_id: 5, enabled: 'true' }],
   ])('rejects invalid input before HTTP for %s', async (name, input) => {
@@ -699,4 +705,64 @@ describe('raw HTTP status and JSON exception (addenda 10/11)', () => {
       expect(provider.nested[0].password).toBe('provider-password');
     },
   );
+});
+
+describe('FIX-12A observed resources and account filters', () => {
+  it.each([
+    'infomaniak_get_mailbox',
+    'infomaniak_delete_mailbox',
+    'infomaniak_add_mailbox_alias',
+    'infomaniak_delete_mailbox_alias',
+  ])('%s exposes mailbox_name and rejects the legacy input key', (name) => {
+    const tool = feature.tools.find((tool) => tool.name === name)!;
+    expect(
+      tool.inputSchema.safeParse({
+        mail_id: 4,
+        mailbox_name: 'info',
+        alias: 'alias@example.test',
+      }).success,
+    ).toBe(true);
+    expect(
+      tool.inputSchema.safeParse({
+        mail_id: 4,
+        mailbox_id: 'info',
+        alias: 'alias@example.test',
+      }).success,
+    ).toBe(false);
+  });
+
+  it.each(fixtureJson.observed)('$name accepts the observed field set', async (c) => {
+    const deps = dependencies(enabled, { result: 'success', data: c.data });
+    const result = await composeFeatureModules([feature], deps).invoke(c.name, c.input, enabled);
+    expect(result.structuredContent).toStrictEqual(c.output);
+    expect(result.content).toEqual([{ type: 'text', text: JSON.stringify(c.output, null, 2) }]);
+  });
+  it.each(['infomaniak_list_vps', 'infomaniak_list_dedicated_servers'])(
+    '%s requires a positive account and forwards it',
+    async (name) => {
+      const deps = dependencies();
+      const module = composeFeatureModules([feature], deps);
+      for (const account_id of [undefined, 0, -1, 1.5, '7']) {
+        await expect(module.invoke(name, { account_id }, enabled)).rejects.toThrow();
+      }
+      expect(deps.fetcher).not.toHaveBeenCalled();
+      await module.invoke(name, { account_id: 7 }, enabled);
+      expect(new URL(String(deps.fetcher.mock.calls[0][0])).searchParams.get('account_id')).toBe(
+        '7',
+      );
+    },
+  );
+  it('requires mailbox_name even though legacy id and email are optional', async () => {
+    const deps = dependencies(enabled, {
+      result: 'success',
+      data: [{ id: 21, email: 'info@example.test' }],
+    });
+    await expect(
+      composeFeatureModules([feature], deps).invoke(
+        'infomaniak_list_mailboxes',
+        { mail_id: 4 },
+        enabled,
+      ),
+    ).rejects.toThrow('Invalid Infomaniak response');
+  });
 });

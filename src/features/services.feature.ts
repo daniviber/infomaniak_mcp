@@ -1,4 +1,4 @@
-import { createServicesBindings } from '../application/services/services.feature.js';
+import { tools, createServicesBindings } from '../application/services/services.feature.js';
 import { createFeatureModule } from '../application/feature-module.js';
 import { ServicesAdapter } from '../adapters/outbound/infomaniak/services.adapter.js';
 import type { InfomaniakGateway } from '../adapters/outbound/infomaniak/gateway.js';
@@ -19,4 +19,8 @@ export function createHandlers(deps: {
         (await module.invoke(tool.name, input, deps.config.policy)).structuredContent,
     ]),
   );
+}
+
+export function selectTools(deps: { config: { policy: InvocationContext } }) {
+  return tools.filter((tool) => !tool.experimental || deps.config.policy.allowExperimental);
 }

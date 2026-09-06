@@ -31,6 +31,7 @@ function contract(
   outputSchema: z.ZodObject,
   classification: ToolContract['classification'],
   limits: ToolContract['limits'] = {},
+  experimental = false,
 ): ToolContract {
   return {
     name,
@@ -40,7 +41,7 @@ function contract(
     classification,
     rawApi: false,
     idempotent: classification === 'read',
-    experimental: false,
+    experimental,
     limits,
     text: (output) => JSON.stringify(output, null, 2),
   };
@@ -52,6 +53,8 @@ export const tools: readonly ToolContract[] = [
     domainInput,
     z.object({ nameservers: z.array(nameserverSchema) }),
     'read',
+    {},
+    true,
   ),
   contract(
     'infomaniak_update_domain_nameservers',
