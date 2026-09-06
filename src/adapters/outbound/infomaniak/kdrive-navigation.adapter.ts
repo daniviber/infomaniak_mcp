@@ -40,6 +40,22 @@ const pageDto = envelope(z.array(itemDto))
   })
   .refine((page) => !page.has_more || Boolean(page.cursor), 'Missing next cursor');
 
+// /3/drive/{id}/files/search was not measured: retain its baseline numeric DTO.
+const searchPageDto = envelope(
+  z.array(
+    itemDto.extend({
+      created_at: z.number().optional(),
+      last_modified_at: z.number().optional(),
+      added_at: z.number().optional(),
+    }),
+  ),
+)
+  .extend({
+    cursor: z.string().min(1).nullable().optional(),
+    has_more: z.boolean().optional(),
+  })
+  .refine((page) => !page.has_more || Boolean(page.cursor), 'Missing next cursor');
+
 function mapDrive(dto: z.infer<typeof driveDto>) {
   return driveSchema.parse({
     id: dto.id,
@@ -146,7 +162,7 @@ export class KDriveNavigationAdapter implements DriveNavigationPort {
             : {}),
         },
       },
-      pageDto,
+      searchPageDto,
     );
     return mapPage(dto);
   }

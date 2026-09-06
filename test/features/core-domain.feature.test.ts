@@ -266,12 +266,12 @@ describe('FEAT-06 core/domain', () => {
     s.fetch.mockResolvedValueOnce(
       new Response(
         JSON.stringify(
-          success({ ...fixture.account, legal_entity_type: 'company', created_at: 1767225600 }),
+          success({ ...fixture.account, legal_entity_type: 'company', created_at: '2026-01-01' }),
         ),
       ),
     );
     expect(await s.adapter.getAccount(7)).toEqual({
-      account: { ...account, legalEntityType: 'company', createdAt: '2026-01-01T00:00:00.000Z' },
+      account: { ...account, legalEntityType: 'company', createdAt: '2026-01-01' },
     });
   });
   it.each([
