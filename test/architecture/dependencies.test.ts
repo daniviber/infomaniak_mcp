@@ -12,6 +12,10 @@ function files(directory: string): string[] {
 }
 
 type Layer = 'domain' | 'application' | 'adapters' | 'features' | 'main';
+const sharedOutboundAdapters = [
+  'adapters/outbound/infomaniak/gateway.js',
+  'adapters/outbound/infomaniak/bounded-fetch.js',
+];
 function violations(path: string, layer: Layer, text = readFileSync(path, 'utf8')): string[] {
   const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
   const errors: string[] = [];
@@ -30,8 +34,7 @@ function violations(path: string, layer: Layer, text = readFileSync(path, 'utf8'
         layer === 'main' &&
         target === 'adapters' &&
         !relative(root, resolve(dirname(path), specifier)).startsWith('adapters/inbound/') &&
-        relative(root, resolve(dirname(path), specifier)) !==
-          'adapters/outbound/infomaniak/gateway.js'
+        !sharedOutboundAdapters.includes(relative(root, resolve(dirname(path), specifier)))
       )
         errors.push('main -> family adapter');
     } else if (!['adapters', 'main'].includes(layer) && specifier !== 'zod')
@@ -92,6 +95,24 @@ describe('dependency direction', () => {
 });
 
 describe('two composition layers, including when production features are empty', () => {
+  it('accepts the shared bounded-fetch adapter from main (addendum 15)', () => {
+    expect(
+      violations(
+        resolve(root, 'main/bootstrap.ts'),
+        'main',
+        "import { createBoundedFetch } from '../adapters/outbound/infomaniak/bounded-fetch.js';",
+      ),
+    ).toEqual([]);
+  });
+  it('still rejects the experimental family adapter from main (addendum 15)', () => {
+    expect(
+      violations(
+        resolve(root, 'main/bootstrap.ts'),
+        'main',
+        "import { ExperimentalAdapter } from '../adapters/outbound/infomaniak/experimental.adapter.js';",
+      ),
+    ).toEqual(['main -> family adapter']);
+  });
   it.each(['import', 'import type', 'export', 'export type'])(
     'accepts feature dependencies using %s',
     (syntax) => {
