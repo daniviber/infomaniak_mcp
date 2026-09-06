@@ -1,17 +1,14 @@
 {
   "proof": "baseline",
   "provenance": "src/infomaniak-client.ts: Account, Profile, Product, DomainNameserver, DnsRecord and core/domain methods; src/infomaniak-client.test.ts: profile, accounts and DNS doubles. Synthetic values. Operator addendum 6: optional ancillary fields; three acknowledgements from inputs, supplier JSON ignored.",
-  "ping": {
-    "message": "pong",
-    "extra": "PRIVATE"
-  },
+  "ping": "Pong",
   "profile": {
     "id": 1,
     "login": "user",
     "email": "user@example.test",
-    "first_name": "First",
-    "last_name": "Last",
-    "extra": "PRIVATE"
+    "extra": "PRIVATE",
+    "firstname": "First",
+    "lastname": "Last"
   },
   "account": {
     "id": 7,
@@ -73,16 +70,25 @@
     }
   ],
   "observedRecord": {
-    "id": 12,
+    "id": "12",
     "source": "@",
     "source_idn": "@",
     "type": "A",
     "ttl": 3600,
-    "ttl_idn": 3600,
+    "ttl_idn": "3600",
     "target_idn": "192.0.2.1",
     "updated_at": 123,
     "dyndns_id": null,
     "delegated_zone_id": null,
     "target": "192.0.2.1"
+  },
+  "readRecord": {
+    "id": "12",
+    "source": "@",
+    "type": "A",
+    "target": "192.0.2.1",
+    "ttl": 3600,
+    "priority": 0,
+    "extra": "PRIVATE"
   }
 }

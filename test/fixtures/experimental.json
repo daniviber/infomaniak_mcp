@@ -223,9 +223,9 @@
             "memory": 4096,
             "disk": 80,
             "ip": "192.0.2.1",
-            "created_at": "2026",
-            "expires_at": "2027",
-            "providerOnly": "discard"
+            "created_at": 2026,
+            "providerOnly": "discard",
+            "expired_at": 2027
           }
         ],
         "providerOnly": "discard"
@@ -241,8 +241,8 @@
             "memory": 4096,
             "disk": 80,
             "ip": "192.0.2.1",
-            "createdAt": "2026",
-            "expiresAt": "2027"
+            "createdAt": "1970-01-01T00:33:46.000Z",
+            "expiresAt": "1970-01-01T00:33:47.000Z"
           }
         ]
       },
@@ -1524,8 +1524,8 @@
           "mailbox_name": "info",
           "mailbox": "info@example.test",
           "mailbox_idn": "info@example.test",
-          "note": "Synthetic note",
-          "type": 1,
+          "note": null,
+          "type": null,
           "is_limited": false,
           "is_free_mail": false,
           "is_used_for_account": false,
@@ -1538,8 +1538,6 @@
             "mailboxName": "info",
             "mailbox": "info@example.test",
             "mailboxIdn": "info@example.test",
-            "note": "Synthetic note",
-            "type": 1,
             "isLimited": false,
             "isFreeMail": false,
             "isUsedForAccount": false
@@ -1559,9 +1557,9 @@
           "service_id": 9,
           "service_name": "synthetic",
           "customer_name": "example.test",
-          "internal_name": "synthetic",
+          "internal_name": null,
           "created_at": 123,
-          "expired_at": null,
+          "expired_at": 2027,
           "version": 1,
           "maintenance": false,
           "has_maintenance": false,
@@ -1571,7 +1569,7 @@
           "has_operation_in_progress": false,
           "provider_extra": "PRIVATE",
           "tags": [],
-          "unique_id": "synthetic"
+          "unique_id": 12
         }
       ],
       "output": {
@@ -1597,8 +1595,8 @@
           "service_name": "synthetic",
           "customer_name": "example.test",
           "internal_name": "synthetic",
-          "created_at": "2026-09-01",
-          "expired_at": null,
+          "created_at": 1788220800,
+          "expired_at": 2027,
           "version": 1,
           "maintenance": false,
           "has_maintenance": false,
@@ -1614,7 +1612,8 @@
           {
             "id": 12,
             "accountId": 7,
-            "createdAt": "2026-09-01"
+            "createdAt": "2026-09-01T00:00:00.000Z",
+            "expiresAt": "1970-01-01T00:33:47.000Z"
           }
         ]
       }
@@ -1666,7 +1665,7 @@
           "has_error": false,
           "has_trustee_contact": false,
           "has_whois_antispam": true,
-          "info": {},
+          "info": null,
           "is_city_domain": false,
           "is_dns_managed_by_infomaniak": true,
           "is_dnssec_pending": false,

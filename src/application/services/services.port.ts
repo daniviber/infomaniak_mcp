@@ -87,6 +87,6 @@ export interface ServicesPort {
   };
   invoice: {
     list(accountId: number): Promise<{ invoices: Invoice[] }>;
-    get(accountId: number, invoiceId: number): Promise<{ invoice: Invoice }>;
+    get(accountId: number, invoiceId: string): Promise<{ invoice: Invoice }>;
   };
 }

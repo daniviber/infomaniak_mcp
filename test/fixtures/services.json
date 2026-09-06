@@ -46,7 +46,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/web, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/web, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -94,7 +94,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/web/{hosting_id}/site, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -122,7 +122,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -150,7 +150,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -178,7 +178,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/web/{hosting_id}/site/{site_id}, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -226,7 +226,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/web/{hosting_id}/database, 400 not_available_for_this_hosting_type ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/web/{hosting_id}/database, 400 not_available_for_this_hosting_type ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -315,7 +315,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -344,7 +344,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -373,7 +373,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -402,7 +402,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -431,7 +431,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -462,7 +462,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -493,7 +493,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -522,7 +522,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -550,7 +550,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/swiss_backups, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -578,7 +578,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups/{backup_id}, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/swiss_backups/{backup_id}, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -606,7 +606,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups/{backup_id}/slots, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/swiss_backups/{backup_id}/slots, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -634,7 +634,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/certificate, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/certificate, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -682,7 +682,7 @@
         "sources": [
           {
             "proof": "baseline",
-            "description": "relevé opérateur 2026-09-06, GET /1/invoicing/{account_id}/invoice/list, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+            "description": "relev\u00e9 op\u00e9rateur 2026-09-06, GET /1/invoicing/{account_id}/invoice/list, 200 ; noms de champs observ\u00e9s, valeurs synth\u00e9tiques dans les fixtures."
           }
         ]
       }
@@ -711,7 +711,7 @@
           {
             "proof": "unproven",
             "url": "https://developer.infomaniak.com/docs/api",
-            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+            "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune op\u00e9ration correspondante dans la navigation officielle."
           }
         ]
       }
@@ -1773,7 +1773,7 @@
         "result": "success",
         "data": [
           {
-            "id": 12,
+            "id": "12",
             "account_id": 7,
             "reference": "INV-12",
             "amount_ttc": 108.1,
@@ -1781,7 +1781,7 @@
             "currency": "CHF",
             "status": "paid",
             "due_date": "2026-09-30",
-            "created_at": "2026-09-01",
+            "created_at": 1788220800,
             "pdf_url": "https://example.invalid/invoice.pdf",
             "password": "PRIVATE",
             "extra": "PRIVATE"
@@ -1792,7 +1792,7 @@
       "output": {
         "invoices": [
           {
-            "id": 12,
+            "id": "12",
             "accountId": 7,
             "reference": "INV-12",
             "amountTtc": 108.1,
@@ -1800,7 +1800,7 @@
             "currency": "CHF",
             "status": "paid",
             "dueDate": "2026-09-30",
-            "createdAt": "2026-09-01",
+            "createdAt": "2026-09-01T00:00:00.000Z",
             "pdfUrl": "https://example.invalid/invoice.pdf"
           }
         ]
@@ -1810,7 +1810,7 @@
       "name": "infomaniak_get_invoice",
       "input": {
         "account_id": 7,
-        "invoice_id": 12
+        "invoice_id": "12"
       },
       "method": "GET",
       "path": "/1/invoicing/7/invoice/12",
@@ -1834,7 +1834,7 @@
       },
       "output": {
         "invoice": {
-          "id": 12,
+          "id": "12",
           "accountId": 7,
           "reference": "INV-12",
           "amountTtc": 108.1,
@@ -1956,8 +1956,8 @@
           "connection_type": "swift",
           "size": 100,
           "storage_used": 20,
-          "usage_last_check": null,
-          "created_at": "2026-09-01",
+          "usage_last_check": 123,
+          "created_at": 1788220800,
           "provider_extra": "PRIVATE"
         }
       ],
@@ -1967,7 +1967,7 @@
             "customerName": "Archive",
             "size": 100,
             "storageUsed": 20,
-            "createdAt": "2026-09-01",
+            "createdAt": "2026-09-01T00:00:00.000Z",
             "id": 13
           }
         ]
@@ -1980,13 +1980,15 @@
       },
       "data": [
         {
-          "id": 12,
+          "id": "12",
           "name": "Invoice",
-          "amount": 123,
+          "amount": {
+            "synthetic": 123
+          },
           "account_id": 7,
           "alternative_amounts": [],
-          "created_at": "2026-09-01",
-          "payment": {},
+          "created_at": 1788220800,
+          "payment": [{}],
           "address": {},
           "document": {},
           "status": "paid",
@@ -1998,10 +2000,120 @@
       "output": {
         "invoices": [
           {
-            "id": 12,
+            "id": "12",
             "accountId": 7,
             "status": "paid",
-            "createdAt": "2026-09-01"
+            "createdAt": "2026-09-01T00:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_web_hostings",
+      "input": {
+        "account_id": 7
+      },
+      "data": [
+        {
+          "id": 12,
+          "account_id": 7,
+          "service_id": 9,
+          "service_name": "synthetic",
+          "customer_name": "example.test",
+          "internal_name": null,
+          "created_at": 123,
+          "expired_at": 234,
+          "version": 1,
+          "maintenance": false,
+          "has_maintenance": false,
+          "locked": false,
+          "is_locked": false,
+          "operation_in_progress": false,
+          "has_operation_in_progress": false,
+          "provider_extra": "PRIVATE",
+          "description": null
+        }
+      ],
+      "output": {
+        "hostings": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "customerName": "example.test",
+            "serviceName": "synthetic"
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_sites",
+      "input": {
+        "hosting_id": 12
+      },
+      "data": [
+        {
+          "id": 12,
+          "account_id": 7,
+          "service_id": 9,
+          "service_name": "synthetic",
+          "customer_name": "example.test",
+          "internal_name": null,
+          "created_at": 123,
+          "expired_at": null,
+          "version": 1,
+          "maintenance": false,
+          "has_maintenance": false,
+          "locked": false,
+          "is_locked": false,
+          "operation_in_progress": false,
+          "has_operation_in_progress": false,
+          "provider_extra": "PRIVATE",
+          "description": null,
+          "name": "example.test",
+          "directory": "/site",
+          "ssl": true
+        }
+      ],
+      "output": {
+        "sites": [
+          {
+            "id": 12
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_list_swiss_backups",
+      "input": {
+        "account_id": 7
+      },
+      "data": [
+        {
+          "id": 12,
+          "account_id": 7,
+          "service_id": 9,
+          "service_name": "synthetic",
+          "customer_name": "example.test",
+          "internal_name": null,
+          "created_at": 123,
+          "expired_at": 234,
+          "version": 1,
+          "maintenance": false,
+          "has_maintenance": false,
+          "locked": false,
+          "is_locked": false,
+          "operation_in_progress": false,
+          "has_operation_in_progress": false,
+          "provider_extra": "PRIVATE",
+          "description": "Synthetic"
+        }
+      ],
+      "output": {
+        "backups": [
+          {
+            "id": 12,
+            "accountId": 7,
+            "customerName": "example.test"
           }
         ]
       }

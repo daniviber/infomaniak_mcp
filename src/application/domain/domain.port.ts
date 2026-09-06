@@ -21,8 +21,8 @@ export interface DomainPort {
   createDnsRecord(domain: string, record: DnsRecordInput): Promise<{ record: DnsRecord }>;
   updateDnsRecord(
     domain: string,
-    recordId: number,
+    recordId: string,
     record: Partial<DnsRecordInput>,
   ): Promise<{ record: DnsRecord }>;
-  deleteDnsRecord(domain: string, recordId: number): Promise<DnsDeleted>;
+  deleteDnsRecord(domain: string, recordId: string): Promise<DnsDeleted>;
 }

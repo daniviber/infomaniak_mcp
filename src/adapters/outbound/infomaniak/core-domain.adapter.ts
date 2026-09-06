@@ -11,18 +11,21 @@ import type { InfomaniakGateway, GatewayRequest } from './gateway.js';
 
 const id = z.number().int().positive();
 const envelope = <T extends z.ZodType>(data: T) => z.object({ result: z.literal('success'), data });
+// Relevé /1/account: created_at:int; /1/profile: firstname:string, lastname:string.
 const accountDto = z.object({
   id,
   name: z.string(),
   legal_entity_type: z.string().optional(),
-  created_at: z.string().optional(),
+  created_at: z.number().int().optional(),
 });
+// /1/account/{id} is not in the relevé: preserve its baseline string DTO.
+const accountDetailDto = accountDto.extend({ created_at: z.string().optional() });
 const profileDto = z.object({
   id,
   login: z.string(),
   email: z.string(),
-  first_name: z.string(),
-  last_name: z.string(),
+  firstname: z.string(),
+  lastname: z.string(),
   current_account_id: id.optional(),
 });
 const productDto = z.object({
@@ -32,12 +35,14 @@ const productDto = z.object({
   account_id: id,
   customer_name: z.string(),
 });
+// Relevé /1/domain/{domain}/dns/record: id:string. Write DTO remains baseline.
+const writeRecordDto = dnsRecordSchema.extend({ id });
 const mapAccount = (v: z.infer<typeof accountDto>) =>
   accountSchema.parse({
     id: v.id,
     name: v.name,
     legalEntityType: v.legal_entity_type,
-    createdAt: v.created_at,
+    createdAt: v.created_at === undefined ? undefined : new Date(v.created_at * 1000).toISOString(),
   });
 const domainPath = (domain: string, ...suffix: (string | number)[]) => [
   '1',
@@ -52,9 +57,9 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
   async ping() {
     const { data } = await this.gateway.request(
       { method: 'GET', pathSegments: ['1', 'ping'] },
-      envelope(z.object({ message: z.string() })),
+      envelope(z.string()),
     );
-    return { message: data.message };
+    return { message: data };
   }
   async getProfile() {
     const { data: v } = await this.gateway.request(
@@ -66,8 +71,8 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
         id: v.id,
         login: v.login,
         email: v.email,
-        firstName: v.first_name,
-        lastName: v.last_name,
+        firstName: v.firstname,
+        lastName: v.lastname,
         currentAccountId: v.current_account_id,
       }),
     };
@@ -82,9 +87,16 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
   async getAccount(accountId: number) {
     const { data } = await this.gateway.request(
       { method: 'GET', pathSegments: ['1', 'account', accountId] },
-      envelope(accountDto),
+      envelope(accountDetailDto),
     );
-    return { account: mapAccount(data) };
+    return {
+      account: accountSchema.parse({
+        id: data.id,
+        name: data.name,
+        legalEntityType: data.legal_entity_type,
+        createdAt: data.created_at,
+      }),
+    };
   }
   async listProducts(accountId: number) {
     const { data } = await this.gateway.request(
@@ -136,8 +148,8 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
     return { records: data.map((v) => dnsRecordSchema.parse(v)) };
   }
   private async record(request: GatewayRequest) {
-    const { data } = await this.gateway.request(request, envelope(dnsRecordSchema));
-    return { record: dnsRecordSchema.parse(data) };
+    const { data } = await this.gateway.request(request, envelope(writeRecordDto));
+    return { record: dnsRecordSchema.parse({ ...data, id: String(data.id) }) };
   }
   createDnsRecord(domain: string, record: DnsRecordInput) {
     return this.record({
@@ -146,14 +158,14 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
       body: record,
     });
   }
-  updateDnsRecord(domain: string, recordId: number, record: Partial<DnsRecordInput>) {
+  updateDnsRecord(domain: string, recordId: string, record: Partial<DnsRecordInput>) {
     return this.record({
       method: 'PUT',
       pathSegments: domainPath(domain, 'dns', 'record', recordId),
       body: record,
     });
   }
-  async deleteDnsRecord(domain: string, recordId: number) {
+  async deleteDnsRecord(domain: string, recordId: string) {
     await this.gateway.request(
       { method: 'DELETE', pathSegments: domainPath(domain, 'dns', 'record', recordId) },
       z.unknown(),

@@ -112,7 +112,7 @@ describe('Infomaniak gateway', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
     fetcher.mockClear().mockResolvedValue(Response.json({ ok: 'secret-token' }));
     await expect(setup(fetcher).request(request, schema)).rejects.toThrow(
-      'Invalid Infomaniak response',
+      'Invalid Infomaniak response: ok: invalid_type expected boolean received string',
     );
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
@@ -728,17 +728,17 @@ describe('additive requestWithStatus', () => {
         },
         {
           response: async () => new Response('secret-token'),
-          error: 'Invalid Infomaniak response',
+          error: 'Invalid Infomaniak response: invalid_json',
           attempts: 1,
         },
         {
           response: async () => Response.json({ ok: 'secret-token' }),
-          error: 'Invalid Infomaniak response',
+          error: 'Invalid Infomaniak response: ok: invalid_type expected boolean received string',
           attempts: 1,
         },
         {
           response: async () => new Response(null, { status: 204 }),
-          error: 'Invalid Infomaniak response',
+          error: 'Invalid Infomaniak response: : invalid_type expected object received undefined',
           attempts: 1,
         },
       ];

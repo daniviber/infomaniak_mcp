@@ -485,3 +485,33 @@ describe('Calendar offline feature', () => {
     }
   });
 });
+
+// Relevé /1/calendar/pim/event: integer identities, string dates, nullable recurrence and meeting URL.
+it('FIX-12B parses observed Calendar types without converting string dates', async () => {
+  const app = await setup({ response: () => fixture.observedEvents });
+  const result = await app.invoke('list_events', {
+    calendar_id: 7,
+    timezone: 'UTC',
+    from: '2026-03-01',
+    to: '2026-04-01',
+  });
+  expect(result).toStrictEqual({
+    events: [
+      {
+        id: 42,
+        calendarId: 7,
+        title: 'Meeting',
+        description: undefined,
+        location: undefined,
+        timezoneStart: undefined,
+        timezoneEnd: undefined,
+        fullday: undefined,
+        freebusy: undefined,
+        private: undefined,
+        attendees: undefined,
+        start: '2026-03-29T01:30:00+01:00',
+        end: '2026-03-29T03:30:00+02:00',
+      },
+    ],
+  });
+});

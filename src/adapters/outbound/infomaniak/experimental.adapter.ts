@@ -114,10 +114,35 @@ export class ExperimentalAdapter implements ExperimentalPort {
       });
     }
     const domainSchema = entitySchemas[response.kind];
-    const mapping = Object.entries(fields[response.kind]);
+    // Relevé /1/vps: created_at:int, expired_at:int; other routes retain their DTO.
+    const observedVps =
+      response.kind === 'vps' &&
+      request.method === 'GET' &&
+      request.pathSegments.join('/') === '1/vps';
+    // Relevé /1/mail_hostings/{id}/mailboxes: note:null, type:null.
+    const observedMailbox =
+      response.kind === 'mailbox' &&
+      request.method === 'GET' &&
+      request.pathSegments.length === 4 &&
+      request.pathSegments[0] === '1' &&
+      request.pathSegments[1] === 'mail_hostings' &&
+      request.pathSegments[3] === 'mailboxes';
+    const mapping = Object.entries(fields[response.kind]).map(([domain, provider]) => [
+      domain,
+      observedVps && domain === 'expiresAt' ? 'expired_at' : provider,
+    ]);
     const shape: Record<string, z.ZodType> = domainSchema.shape;
     const dto = z.object(
-      Object.fromEntries(mapping.map(([domain, provider]) => [provider, shape[domain]])),
+      Object.fromEntries(
+        mapping.map(([domain, provider]) => [
+          provider,
+          observedVps && (domain === 'createdAt' || domain === 'expiresAt')
+            ? z.number().int().optional()
+            : observedMailbox && (domain === 'note' || domain === 'type')
+              ? shape[domain].nullable()
+              : shape[domain],
+        ]),
+      ),
     );
     const schema = envelope(response.list ? z.array(dto) : dto);
     const value = schema.parse(await this.gateway.request(http, schema));
@@ -125,8 +150,16 @@ export class ExperimentalAdapter implements ExperimentalPort {
       domainSchema.parse(
         Object.fromEntries(
           mapping
-            .filter(([, provider]) => entity[provider] !== undefined)
-            .map(([domain, provider]) => [domain, entity[provider]]),
+            .filter(
+              ([, provider]) =>
+                entity[provider] !== undefined && !(observedMailbox && entity[provider] === null),
+            )
+            .map(([domain, provider]) => [
+              domain,
+              observedVps && (domain === 'createdAt' || domain === 'expiresAt')
+                ? new Date((entity[provider] as number) * 1000).toISOString()
+                : entity[provider],
+            ]),
         ),
       );
     return { [response.key]: Array.isArray(value.data) ? value.data.map(map) : map(value.data) };

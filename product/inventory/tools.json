@@ -1189,6 +1189,9 @@
         {
           "path": "test/fixtures/calendar.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -1515,13 +1518,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -1567,6 +1570,9 @@
         {
           "path": "test/fixtures/kdrive-transfer.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -1849,9 +1855,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               "source": {
                 "type": "string"
@@ -1893,6 +1897,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -2209,13 +2216,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -2261,6 +2268,9 @@
         {
           "path": "test/fixtures/kdrive-transfer.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -2721,9 +2731,8 @@
             "minLength": 1
           },
           "record_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": ["domain", "record_id"],
@@ -2745,9 +2754,7 @@
             "type": "string"
           },
           "recordId": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string"
           }
         },
         "required": ["ok", "action", "domain", "recordId"],
@@ -2766,6 +2773,9 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -4250,9 +4260,8 @@
             "maximum": 9007199254740991
           },
           "invoice_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": ["account_id", "invoice_id"],
@@ -4266,9 +4275,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               "accountId": {
                 "type": "integer",
@@ -4326,6 +4333,9 @@
           "proof": "unproven",
           "url": "https://developer.infomaniak.com/docs/api",
           "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "Route non confirmée ; voir knownLimits."
@@ -4421,6 +4431,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -4522,13 +4535,13 @@
                       "maximum": 9007199254740991
                     },
                     "createdAt": {
-                      "type": "number"
+                      "type": "string"
                     },
                     "modifiedAt": {
-                      "type": "number"
+                      "type": "string"
                     },
                     "addedAt": {
-                      "type": "number"
+                      "type": "string"
                     },
                     "parentId": {
                       "type": "integer",
@@ -4591,6 +4604,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -4662,13 +4678,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -4714,6 +4730,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -5224,6 +5243,9 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -7178,6 +7200,9 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -7641,9 +7666,7 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991
+                  "type": "string"
                 },
                 "source": {
                   "type": "string"
@@ -7686,6 +7709,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -8034,9 +8060,7 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991
+                  "type": "string"
                 },
                 "accountId": {
                   "type": "integer",
@@ -8094,6 +8118,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/invoicing/{account_id}/invoice/list, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -8176,13 +8203,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8241,6 +8268,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8445,13 +8475,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8505,6 +8535,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8591,13 +8624,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8656,6 +8689,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8742,13 +8778,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8807,6 +8843,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8889,13 +8928,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8949,6 +8988,9 @@
         {
           "path": "test/fixtures/kdrive-trash.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -9044,6 +9086,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -9367,6 +9412,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/mail_hostings/{mail_id}/mailboxes, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -9660,6 +9708,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/swiss_backups/{backup_id}/slots, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -9905,6 +9956,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/vps, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -10157,6 +10211,9 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -10756,13 +10813,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -10816,6 +10873,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -11179,9 +11239,8 @@
             "minLength": 1
           },
           "record_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1
           },
           "source": {
             "type": "string"
@@ -11216,9 +11275,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               "source": {
                 "type": "string"
@@ -11260,6 +11317,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -12039,13 +12099,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -12091,6 +12151,9 @@
         {
           "path": "test/fixtures/kdrive-transfer.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"

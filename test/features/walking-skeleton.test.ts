@@ -114,7 +114,7 @@ describe('walking skeleton', () => {
     const calendarCall = vi.spyOn(CalendarCreateAdapter.prototype, 'createEvent');
     const driveResponse = {
       result: 'success',
-      data: [{ id: 9, name: 'Équipe', account_id: 123, size_used: 12, size: 1000 }],
+      data: [{ id: 9, name: 'Équipe', account_id: 123, used_size: 12, size: 1000 }],
     };
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {
       switch (String(url)) {
@@ -232,7 +232,7 @@ describe('walking skeleton', () => {
 
   it('composes both products with a shared bucket and preserves kDrive text through HTTP doubles', async () => {
     const driveResponse = {
-      data: [{ name: 'Équipe', id: 9, size: 1000, size_used: 12, account_id: 123, extra: true }],
+      data: [{ name: 'Équipe', id: 9, size: 1000, used_size: 12, account_id: 123, extra: true }],
       result: 'success',
     };
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {

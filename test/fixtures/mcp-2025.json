@@ -24,6 +24,6 @@
   "read": { "name": "infomaniak_list_accounts", "arguments": {} },
   "write": {
     "name": "infomaniak_delete_dns_record",
-    "arguments": { "domain": "example.test", "record_id": 1 }
+    "arguments": { "domain": "example.test", "record_id": "1" }
   }
 }
