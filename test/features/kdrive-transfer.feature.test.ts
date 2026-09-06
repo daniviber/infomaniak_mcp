@@ -146,7 +146,11 @@ function response(dto: unknown) {
 describe('kDrive transfer contracts', () => {
   it('exports exactly seven classified tools and shared limits without redefining pagination', () => {
     expect(tools.map((tool) => tool.name)).toEqual(cases.map((c) => c.name));
-    expect(feature.tools.map((tool) => tool.name)).toEqual(tools.map((tool) => tool.name));
+    // Only inputSchema differs: registry declarations omit the default-bound superRefine
+    // so per-runtime handlers can enforce configured limits, including increases.
+    const withoutInputSchema = (tool: (typeof tools)[number]) =>
+      Object.fromEntries(Object.entries(tool).filter(([key]) => key !== 'inputSchema'));
+    expect(feature.tools.map(withoutInputSchema)).toEqual(tools.map(withoutInputSchema));
     expect(tools.map((tool) => tool.classification)).toEqual([
       'read',
       'write',
