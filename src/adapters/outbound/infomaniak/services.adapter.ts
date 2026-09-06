@@ -125,9 +125,12 @@ const backupSlotDto = z.object({
 });
 // Relevé /1/swiss_backups/{id}/slots: created_at:int (Unix seconds).
 const readBackupSlotDto = backupSlotDto.extend({ created_at: z.number().int().optional() });
-const mapReadBackupSlot = (v: z.infer<typeof readBackupSlotDto>) => mapBackupSlot({
-  ...v, created_at: v.created_at === undefined ? undefined : new Date(v.created_at * 1000).toISOString(),
-});
+const mapReadBackupSlot = (v: z.infer<typeof readBackupSlotDto>) =>
+  mapBackupSlot({
+    ...v,
+    created_at:
+      v.created_at === undefined ? undefined : new Date(v.created_at * 1000).toISOString(),
+  });
 const mapBackupSlot = (v: z.infer<typeof backupSlotDto>) =>
   backupSlotSchema.parse(
     present({
@@ -193,16 +196,32 @@ const invoiceDto = z.object({
   pdf_url: z.string().optional(),
 });
 // Relevé /1/invoicing/{id}/invoice/list: id:string, created_at:int.
-const readInvoiceDto = invoiceDto.extend({ id: z.string(), created_at: z.number().int().optional() });
-const mapReadInvoice = (v: z.infer<typeof readInvoiceDto>) => invoiceSchema.parse(present({
-  ...mapInvoiceFields(v),
-  createdAt: v.created_at === undefined ? undefined : new Date(v.created_at * 1000).toISOString(),
-}));
-const mapInvoiceFields = (v: Omit<z.infer<typeof invoiceDto>, 'id' | 'created_at'> & { id: string | number }) => present({
-  id: String(v.id), accountId: v.account_id, reference: v.reference,
-  amountTtc: v.amount_ttc, amountHt: v.amount_ht, currency: v.currency,
-  status: v.status, dueDate: v.due_date, pdfUrl: v.pdf_url,
+const readInvoiceDto = invoiceDto.extend({
+  id: z.string(),
+  created_at: z.number().int().optional(),
 });
+const mapReadInvoice = (v: z.infer<typeof readInvoiceDto>) =>
+  invoiceSchema.parse(
+    present({
+      ...mapInvoiceFields(v),
+      createdAt:
+        v.created_at === undefined ? undefined : new Date(v.created_at * 1000).toISOString(),
+    }),
+  );
+const mapInvoiceFields = (
+  v: Omit<z.infer<typeof invoiceDto>, 'id' | 'created_at'> & { id: string | number },
+) =>
+  present({
+    id: String(v.id),
+    accountId: v.account_id,
+    reference: v.reference,
+    amountTtc: v.amount_ttc,
+    amountHt: v.amount_ht,
+    currency: v.currency,
+    status: v.status,
+    dueDate: v.due_date,
+    pdfUrl: v.pdf_url,
+  });
 const mapInvoice = (v: z.infer<typeof invoiceDto>) =>
   invoiceSchema.parse(
     present({

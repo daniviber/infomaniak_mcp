@@ -880,9 +880,7 @@
         "id": 12,
         "account_id": 7,
         "common_name": "example.test",
-        "alternative_names": [
-          "www.example.test"
-        ],
+        "alternative_names": ["www.example.test"],
         "type": "ssl",
         "status": "active",
         "not_before": "2026-01-01",
@@ -892,9 +890,7 @@
         "id": 12,
         "accountId": 7,
         "commonName": "example.test",
-        "alternativeNames": [
-          "www.example.test"
-        ],
+        "alternativeNames": ["www.example.test"],
         "type": "ssl",
         "status": "active",
         "notBefore": "2026-01-01",
@@ -1704,9 +1700,7 @@
             "id": 12,
             "account_id": 7,
             "common_name": "example.test",
-            "alternative_names": [
-              "www.example.test"
-            ],
+            "alternative_names": ["www.example.test"],
             "type": "ssl",
             "status": "active",
             "not_before": "2026-01-01",
@@ -1723,9 +1717,7 @@
             "id": 12,
             "accountId": 7,
             "commonName": "example.test",
-            "alternativeNames": [
-              "www.example.test"
-            ],
+            "alternativeNames": ["www.example.test"],
             "type": "ssl",
             "status": "active",
             "notBefore": "2026-01-01",
@@ -1747,9 +1739,7 @@
           "id": 12,
           "account_id": 7,
           "common_name": "example.test",
-          "alternative_names": [
-            "www.example.test"
-          ],
+          "alternative_names": ["www.example.test"],
           "type": "ssl",
           "status": "active",
           "not_before": "2026-01-01",
@@ -1764,9 +1754,7 @@
           "id": 12,
           "accountId": 7,
           "commonName": "example.test",
-          "alternativeNames": [
-            "www.example.test"
-          ],
+          "alternativeNames": ["www.example.test"],
           "type": "ssl",
           "status": "active",
           "notBefore": "2026-01-01",
@@ -2000,9 +1988,7 @@
           "account_id": 7,
           "alternative_amounts": [],
           "created_at": 1788220800,
-          "payment": [
-            {}
-          ],
+          "payment": [{}],
           "address": {},
           "document": {},
           "status": "paid",

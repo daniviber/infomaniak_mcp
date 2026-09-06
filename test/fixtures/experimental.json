@@ -64,9 +64,7 @@
         "mail_id": 4,
         "mailbox_name": "info",
         "email": "info@example.test",
-        "aliases": [
-          "alias@example.test"
-        ],
+        "aliases": ["alias@example.test"],
         "size_used": 12,
         "max_size": 100
       },
@@ -75,9 +73,7 @@
         "mailId": 4,
         "mailboxName": "info",
         "email": "info@example.test",
-        "aliases": [
-          "alias@example.test"
-        ],
+        "aliases": ["alias@example.test"],
         "sizeUsed": 12,
         "maxSize": 100
       },
@@ -90,9 +86,7 @@
         "id": 21,
         "mail_id": 4,
         "from": "info@example.test",
-        "to": [
-          "target@example.test"
-        ],
+        "to": ["target@example.test"],
         "keep_copy": true,
         "created_at": "2026"
       },
@@ -100,9 +94,7 @@
         "id": 21,
         "mailId": 4,
         "from": "info@example.test",
-        "to": [
-          "target@example.test"
-        ],
+        "to": ["target@example.test"],
         "keepCopy": true,
         "createdAt": "2026"
       },
@@ -775,9 +767,7 @@
             "mail_id": 4,
             "mailbox_name": "info",
             "email": "info@example.test",
-            "aliases": [
-              "alias@example.test"
-            ],
+            "aliases": ["alias@example.test"],
             "size_used": 12,
             "max_size": 100,
             "providerOnly": "discard"
@@ -792,9 +782,7 @@
             "mailId": 4,
             "mailboxName": "info",
             "email": "info@example.test",
-            "aliases": [
-              "alias@example.test"
-            ],
+            "aliases": ["alias@example.test"],
             "sizeUsed": 12,
             "maxSize": 100
           }
@@ -837,9 +825,7 @@
           "mail_id": 4,
           "mailbox_name": "info",
           "email": "info@example.test",
-          "aliases": [
-            "alias@example.test"
-          ],
+          "aliases": ["alias@example.test"],
           "size_used": 12,
           "max_size": 100,
           "providerOnly": "discard"
@@ -852,9 +838,7 @@
           "mailId": 4,
           "mailboxName": "info",
           "email": "info@example.test",
-          "aliases": [
-            "alias@example.test"
-          ],
+          "aliases": ["alias@example.test"],
           "sizeUsed": 12,
           "maxSize": 100
         }
@@ -903,9 +887,7 @@
           "mail_id": 4,
           "mailbox_name": "info",
           "email": "info@example.test",
-          "aliases": [
-            "alias@example.test"
-          ],
+          "aliases": ["alias@example.test"],
           "size_used": 12,
           "max_size": 100,
           "providerOnly": "discard"
@@ -918,9 +900,7 @@
           "mailId": 4,
           "mailboxName": "info",
           "email": "info@example.test",
-          "aliases": [
-            "alias@example.test"
-          ],
+          "aliases": ["alias@example.test"],
           "sizeUsed": 12,
           "maxSize": 100
         }
@@ -968,9 +948,7 @@
           "mail_id": 4,
           "mailbox_name": "info",
           "email": "info@example.test",
-          "aliases": [
-            "alias@example.test"
-          ],
+          "aliases": ["alias@example.test"],
           "size_used": 12,
           "max_size": 100,
           "providerOnly": "discard"
@@ -983,9 +961,7 @@
           "mailId": 4,
           "mailboxName": "info",
           "email": "info@example.test",
-          "aliases": [
-            "alias@example.test"
-          ],
+          "aliases": ["alias@example.test"],
           "sizeUsed": 12,
           "maxSize": 100
         }
@@ -1153,9 +1129,7 @@
             "id": 21,
             "mail_id": 4,
             "from": "info@example.test",
-            "to": [
-              "target@example.test"
-            ],
+            "to": ["target@example.test"],
             "keep_copy": true,
             "created_at": "2026",
             "providerOnly": "discard"
@@ -1169,9 +1143,7 @@
             "id": 21,
             "mailId": 4,
             "from": "info@example.test",
-            "to": [
-              "target@example.test"
-            ],
+            "to": ["target@example.test"],
             "keepCopy": true,
             "createdAt": "2026"
           }
@@ -1203,9 +1175,7 @@
       "input": {
         "mail_id": 4,
         "from": "info@example.test",
-        "to": [
-          "target@example.test"
-        ],
+        "to": ["target@example.test"],
         "keep_copy": true
       },
       "response": "redirection",
@@ -1213,9 +1183,7 @@
       "list": false,
       "body": {
         "from": "info@example.test",
-        "to": [
-          "target@example.test"
-        ],
+        "to": ["target@example.test"],
         "keep_copy": true
       },
       "providerResponse": {
@@ -1224,9 +1192,7 @@
           "id": 21,
           "mail_id": 4,
           "from": "info@example.test",
-          "to": [
-            "target@example.test"
-          ],
+          "to": ["target@example.test"],
           "keep_copy": true,
           "created_at": "2026",
           "providerOnly": "discard"
@@ -1238,9 +1204,7 @@
           "id": 21,
           "mailId": 4,
           "from": "info@example.test",
-          "to": [
-            "target@example.test"
-          ],
+          "to": ["target@example.test"],
           "keepCopy": true,
           "createdAt": "2026"
         }

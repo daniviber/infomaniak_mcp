@@ -7,6 +7,7 @@ import type {
 } from '../../../application/drive/navigation.port.js';
 import type { InfomaniakGateway } from './gateway.js';
 
+// Relevé /2/drive and /2/drive/{id}: used_size:int.
 const driveDto = z.object({
   id: z.number().int().positive(),
   name: z.string(),
@@ -14,6 +15,7 @@ const driveDto = z.object({
   used_size: z.number().int().nonnegative(),
   size: z.number().int().nonnegative(),
 });
+// Relevé /3/drive/{id}/files/1[/files]: created_at:null, added_at:int, last_modified_at:int; size and mime_type absent on folders.
 const itemDto = z.object({
   id: z.number().int().positive(),
   name: z.string(),
@@ -54,7 +56,10 @@ function mapItem(dto: z.infer<typeof itemDto>) {
     type: dto.type,
     sizeBytes: dto.size,
     ...(dto.created_at == null ? {} : { createdAt: new Date(dto.created_at * 1000).toISOString() }),
-    modifiedAt: dto.last_modified_at === undefined ? undefined : new Date(dto.last_modified_at * 1000).toISOString(),
+    modifiedAt:
+      dto.last_modified_at === undefined
+        ? undefined
+        : new Date(dto.last_modified_at * 1000).toISOString(),
     addedAt: dto.added_at === undefined ? undefined : new Date(dto.added_at * 1000).toISOString(),
     parentId: dto.parent_id,
     mimeType: dto.mime_type,

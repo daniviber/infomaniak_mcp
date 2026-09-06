@@ -11,6 +11,7 @@ import type { InfomaniakGateway, GatewayRequest } from './gateway.js';
 
 const id = z.number().int().positive();
 const envelope = <T extends z.ZodType>(data: T) => z.object({ result: z.literal('success'), data });
+// Relevé /1/account: created_at:int; /1/profile: firstname:string, lastname:string.
 const accountDto = z.object({
   id,
   name: z.string(),

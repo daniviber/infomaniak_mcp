@@ -278,10 +278,19 @@ export class InfomaniakGateway {
         outputSchema.parse(payload);
         // Validation only: retain provider key order for the frozen legacy text mapping.
         return { status: response.status, data: payload as T };
-       } catch (error) {
-        const issues = error instanceof z.ZodError
-          ? error.issues.map((issue) => `${issue.path.join('.')}: ${issue.code}`).join('; ')
-          : 'invalid_json';
+      } catch (error) {
+        const issues =
+          error instanceof z.ZodError
+            ? error.issues
+                .map((issue) => {
+                  const types =
+                    issue.code === 'invalid_type'
+                      ? issue.message.match(/^Invalid input: expected ([a-z]+), received ([a-z]+)$/)
+                      : null;
+                  return `${issue.path.join('.')}: ${issue.code}${types ? ` expected ${types[1]} received ${types[2]}` : ''}`;
+                })
+                .join('; ')
+            : 'invalid_json';
         throw new Error(`Invalid Infomaniak response: ${issues}`);
       }
     }

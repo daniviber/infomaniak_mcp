@@ -9,6 +9,7 @@ import type { DriveTrashPort } from '../../../application/drive/trash.port.js';
 import type { PageRequest } from '../../../application/drive/navigation.port.js';
 import type { InfomaniakGateway } from './gateway.js';
 
+// Relevé /3/drive/{id}/trash: same item fields; Unix integer dates and nullable created_at inherited from the folder row.
 const itemDto = z.object({
   id: z.number().int().positive(),
   name: z.string(),
@@ -40,7 +41,10 @@ function mapItem(dto: z.infer<typeof itemDto>) {
     type: dto.type,
     sizeBytes: dto.size,
     ...(dto.created_at == null ? {} : { createdAt: new Date(dto.created_at * 1000).toISOString() }),
-    modifiedAt: dto.last_modified_at === undefined ? undefined : new Date(dto.last_modified_at * 1000).toISOString(),
+    modifiedAt:
+      dto.last_modified_at === undefined
+        ? undefined
+        : new Date(dto.last_modified_at * 1000).toISOString(),
     addedAt: dto.added_at === undefined ? undefined : new Date(dto.added_at * 1000).toISOString(),
     parentId: dto.parent_id,
     mimeType: dto.mime_type,

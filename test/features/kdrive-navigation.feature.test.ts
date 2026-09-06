@@ -285,7 +285,7 @@ describe('kDrive navigation', () => {
     const { module, fetcher } = await setup();
     fetcher.mockResolvedValueOnce(Response.json(success({ invalid: 'RAW_SECRET' })));
     await expect(module.invoke(entry.name, entry.input, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
@@ -302,7 +302,7 @@ describe('kDrive navigation', () => {
     const { module, fetcher, wait } = await setup();
     fetcher.mockResolvedValueOnce(Response.json(dto));
     await expect(module.invoke(cases[2].name, cases[2].input, policy)).rejects.toThrow(
-      /^Invalid Infomaniak response$/,
+      /^Invalid Infomaniak response: /,
     );
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(wait).not.toHaveBeenCalled();

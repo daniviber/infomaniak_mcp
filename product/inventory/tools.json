@@ -36,7 +36,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -49,7 +52,12 @@
           },
           "action": {
             "type": "string",
-            "enum": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"]
+            "enum": [
+              "updateShareLink",
+              "deleteShareLink",
+              "addFavorite",
+              "removeFavorite"
+            ]
           },
           "fileId": {
             "type": "integer",
@@ -57,7 +65,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "fileId"],
+        "required": [
+          "ok",
+          "action",
+          "fileId"
+        ],
         "additionalProperties": false
       }
     },
@@ -74,8 +86,15 @@
           "proof": "baseline",
           "repository": "infomaniak_mcp",
           "revision": "1ab4761a60b94685ecaa8363ce390f1e1b9cb69a",
-          "paths": ["src/infomaniak-client.ts"],
-          "actions": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"],
+          "paths": [
+            "src/infomaniak-client.ts"
+          ],
+          "actions": [
+            "updateShareLink",
+            "deleteShareLink",
+            "addFavorite",
+            "removeFavorite"
+          ],
           "mapping": "Validate success envelope; ignore data; return ok, action and requested fileId."
         }
       ],
@@ -125,7 +144,11 @@
             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
           }
         },
-        "required": ["mail_id", "mailbox_name", "alias"],
+        "required": [
+          "mail_id",
+          "mailbox_name",
+          "alias"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -156,7 +179,13 @@
             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
           }
         },
-        "required": ["ok", "action", "mailId", "mailboxId", "alias"],
+        "required": [
+          "ok",
+          "action",
+          "mailId",
+          "mailboxId",
+          "alias"
+        ],
         "additionalProperties": false
       }
     },
@@ -214,7 +243,13 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ]
           },
           "endpoint": {
             "type": "string"
@@ -234,11 +269,18 @@
               "type": "string"
             },
             "additionalProperties": {
-              "type": ["string", "number", "boolean"]
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
             }
           }
         },
-        "required": ["method", "endpoint"],
+        "required": [
+          "method",
+          "endpoint"
+        ],
         "additionalProperties": false,
         "$defs": {
           "__schema0": {
@@ -280,7 +322,13 @@
         "properties": {
           "method": {
             "type": "string",
-            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ]
           },
           "endpoint": {
             "type": "string"
@@ -294,7 +342,12 @@
             "$ref": "#/$defs/__schema0"
           }
         },
-        "required": ["method", "endpoint", "status", "data"],
+        "required": [
+          "method",
+          "endpoint",
+          "status",
+          "data"
+        ],
         "additionalProperties": false,
         "$defs": {
           "__schema0": {
@@ -383,7 +436,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["vps_id"],
+        "required": [
+          "vps_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -404,7 +459,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "vpsId"],
+        "required": [
+          "ok",
+          "action",
+          "vpsId"
+        ],
         "additionalProperties": false
       }
     },
@@ -519,13 +578,20 @@
           },
           "freebusy": {
             "type": "string",
-            "enum": ["busy", "free"]
+            "enum": [
+              "busy",
+              "free"
+            ]
           },
           "private": {
             "type": "boolean"
           }
         },
-        "required": ["title", "start", "end"],
+        "required": [
+          "title",
+          "start",
+          "end"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -589,7 +655,10 @@
               },
               "freebusy": {
                 "type": "string",
-                "enum": ["busy", "free"]
+                "enum": [
+                  "busy",
+                  "free"
+                ]
               },
               "private": {
                 "type": "boolean"
@@ -615,19 +684,37 @@
                     },
                     "state": {
                       "type": "string",
-                      "enum": ["NEEDS-ACTION", "ACCEPTED", "DECLINED", "TENTATIVE"]
+                      "enum": [
+                        "NEEDS-ACTION",
+                        "ACCEPTED",
+                        "DECLINED",
+                        "TENTATIVE"
+                      ]
                     }
                   },
-                  "required": ["email", "name", "organizer", "state"],
+                  "required": [
+                    "email",
+                    "name",
+                    "organizer",
+                    "state"
+                  ],
                   "additionalProperties": false
                 }
               }
             },
-            "required": ["id", "calendarId", "title", "start", "end"],
+            "required": [
+              "id",
+              "calendarId",
+              "title",
+              "start",
+              "end"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["event"],
+        "required": [
+          "event"
+        ],
         "additionalProperties": false
       }
     },
@@ -706,7 +793,9 @@
             ]
           }
         },
-        "required": ["event_id"],
+        "required": [
+          "event_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -731,7 +820,10 @@
             ]
           }
         },
-        "required": ["deleted", "eventId"],
+        "required": [
+          "deleted",
+          "eventId"
+        ],
         "additionalProperties": false
       }
     },
@@ -796,7 +888,9 @@
             ]
           }
         },
-        "required": ["event_id"],
+        "required": [
+          "event_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -860,7 +954,10 @@
               },
               "freebusy": {
                 "type": "string",
-                "enum": ["busy", "free"]
+                "enum": [
+                  "busy",
+                  "free"
+                ]
               },
               "private": {
                 "type": "boolean"
@@ -886,19 +983,37 @@
                     },
                     "state": {
                       "type": "string",
-                      "enum": ["NEEDS-ACTION", "ACCEPTED", "DECLINED", "TENTATIVE"]
+                      "enum": [
+                        "NEEDS-ACTION",
+                        "ACCEPTED",
+                        "DECLINED",
+                        "TENTATIVE"
+                      ]
                     }
                   },
-                  "required": ["email", "name", "organizer", "state"],
+                  "required": [
+                    "email",
+                    "name",
+                    "organizer",
+                    "state"
+                  ],
                   "additionalProperties": false
                 }
               }
             },
-            "required": ["id", "calendarId", "title", "start", "end"],
+            "required": [
+              "id",
+              "calendarId",
+              "title",
+              "start",
+              "end"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["event"],
+        "required": [
+          "event"
+        ],
         "additionalProperties": false
       }
     },
@@ -983,12 +1098,17 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "name"],
+              "required": [
+                "id",
+                "name"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["calendars"],
+        "required": [
+          "calendars"
+        ],
         "additionalProperties": false
       }
     },
@@ -1068,7 +1188,10 @@
             "maxLength": 64
           }
         },
-        "required": ["from", "to"],
+        "required": [
+          "from",
+          "to"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1134,7 +1257,10 @@
                 },
                 "freebusy": {
                   "type": "string",
-                  "enum": ["busy", "free"]
+                  "enum": [
+                    "busy",
+                    "free"
+                  ]
                 },
                 "private": {
                   "type": "boolean"
@@ -1160,20 +1286,38 @@
                       },
                       "state": {
                         "type": "string",
-                        "enum": ["NEEDS-ACTION", "ACCEPTED", "DECLINED", "TENTATIVE"]
+                        "enum": [
+                          "NEEDS-ACTION",
+                          "ACCEPTED",
+                          "DECLINED",
+                          "TENTATIVE"
+                        ]
                       }
                     },
-                    "required": ["email", "name", "organizer", "state"],
+                    "required": [
+                      "email",
+                      "name",
+                      "organizer",
+                      "state"
+                    ],
                     "additionalProperties": false
                   }
                 }
               },
-              "required": ["id", "calendarId", "title", "start", "end"],
+              "required": [
+                "id",
+                "calendarId",
+                "title",
+                "start",
+                "end"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["events"],
+        "required": [
+          "events"
+        ],
         "additionalProperties": false
       }
     },
@@ -1290,7 +1434,10 @@
           },
           "freebusy": {
             "type": "string",
-            "enum": ["busy", "free"]
+            "enum": [
+              "busy",
+              "free"
+            ]
           },
           "private": {
             "type": "boolean"
@@ -1313,7 +1460,9 @@
             "type": "boolean"
           }
         },
-        "required": ["event_id"],
+        "required": [
+          "event_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1377,7 +1526,10 @@
               },
               "freebusy": {
                 "type": "string",
-                "enum": ["busy", "free"]
+                "enum": [
+                  "busy",
+                  "free"
+                ]
               },
               "private": {
                 "type": "boolean"
@@ -1403,19 +1555,37 @@
                     },
                     "state": {
                       "type": "string",
-                      "enum": ["NEEDS-ACTION", "ACCEPTED", "DECLINED", "TENTATIVE"]
+                      "enum": [
+                        "NEEDS-ACTION",
+                        "ACCEPTED",
+                        "DECLINED",
+                        "TENTATIVE"
+                      ]
                     }
                   },
-                  "required": ["email", "name", "organizer", "state"],
+                  "required": [
+                    "email",
+                    "name",
+                    "organizer",
+                    "state"
+                  ],
                   "additionalProperties": false
                 }
               }
             },
-            "required": ["id", "calendarId", "title", "start", "end"],
+            "required": [
+              "id",
+              "calendarId",
+              "title",
+              "start",
+              "end"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["event"],
+        "required": [
+          "event"
+        ],
         "additionalProperties": false
       }
     },
@@ -1487,7 +1657,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id", "destination_directory_id"],
+        "required": [
+          "drive_id",
+          "file_id",
+          "destination_directory_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1507,7 +1681,10 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["dir", "file"]
+                "enum": [
+                  "dir",
+                  "file"
+                ]
               },
               "sizeBytes": {
                 "type": "integer",
@@ -1515,13 +1692,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -1547,11 +1724,17 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "name", "type"],
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["item"],
+        "required": [
+          "item"
+        ],
         "additionalProperties": false
       }
     },
@@ -1567,6 +1750,9 @@
         {
           "path": "test/fixtures/kdrive-transfer.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -1616,7 +1802,11 @@
             "type": "string"
           }
         },
-        "required": ["hosting_id", "command", "schedule"],
+        "required": [
+          "hosting_id",
+          "command",
+          "schedule"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1655,11 +1845,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["cronJob"],
+        "required": [
+          "cronJob"
+        ],
         "additionalProperties": false
       }
     },
@@ -1729,7 +1923,10 @@
             "type": "string"
           }
         },
-        "required": ["hosting_id", "name"],
+        "required": [
+          "hosting_id",
+          "name"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1754,11 +1951,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["database"],
+        "required": [
+          "database"
+        ],
         "additionalProperties": false
       }
     },
@@ -1821,7 +2022,16 @@
           },
           "type": {
             "type": "string",
-            "enum": ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SRV", "CAA"]
+            "enum": [
+              "A",
+              "AAAA",
+              "CNAME",
+              "MX",
+              "TXT",
+              "NS",
+              "SRV",
+              "CAA"
+            ]
           },
           "target": {
             "type": "string",
@@ -1838,7 +2048,12 @@
             "maximum": 65535
           }
         },
-        "required": ["domain", "source", "type", "target"],
+        "required": [
+          "domain",
+          "source",
+          "type",
+          "target"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1849,9 +2064,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               "source": {
                 "type": "string"
@@ -1869,11 +2082,19 @@
                 "type": "number"
               }
             },
-            "required": ["id", "source", "type", "target", "ttl"],
+            "required": [
+              "id",
+              "source",
+              "type",
+              "target",
+              "ttl"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["record"],
+        "required": [
+          "record"
+        ],
         "additionalProperties": false
       }
     },
@@ -1893,6 +2114,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -1948,7 +2172,11 @@
             "type": "boolean"
           }
         },
-        "required": ["mail_id", "from", "to"],
+        "required": [
+          "mail_id",
+          "from",
+          "to"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -1984,11 +2212,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["redirection"],
+        "required": [
+          "redirection"
+        ],
         "additionalProperties": false
       }
     },
@@ -2063,7 +2295,11 @@
             "type": "string"
           }
         },
-        "required": ["hosting_id", "login", "password"],
+        "required": [
+          "hosting_id",
+          "login",
+          "password"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2093,11 +2329,15 @@
                 "type": "boolean"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["ftpAccount"],
+        "required": [
+          "ftpAccount"
+        ],
         "additionalProperties": false
       }
     },
@@ -2181,7 +2421,12 @@
             "type": "boolean"
           }
         },
-        "required": ["drive_id", "name", "parent_id", "only_for_me"],
+        "required": [
+          "drive_id",
+          "name",
+          "parent_id",
+          "only_for_me"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2201,7 +2446,10 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["dir", "file"]
+                "enum": [
+                  "dir",
+                  "file"
+                ]
               },
               "sizeBytes": {
                 "type": "integer",
@@ -2209,13 +2457,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -2241,11 +2489,17 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "name", "type"],
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["item"],
+        "required": [
+          "item"
+        ],
         "additionalProperties": false
       }
     },
@@ -2261,6 +2515,9 @@
         {
           "path": "test/fixtures/kdrive-transfer.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -2313,7 +2570,11 @@
             "exclusiveMinimum": 0
           }
         },
-        "required": ["mail_id", "mailbox_name", "password"],
+        "required": [
+          "mail_id",
+          "mailbox_name",
+          "password"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2375,11 +2636,15 @@
                 "type": "number"
               }
             },
-            "required": ["mailboxName"],
+            "required": [
+              "mailboxName"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["mailbox"],
+        "required": [
+          "mailbox"
+        ],
         "additionalProperties": false
       }
     },
@@ -2451,7 +2716,10 @@
             "type": "string"
           }
         },
-        "required": ["hosting_id", "fqdn"],
+        "required": [
+          "hosting_id",
+          "fqdn"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2479,11 +2747,15 @@
                 "type": "boolean"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["site"],
+        "required": [
+          "site"
+        ],
         "additionalProperties": false
       }
     },
@@ -2547,7 +2819,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id", "cron_id"],
+        "required": [
+          "hosting_id",
+          "cron_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2573,7 +2848,12 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "hostingId", "cronId"],
+        "required": [
+          "ok",
+          "action",
+          "hostingId",
+          "cronId"
+        ],
         "additionalProperties": false
       }
     },
@@ -2641,7 +2921,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id", "database_id"],
+        "required": [
+          "hosting_id",
+          "database_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2667,7 +2950,12 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "hostingId", "databaseId"],
+        "required": [
+          "ok",
+          "action",
+          "hostingId",
+          "databaseId"
+        ],
         "additionalProperties": false
       }
     },
@@ -2721,12 +3009,14 @@
             "minLength": 1
           },
           "record_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1
           }
         },
-        "required": ["domain", "record_id"],
+        "required": [
+          "domain",
+          "record_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2745,12 +3035,15 @@
             "type": "string"
           },
           "recordId": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string"
           }
         },
-        "required": ["ok", "action", "domain", "recordId"],
+        "required": [
+          "ok",
+          "action",
+          "domain",
+          "recordId"
+        ],
         "additionalProperties": false
       }
     },
@@ -2766,6 +3059,9 @@
         {
           "path": "test/fixtures/core-domain.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -2809,7 +3105,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["mail_id", "redirection_id"],
+        "required": [
+          "mail_id",
+          "redirection_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2835,7 +3134,12 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "mailId", "redirectionId"],
+        "required": [
+          "ok",
+          "action",
+          "mailId",
+          "redirectionId"
+        ],
         "additionalProperties": false
       }
     },
@@ -2899,7 +3203,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id", "ftp_id"],
+        "required": [
+          "hosting_id",
+          "ftp_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -2925,7 +3232,12 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "hostingId", "ftpId"],
+        "required": [
+          "ok",
+          "action",
+          "hostingId",
+          "ftpId"
+        ],
         "additionalProperties": false
       }
     },
@@ -2999,7 +3311,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3013,14 +3328,22 @@
           },
           "operation": {
             "type": "string",
-            "enum": ["move", "rename", "trash"]
+            "enum": [
+              "move",
+              "rename",
+              "trash"
+            ]
           },
           "success": {
             "type": "boolean",
             "const": true
           }
         },
-        "required": ["fileId", "operation", "success"],
+        "required": [
+          "fileId",
+          "operation",
+          "success"
+        ],
         "additionalProperties": false
       }
     },
@@ -3079,7 +3402,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3092,7 +3418,12 @@
           },
           "action": {
             "type": "string",
-            "enum": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"]
+            "enum": [
+              "updateShareLink",
+              "deleteShareLink",
+              "addFavorite",
+              "removeFavorite"
+            ]
           },
           "fileId": {
             "type": "integer",
@@ -3100,7 +3431,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "fileId"],
+        "required": [
+          "ok",
+          "action",
+          "fileId"
+        ],
         "additionalProperties": false
       }
     },
@@ -3117,8 +3452,15 @@
           "proof": "baseline",
           "repository": "infomaniak_mcp",
           "revision": "1ab4761a60b94685ecaa8363ce390f1e1b9cb69a",
-          "paths": ["src/infomaniak-client.ts"],
-          "actions": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"],
+          "paths": [
+            "src/infomaniak-client.ts"
+          ],
+          "actions": [
+            "updateShareLink",
+            "deleteShareLink",
+            "addFavorite",
+            "removeFavorite"
+          ],
           "mapping": "Validate success envelope; ignore data; return ok, action and requested fileId."
         }
       ],
@@ -3165,7 +3507,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3184,14 +3529,22 @@
           },
           "operation": {
             "type": "string",
-            "enum": ["restore", "permanentDelete"]
+            "enum": [
+              "restore",
+              "permanentDelete"
+            ]
           },
           "success": {
             "type": "boolean",
             "const": true
           }
         },
-        "required": ["driveId", "fileId", "operation", "success"],
+        "required": [
+          "driveId",
+          "fileId",
+          "operation",
+          "success"
+        ],
         "additionalProperties": false
       }
     },
@@ -3250,7 +3603,10 @@
             "description": "partie avant @"
           }
         },
-        "required": ["mail_id", "mailbox_name"],
+        "required": [
+          "mail_id",
+          "mailbox_name"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3276,7 +3632,12 @@
             "description": "partie avant @"
           }
         },
-        "required": ["ok", "action", "mailId", "mailboxId"],
+        "required": [
+          "ok",
+          "action",
+          "mailId",
+          "mailboxId"
+        ],
         "additionalProperties": false
       }
     },
@@ -3345,7 +3706,11 @@
             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
           }
         },
-        "required": ["mail_id", "mailbox_name", "alias"],
+        "required": [
+          "mail_id",
+          "mailbox_name",
+          "alias"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3376,7 +3741,13 @@
             "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
           }
         },
-        "required": ["ok", "action", "mailId", "mailboxId", "alias"],
+        "required": [
+          "ok",
+          "action",
+          "mailId",
+          "mailboxId",
+          "alias"
+        ],
         "additionalProperties": false
       }
     },
@@ -3440,7 +3811,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id", "site_id"],
+        "required": [
+          "hosting_id",
+          "site_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3466,7 +3840,12 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "hostingId", "siteId"],
+        "required": [
+          "ok",
+          "action",
+          "hostingId",
+          "siteId"
+        ],
         "additionalProperties": false
       }
     },
@@ -3534,10 +3913,18 @@
           "encoding": {
             "default": "auto",
             "type": "string",
-            "enum": ["auto", "utf-8", "base64"]
+            "enum": [
+              "auto",
+              "utf-8",
+              "base64"
+            ]
           }
         },
-        "required": ["drive_id", "file_id", "encoding"],
+        "required": [
+          "drive_id",
+          "file_id",
+          "encoding"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3550,7 +3937,10 @@
             "maximum": 9007199254740991
           },
           "fileName": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "contentType": {
             "type": "string"
@@ -3562,13 +3952,23 @@
           },
           "encoding": {
             "type": "string",
-            "enum": ["utf-8", "base64"]
+            "enum": [
+              "utf-8",
+              "base64"
+            ]
           },
           "content": {
             "type": "string"
           }
         },
-        "required": ["fileId", "fileName", "contentType", "sizeBytes", "encoding", "content"],
+        "required": [
+          "fileId",
+          "fileName",
+          "contentType",
+          "sizeBytes",
+          "encoding",
+          "content"
+        ],
         "additionalProperties": false
       }
     },
@@ -3622,7 +4022,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id"],
+        "required": [
+          "drive_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3643,7 +4045,11 @@
             "const": true
           }
         },
-        "required": ["driveId", "operation", "success"],
+        "required": [
+          "driveId",
+          "operation",
+          "success"
+        ],
         "additionalProperties": false
       }
     },
@@ -3697,7 +4103,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3722,11 +4130,16 @@
                 "type": "string"
               }
             },
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["account"],
+        "required": [
+          "account"
+        ],
         "additionalProperties": false
       }
     },
@@ -3780,7 +4193,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["certificate_id"],
+        "required": [
+          "certificate_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3822,11 +4237,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["certificate"],
+        "required": [
+          "certificate"
+        ],
         "additionalProperties": false
       }
     },
@@ -3886,7 +4305,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id", "database_id"],
+        "required": [
+          "hosting_id",
+          "database_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -3911,11 +4333,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["database"],
+        "required": [
+          "database"
+        ],
         "additionalProperties": false
       }
     },
@@ -3970,7 +4396,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["server_id"],
+        "required": [
+          "server_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4006,11 +4434,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["server"],
+        "required": [
+          "server"
+        ],
         "additionalProperties": false
       }
     },
@@ -4068,7 +4500,10 @@
             "minLength": 1
           }
         },
-        "required": ["account_id", "domain"],
+        "required": [
+          "account_id",
+          "domain"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4099,11 +4534,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["domain"],
+        "required": [
+          "domain"
+        ],
         "additionalProperties": false
       }
     },
@@ -4164,7 +4603,9 @@
             "minLength": 1
           }
         },
-        "required": ["domain"],
+        "required": [
+          "domain"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4183,12 +4624,16 @@
                   "type": "string"
                 }
               },
-              "required": ["host"],
+              "required": [
+                "host"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["nameservers"],
+        "required": [
+          "nameservers"
+        ],
         "additionalProperties": false
       }
     },
@@ -4250,12 +4695,14 @@
             "maximum": 9007199254740991
           },
           "invoice_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1
           }
         },
-        "required": ["account_id", "invoice_id"],
+        "required": [
+          "account_id",
+          "invoice_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4266,9 +4713,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               "accountId": {
                 "type": "integer",
@@ -4300,11 +4745,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["invoice"],
+        "required": [
+          "invoice"
+        ],
         "additionalProperties": false
       }
     },
@@ -4326,6 +4775,9 @@
           "proof": "unproven",
           "url": "https://developer.infomaniak.com/docs/api",
           "description": "Recherche des routes cron et FTP du produit web, et de la fiche invoice ; aucune opération correspondante dans la navigation officielle."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "Route non confirmée ; voir knownLimits."
@@ -4367,7 +4819,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id"],
+        "required": [
+          "drive_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4401,11 +4855,19 @@
                 "maximum": 9007199254740991
               }
             },
-            "required": ["id", "name", "accountId", "usedBytes", "capacityBytes"],
+            "required": [
+              "id",
+              "name",
+              "accountId",
+              "usedBytes",
+              "capacityBytes"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["drive"],
+        "required": [
+          "drive"
+        ],
         "additionalProperties": false
       }
     },
@@ -4478,7 +4940,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "limit"],
+        "required": [
+          "drive_id",
+          "limit"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4514,7 +4979,10 @@
                     },
                     "type": {
                       "type": "string",
-                      "enum": ["dir", "file"]
+                      "enum": [
+                        "dir",
+                        "file"
+                      ]
                     },
                     "sizeBytes": {
                       "type": "integer",
@@ -4522,13 +4990,13 @@
                       "maximum": 9007199254740991
                     },
                     "createdAt": {
-                      "type": "number"
+                      "type": "string"
                     },
                     "modifiedAt": {
-                      "type": "number"
+                      "type": "string"
                     },
                     "addedAt": {
-                      "type": "number"
+                      "type": "string"
                     },
                     "parentId": {
                       "type": "integer",
@@ -4554,11 +5022,19 @@
                       "type": "boolean"
                     }
                   },
-                  "required": ["id", "name", "type"],
+                  "required": [
+                    "id",
+                    "name",
+                    "type"
+                  ],
                   "additionalProperties": false
                 }
               },
-              "required": ["id", "action", "createdAt"],
+              "required": [
+                "id",
+                "action",
+                "createdAt"
+              ],
               "additionalProperties": false
             }
           },
@@ -4570,7 +5046,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -4591,6 +5070,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -4634,7 +5116,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4654,7 +5139,10 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["dir", "file"]
+                "enum": [
+                  "dir",
+                  "file"
+                ]
               },
               "sizeBytes": {
                 "type": "integer",
@@ -4662,13 +5150,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -4694,11 +5182,17 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "name", "type"],
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["item"],
+        "required": [
+          "item"
+        ],
         "additionalProperties": false
       }
     },
@@ -4714,6 +5208,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -4757,7 +5254,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4773,7 +5273,11 @@
               },
               "right": {
                 "type": "string",
-                "enum": ["public", "password", "inherit"]
+                "enum": [
+                  "public",
+                  "password",
+                  "inherit"
+                ]
               },
               "fileId": {
                 "anyOf": [
@@ -4788,14 +5292,23 @@
                 ]
               },
               "validUntil": {
-                "type": ["number", "string", "null"]
+                "type": [
+                  "number",
+                  "string",
+                  "null"
+                ]
               }
             },
-            "required": ["url", "right"],
+            "required": [
+              "url",
+              "right"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["link"],
+        "required": [
+          "link"
+        ],
         "additionalProperties": false
       }
     },
@@ -4856,7 +5369,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["mail_id"],
+        "required": [
+          "mail_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -4886,11 +5401,15 @@
                 "type": "number"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["service"],
+        "required": [
+          "service"
+        ],
         "additionalProperties": false
       }
     },
@@ -4957,7 +5476,10 @@
             "description": "partie avant @"
           }
         },
-        "required": ["mail_id", "mailbox_name"],
+        "required": [
+          "mail_id",
+          "mailbox_name"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5019,11 +5541,15 @@
                 "type": "number"
               }
             },
-            "required": ["mailboxName"],
+            "required": [
+              "mailboxName"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["mailbox"],
+        "required": [
+          "mailbox"
+        ],
         "additionalProperties": false
       }
     },
@@ -5087,7 +5613,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["mail_id", "mailbox_id"],
+        "required": [
+          "mail_id",
+          "mailbox_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5116,7 +5645,9 @@
             "additionalProperties": false
           }
         },
-        "required": ["autoresponder"],
+        "required": [
+          "autoresponder"
+        ],
         "additionalProperties": false
       }
     },
@@ -5204,11 +5735,19 @@
                 "maximum": 9007199254740991
               }
             },
-            "required": ["id", "login", "email", "firstName", "lastName"],
+            "required": [
+              "id",
+              "login",
+              "email",
+              "firstName",
+              "lastName"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["profile"],
+        "required": [
+          "profile"
+        ],
         "additionalProperties": false
       }
     },
@@ -5267,7 +5806,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id", "site_id"],
+        "required": [
+          "hosting_id",
+          "site_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5295,11 +5837,15 @@
                 "type": "boolean"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["site"],
+        "required": [
+          "site"
+        ],
         "additionalProperties": false
       }
     },
@@ -5358,7 +5904,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["backup_id"],
+        "required": [
+          "backup_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5416,16 +5964,22 @@
                       "type": "string"
                     }
                   },
-                  "required": ["id"],
+                  "required": [
+                    "id"
+                  ],
                   "additionalProperties": false
                 }
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["backup"],
+        "required": [
+          "backup"
+        ],
         "additionalProperties": false
       }
     },
@@ -5486,7 +6040,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["vps_id"],
+        "required": [
+          "vps_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5531,11 +6087,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["server"],
+        "required": [
+          "server"
+        ],
         "additionalProperties": false
       }
     },
@@ -5593,7 +6153,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id"],
+        "required": [
+          "hosting_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5629,11 +6191,15 @@
                 "type": "number"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["hosting"],
+        "required": [
+          "hosting"
+        ],
         "additionalProperties": false
       }
     },
@@ -5703,7 +6269,11 @@
           },
           "right": {
             "type": "string",
-            "enum": ["read", "write", "manage"]
+            "enum": [
+              "read",
+              "write",
+              "manage"
+            ]
           },
           "message": {
             "type": "string"
@@ -5711,10 +6281,22 @@
           "lang": {
             "default": "en",
             "type": "string",
-            "enum": ["fr", "en", "de", "it", "es"]
+            "enum": [
+              "fr",
+              "en",
+              "de",
+              "it",
+              "es"
+            ]
           }
         },
-        "required": ["drive_id", "file_id", "emails", "right", "lang"],
+        "required": [
+          "drive_id",
+          "file_id",
+          "emails",
+          "right",
+          "lang"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5733,19 +6315,33 @@
                 },
                 "right": {
                   "type": "string",
-                  "enum": ["read", "write", "manage"]
+                  "enum": [
+                    "read",
+                    "write",
+                    "manage"
+                  ]
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["team", "user", "invitation"]
+                  "enum": [
+                    "team",
+                    "user",
+                    "invitation"
+                  ]
                 }
               },
-              "required": ["id", "right", "type"],
+              "required": [
+                "id",
+                "right",
+                "type"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["invitations"],
+        "required": [
+          "invitations"
+        ],
         "additionalProperties": false
       }
     },
@@ -5762,7 +6358,9 @@
           "proof": "baseline",
           "repository": "Infomaniak/mcp-server-kdrive",
           "revision": "5867b717c0eeeabb7b0ae65606822b763c1e72b4",
-          "paths": ["src/kdrive-client.ts"],
+          "paths": [
+            "src/kdrive-client.ts"
+          ],
           "note": "2026-09-05: shareAccess proves request only (Promise<any>). Response fallback: success envelope with data array of {id,right}; domain type is invitation. Minimal fields supported by Android Invitation.kt at the access provenance revision; response envelope/array remains baseline, not official."
         }
       ],
@@ -5815,7 +6413,9 @@
             "maxItems": 2
           }
         },
-        "required": ["user_ids"],
+        "required": [
+          "user_ids"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5848,11 +6448,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["channel"],
+        "required": [
+          "channel"
+        ],
         "additionalProperties": false
       }
     },
@@ -5922,7 +6526,10 @@
             "type": "string"
           }
         },
-        "required": ["channel_id", "message"],
+        "required": [
+          "channel_id",
+          "message"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -5954,11 +6561,18 @@
                 "type": "number"
               }
             },
-            "required": ["id", "channelId", "userId", "message"],
+            "required": [
+              "id",
+              "channelId",
+              "userId",
+              "message"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["post"],
+        "required": [
+          "post"
+        ],
         "additionalProperties": false
       }
     },
@@ -6021,7 +6635,9 @@
             "minLength": 1
           }
         },
-        "required": ["post_id"],
+        "required": [
+          "post_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -6041,7 +6657,11 @@
             "minLength": 1
           }
         },
-        "required": ["ok", "action", "postId"],
+        "required": [
+          "ok",
+          "action",
+          "postId"
+        ],
         "additionalProperties": false
       }
     },
@@ -6103,7 +6723,9 @@
             "minLength": 1
           }
         },
-        "required": ["channel_id"],
+        "required": [
+          "channel_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -6136,11 +6758,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["channel"],
+        "required": [
+          "channel"
+        ],
         "additionalProperties": false
       }
     },
@@ -6215,7 +6841,9 @@
             "maximum": 200
           }
         },
-        "required": ["channel_id"],
+        "required": [
+          "channel_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -6260,12 +6888,20 @@
                   "type": "number"
                 }
               },
-              "required": ["id", "channelId", "userId", "message"],
+              "required": [
+                "id",
+                "channelId",
+                "userId",
+                "message"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["order", "posts"],
+        "required": [
+          "order",
+          "posts"
+        ],
         "additionalProperties": false
       }
     },
@@ -6352,11 +6988,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["user"],
+        "required": [
+          "user"
+        ],
         "additionalProperties": false
       }
     },
@@ -6419,7 +7059,9 @@
             "minLength": 1
           }
         },
-        "required": ["team_id"],
+        "required": [
+          "team_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -6454,12 +7096,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["channels"],
+        "required": [
+          "channels"
+        ],
         "additionalProperties": false
       }
     },
@@ -6522,7 +7168,9 @@
             "minLength": 1
           }
         },
-        "required": ["team_id"],
+        "required": [
+          "team_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -6557,12 +7205,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["channels"],
+        "required": [
+          "channels"
+        ],
         "additionalProperties": false
       }
     },
@@ -6645,12 +7297,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["teams"],
+        "required": [
+          "teams"
+        ],
         "additionalProperties": false
       }
     },
@@ -6733,12 +7389,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["teams"],
+        "required": [
+          "teams"
+        ],
         "additionalProperties": false
       }
     },
@@ -6834,12 +7494,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["users"],
+        "required": [
+          "users"
+        ],
         "additionalProperties": false
       }
     },
@@ -6909,7 +7573,10 @@
             "type": "boolean"
           }
         },
-        "required": ["team_id", "terms"],
+        "required": [
+          "team_id",
+          "terms"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -6954,12 +7621,20 @@
                   "type": "number"
                 }
               },
-              "required": ["id", "channelId", "userId", "message"],
+              "required": [
+                "id",
+                "channelId",
+                "userId",
+                "message"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["order", "posts"],
+        "required": [
+          "order",
+          "posts"
+        ],
         "additionalProperties": false
       }
     },
@@ -7022,7 +7697,9 @@
             "minLength": 1
           }
         },
-        "required": ["term"],
+        "required": [
+          "term"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7054,12 +7731,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["users"],
+        "required": [
+          "users"
+        ],
         "additionalProperties": false
       }
     },
@@ -7157,12 +7838,17 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "name"],
+              "required": [
+                "id",
+                "name"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["accounts"],
+        "required": [
+          "accounts"
+        ],
         "additionalProperties": false
       }
     },
@@ -7217,7 +7903,9 @@
             "description": "identifiant du compte ; exigé par l'API"
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7261,12 +7949,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["certificates"],
+        "required": [
+          "certificates"
+        ],
         "additionalProperties": false
       }
     },
@@ -7325,7 +8017,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id"],
+        "required": [
+          "hosting_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7366,12 +8060,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["cronJobs"],
+        "required": [
+          "cronJobs"
+        ],
         "additionalProperties": false
       }
     },
@@ -7434,7 +8132,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id"],
+        "required": [
+          "hosting_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7461,12 +8161,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["databases"],
+        "required": [
+          "databases"
+        ],
         "additionalProperties": false
       }
     },
@@ -7528,7 +8232,9 @@
             "description": "identifiant du compte ; exigé par l'API"
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7566,12 +8272,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["servers"],
+        "required": [
+          "servers"
+        ],
         "additionalProperties": false
       }
     },
@@ -7628,7 +8338,9 @@
             "minLength": 1
           }
         },
-        "required": ["domain"],
+        "required": [
+          "domain"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7641,9 +8353,7 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991
+                  "type": "string"
                 },
                 "source": {
                   "type": "string"
@@ -7661,12 +8371,20 @@
                   "type": "number"
                 }
               },
-              "required": ["id", "source", "type", "target", "ttl"],
+              "required": [
+                "id",
+                "source",
+                "type",
+                "target",
+                "ttl"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["records"],
+        "required": [
+          "records"
+        ],
         "additionalProperties": false
       }
     },
@@ -7686,6 +8404,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -7724,7 +8445,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7757,12 +8480,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["domains"],
+        "required": [
+          "domains"
+        ],
         "additionalProperties": false
       }
     },
@@ -7816,7 +8543,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["mail_id"],
+        "required": [
+          "mail_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7854,12 +8583,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["redirections"],
+        "required": [
+          "redirections"
+        ],
         "additionalProperties": false
       }
     },
@@ -7921,7 +8654,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id"],
+        "required": [
+          "hosting_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -7953,12 +8688,16 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["ftpAccounts"],
+        "required": [
+          "ftpAccounts"
+        ],
         "additionalProperties": false
       }
     },
@@ -8021,7 +8760,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8034,9 +8775,7 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991
+                  "type": "string"
                 },
                 "accountId": {
                   "type": "integer",
@@ -8068,12 +8807,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["invoices"],
+        "required": [
+          "invoices"
+        ],
         "additionalProperties": false
       }
     },
@@ -8094,6 +8837,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/invoicing/{account_id}/invoice/list, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -8146,7 +8892,10 @@
             "maximum": 200
           }
         },
-        "required": ["drive_id", "limit"],
+        "required": [
+          "drive_id",
+          "limit"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8168,7 +8917,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["dir", "file"]
+                  "enum": [
+                    "dir",
+                    "file"
+                  ]
                 },
                 "sizeBytes": {
                   "type": "integer",
@@ -8176,13 +8928,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8208,7 +8960,11 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "name", "type"],
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
               "additionalProperties": false
             }
           },
@@ -8220,7 +8976,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -8241,6 +9000,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8284,7 +9046,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8303,19 +9068,33 @@
                 },
                 "right": {
                   "type": "string",
-                  "enum": ["read", "write", "manage"]
+                  "enum": [
+                    "read",
+                    "write",
+                    "manage"
+                  ]
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["team", "user", "invitation"]
+                  "enum": [
+                    "team",
+                    "user",
+                    "invitation"
+                  ]
                 }
               },
-              "required": ["id", "right", "type"],
+              "required": [
+                "id",
+                "right",
+                "type"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["access"],
+        "required": [
+          "access"
+        ],
         "additionalProperties": false
       }
     },
@@ -8404,18 +9183,34 @@
           },
           "type": {
             "type": "string",
-            "enum": ["file", "dir"]
+            "enum": [
+              "file",
+              "dir"
+            ]
           },
           "order_by": {
             "type": "string",
-            "enum": ["name", "size", "last_modified_at", "added_at", "type"]
+            "enum": [
+              "name",
+              "size",
+              "last_modified_at",
+              "added_at",
+              "type"
+            ]
           },
           "order": {
             "type": "string",
-            "enum": ["asc", "desc"]
+            "enum": [
+              "asc",
+              "desc"
+            ]
           }
         },
-        "required": ["drive_id", "limit", "directory_id"],
+        "required": [
+          "drive_id",
+          "limit",
+          "directory_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8437,7 +9232,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["dir", "file"]
+                  "enum": [
+                    "dir",
+                    "file"
+                  ]
                 },
                 "sizeBytes": {
                   "type": "integer",
@@ -8445,13 +9243,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8477,7 +9275,11 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "name", "type"],
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
               "additionalProperties": false
             }
           },
@@ -8489,7 +9291,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -8505,6 +9310,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8558,10 +9366,16 @@
           },
           "type": {
             "type": "string",
-            "enum": ["file", "dir"]
+            "enum": [
+              "file",
+              "dir"
+            ]
           }
         },
-        "required": ["drive_id", "limit"],
+        "required": [
+          "drive_id",
+          "limit"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8583,7 +9397,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["dir", "file"]
+                  "enum": [
+                    "dir",
+                    "file"
+                  ]
                 },
                 "sizeBytes": {
                   "type": "integer",
@@ -8591,13 +9408,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8623,7 +9440,11 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "name", "type"],
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
               "additionalProperties": false
             }
           },
@@ -8635,7 +9456,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -8656,6 +9480,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8709,10 +9536,16 @@
           },
           "type": {
             "type": "string",
-            "enum": ["file", "dir"]
+            "enum": [
+              "file",
+              "dir"
+            ]
           }
         },
-        "required": ["drive_id", "limit"],
+        "required": [
+          "drive_id",
+          "limit"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8734,7 +9567,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["dir", "file"]
+                  "enum": [
+                    "dir",
+                    "file"
+                  ]
                 },
                 "sizeBytes": {
                   "type": "integer",
@@ -8742,13 +9578,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8774,7 +9610,11 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "name", "type"],
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
               "additionalProperties": false
             }
           },
@@ -8786,7 +9626,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -8807,6 +9650,9 @@
             "src/infomaniak-client.ts",
             "src/adapters/outbound/infomaniak/kdrive-navigation.adapter.ts"
           ]
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8859,7 +9705,10 @@
             "maximum": 200
           }
         },
-        "required": ["drive_id", "limit"],
+        "required": [
+          "drive_id",
+          "limit"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -8881,7 +9730,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["dir", "file"]
+                  "enum": [
+                    "dir",
+                    "file"
+                  ]
                 },
                 "sizeBytes": {
                   "type": "integer",
@@ -8889,13 +9741,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -8921,7 +9773,11 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "name", "type"],
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
               "additionalProperties": false
             }
           },
@@ -8933,7 +9789,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -8949,6 +9808,9 @@
         {
           "path": "test/fixtures/kdrive-trash.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -8987,7 +9849,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9023,12 +9887,20 @@
                   "maximum": 9007199254740991
                 }
               },
-              "required": ["id", "name", "accountId", "usedBytes", "capacityBytes"],
+              "required": [
+                "id",
+                "name",
+                "accountId",
+                "usedBytes",
+                "capacityBytes"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["drives"],
+        "required": [
+          "drives"
+        ],
         "additionalProperties": false
       }
     },
@@ -9082,7 +9954,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9114,12 +9988,16 @@
                   "type": "number"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["services"],
+        "required": [
+          "services"
+        ],
         "additionalProperties": false
       }
     },
@@ -9182,7 +10060,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["mail_id", "mailbox_id"],
+        "required": [
+          "mail_id",
+          "mailbox_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9211,12 +10092,16 @@
                   "type": "number"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["folders"],
+        "required": [
+          "folders"
+        ],
         "additionalProperties": false
       }
     },
@@ -9278,7 +10163,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["mail_id"],
+        "required": [
+          "mail_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9342,12 +10229,16 @@
                   "type": "number"
                 }
               },
-              "required": ["mailboxName"],
+              "required": [
+                "mailboxName"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["mailboxes"],
+        "required": [
+          "mailboxes"
+        ],
         "additionalProperties": false
       }
     },
@@ -9405,7 +10296,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9439,12 +10332,20 @@
                   "type": "string"
                 }
               },
-              "required": ["id", "serviceId", "serviceName", "accountId", "customerName"],
+              "required": [
+                "id",
+                "serviceId",
+                "serviceName",
+                "accountId",
+                "customerName"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["products"],
+        "required": [
+          "products"
+        ],
         "additionalProperties": false
       }
     },
@@ -9498,7 +10399,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["hosting_id"],
+        "required": [
+          "hosting_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9528,12 +10431,16 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["sites"],
+        "required": [
+          "sites"
+        ],
         "additionalProperties": false
       }
     },
@@ -9592,7 +10499,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["backup_id"],
+        "required": [
+          "backup_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9634,12 +10543,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["slots"],
+        "required": [
+          "slots"
+        ],
         "additionalProperties": false
       }
     },
@@ -9701,7 +10614,9 @@
             "description": "identifiant du compte ; exigé par l'API"
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9761,17 +10676,23 @@
                         "type": "string"
                       }
                     },
-                    "required": ["id"],
+                    "required": [
+                      "id"
+                    ],
                     "additionalProperties": false
                   }
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["backups"],
+        "required": [
+          "backups"
+        ],
         "additionalProperties": false
       }
     },
@@ -9833,7 +10754,9 @@
             "description": "identifiant du compte ; exigé par l'API"
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9880,12 +10803,16 @@
                   "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["servers"],
+        "required": [
+          "servers"
+        ],
         "additionalProperties": false
       }
     },
@@ -9944,7 +10871,9 @@
             "description": "identifiant du compte ; exigé par l'API"
           }
         },
-        "required": ["account_id"],
+        "required": [
+          "account_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -9982,12 +10911,16 @@
                   "type": "number"
                 }
               },
-              "required": ["id"],
+              "required": [
+                "id"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["hostings"],
+        "required": [
+          "hostings"
+        ],
         "additionalProperties": false
       }
     },
@@ -10062,7 +10995,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id", "destination_directory_id"],
+        "required": [
+          "drive_id",
+          "file_id",
+          "destination_directory_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10076,14 +11013,22 @@
           },
           "operation": {
             "type": "string",
-            "enum": ["move", "rename", "trash"]
+            "enum": [
+              "move",
+              "rename",
+              "trash"
+            ]
           },
           "success": {
             "type": "boolean",
             "const": true
           }
         },
-        "required": ["fileId", "operation", "success"],
+        "required": [
+          "fileId",
+          "operation",
+          "success"
+        ],
         "additionalProperties": false
       }
     },
@@ -10141,7 +11086,9 @@
             "type": "string"
           }
         },
-        "required": ["message"],
+        "required": [
+          "message"
+        ],
         "additionalProperties": false
       }
     },
@@ -10195,7 +11142,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["server_id"],
+        "required": [
+          "server_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10216,7 +11165,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "serverId"],
+        "required": [
+          "ok",
+          "action",
+          "serverId"
+        ],
         "additionalProperties": false
       }
     },
@@ -10270,7 +11223,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["vps_id"],
+        "required": [
+          "vps_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10291,7 +11246,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "vpsId"],
+        "required": [
+          "ok",
+          "action",
+          "vpsId"
+        ],
         "additionalProperties": false
       }
     },
@@ -10350,7 +11309,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10363,7 +11325,12 @@
           },
           "action": {
             "type": "string",
-            "enum": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"]
+            "enum": [
+              "updateShareLink",
+              "deleteShareLink",
+              "addFavorite",
+              "removeFavorite"
+            ]
           },
           "fileId": {
             "type": "integer",
@@ -10371,7 +11338,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "fileId"],
+        "required": [
+          "ok",
+          "action",
+          "fileId"
+        ],
         "additionalProperties": false
       }
     },
@@ -10388,8 +11359,15 @@
           "proof": "baseline",
           "repository": "infomaniak_mcp",
           "revision": "1ab4761a60b94685ecaa8363ce390f1e1b9cb69a",
-          "paths": ["src/infomaniak-client.ts"],
-          "actions": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"],
+          "paths": [
+            "src/infomaniak-client.ts"
+          ],
+          "actions": [
+            "updateShareLink",
+            "deleteShareLink",
+            "addFavorite",
+            "removeFavorite"
+          ],
           "mapping": "Validate success envelope; ignore data; return ok, action and requested fileId."
         }
       ],
@@ -10445,7 +11423,11 @@
             "pattern": "^[^/\\\\\\x00]+$"
           }
         },
-        "required": ["drive_id", "file_id", "name"],
+        "required": [
+          "drive_id",
+          "file_id",
+          "name"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10459,14 +11441,22 @@
           },
           "operation": {
             "type": "string",
-            "enum": ["move", "rename", "trash"]
+            "enum": [
+              "move",
+              "rename",
+              "trash"
+            ]
           },
           "success": {
             "type": "boolean",
             "const": true
           }
         },
-        "required": ["fileId", "operation", "success"],
+        "required": [
+          "fileId",
+          "operation",
+          "success"
+        ],
         "additionalProperties": false
       }
     },
@@ -10524,7 +11514,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["domain", "duration"],
+        "required": [
+          "domain",
+          "duration"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10543,7 +11536,11 @@
             "type": "string"
           }
         },
-        "required": ["ok", "action", "domain"],
+        "required": [
+          "ok",
+          "action",
+          "domain"
+        ],
         "additionalProperties": false
       }
     },
@@ -10607,7 +11604,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10626,14 +11626,22 @@
           },
           "operation": {
             "type": "string",
-            "enum": ["restore", "permanentDelete"]
+            "enum": [
+              "restore",
+              "permanentDelete"
+            ]
           },
           "success": {
             "type": "boolean",
             "const": true
           }
         },
-        "required": ["driveId", "fileId", "operation", "success"],
+        "required": [
+          "driveId",
+          "fileId",
+          "operation",
+          "success"
+        ],
         "additionalProperties": false
       }
     },
@@ -10711,11 +11719,17 @@
           },
           "depth": {
             "type": "string",
-            "enum": ["child", "unlimited"]
+            "enum": [
+              "child",
+              "unlimited"
+            ]
           },
           "type": {
             "type": "string",
-            "enum": ["file", "dir"]
+            "enum": [
+              "file",
+              "dir"
+            ]
           },
           "modified_after": {
             "type": "string",
@@ -10726,7 +11740,11 @@
             "minLength": 1
           }
         },
-        "required": ["drive_id", "limit", "query"],
+        "required": [
+          "drive_id",
+          "limit",
+          "query"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10748,7 +11766,10 @@
                 },
                 "type": {
                   "type": "string",
-                  "enum": ["dir", "file"]
+                  "enum": [
+                    "dir",
+                    "file"
+                  ]
                 },
                 "sizeBytes": {
                   "type": "integer",
@@ -10756,13 +11777,13 @@
                   "maximum": 9007199254740991
                 },
                 "createdAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "modifiedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "addedAt": {
-                  "type": "number"
+                  "type": "string"
                 },
                 "parentId": {
                   "type": "integer",
@@ -10788,7 +11809,11 @@
                   "type": "boolean"
                 }
               },
-              "required": ["id", "name", "type"],
+              "required": [
+                "id",
+                "name",
+                "type"
+              ],
               "additionalProperties": false
             }
           },
@@ -10800,7 +11825,10 @@
             "minLength": 1
           }
         },
-        "required": ["items", "hasMore"],
+        "required": [
+          "items",
+          "hasMore"
+        ],
         "additionalProperties": false
       }
     },
@@ -10816,6 +11844,9 @@
         {
           "path": "test/fixtures/kdrive-navigation.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"
@@ -10860,7 +11891,11 @@
           },
           "right": {
             "type": "string",
-            "enum": ["public", "password", "inherit"]
+            "enum": [
+              "public",
+              "password",
+              "inherit"
+            ]
           },
           "password": {
             "type": "string",
@@ -10881,7 +11916,11 @@
             "type": "boolean"
           }
         },
-        "required": ["drive_id", "file_id", "right"],
+        "required": [
+          "drive_id",
+          "file_id",
+          "right"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -10897,7 +11936,11 @@
               },
               "right": {
                 "type": "string",
-                "enum": ["public", "password", "inherit"]
+                "enum": [
+                  "public",
+                  "password",
+                  "inherit"
+                ]
               },
               "fileId": {
                 "anyOf": [
@@ -10912,14 +11955,23 @@
                 ]
               },
               "validUntil": {
-                "type": ["number", "string", "null"]
+                "type": [
+                  "number",
+                  "string",
+                  "null"
+                ]
               }
             },
-            "required": ["url", "right"],
+            "required": [
+              "url",
+              "right"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["link"],
+        "required": [
+          "link"
+        ],
         "additionalProperties": false
       }
     },
@@ -10980,7 +12032,9 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["vps_id"],
+        "required": [
+          "vps_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11001,7 +12055,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "vpsId"],
+        "required": [
+          "ok",
+          "action",
+          "vpsId"
+        ],
         "additionalProperties": false
       }
     },
@@ -11069,7 +12127,10 @@
             "type": "string"
           }
         },
-        "required": ["hosting_id", "cron_id"],
+        "required": [
+          "hosting_id",
+          "cron_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11108,11 +12169,15 @@
                 "type": "string"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["cronJob"],
+        "required": [
+          "cronJob"
+        ],
         "additionalProperties": false
       }
     },
@@ -11179,16 +12244,24 @@
             "minLength": 1
           },
           "record_id": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "string",
+            "minLength": 1
           },
           "source": {
             "type": "string"
           },
           "type": {
             "type": "string",
-            "enum": ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SRV", "CAA"]
+            "enum": [
+              "A",
+              "AAAA",
+              "CNAME",
+              "MX",
+              "TXT",
+              "NS",
+              "SRV",
+              "CAA"
+            ]
           },
           "target": {
             "type": "string",
@@ -11205,7 +12278,10 @@
             "maximum": 65535
           }
         },
-        "required": ["domain", "record_id"],
+        "required": [
+          "domain",
+          "record_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11216,9 +12292,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
+                "type": "string"
               },
               "source": {
                 "type": "string"
@@ -11236,11 +12310,19 @@
                 "type": "number"
               }
             },
-            "required": ["id", "source", "type", "target", "ttl"],
+            "required": [
+              "id",
+              "source",
+              "type",
+              "target",
+              "ttl"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["record"],
+        "required": [
+          "record"
+        ],
         "additionalProperties": false
       }
     },
@@ -11260,6 +12342,9 @@
         {
           "proof": "baseline",
           "description": "relevé opérateur 2026-09-06, GET /1/domain/{domain}/dns/record, 200 ; noms de champs observés, valeurs synthétiques dans les fixtures."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "relevé opérateur 2026-09-06 ; aucun appel réel effectué par le builder."
@@ -11310,12 +12395,17 @@
                   "type": "string"
                 }
               },
-              "required": ["host"],
+              "required": [
+                "host"
+              ],
               "additionalProperties": false
             }
           }
         },
-        "required": ["domain", "nameservers"],
+        "required": [
+          "domain",
+          "nameservers"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11334,7 +12424,11 @@
             "type": "string"
           }
         },
-        "required": ["ok", "action", "domain"],
+        "required": [
+          "ok",
+          "action",
+          "domain"
+        ],
         "additionalProperties": false
       }
     },
@@ -11412,7 +12506,10 @@
             "type": "boolean"
           }
         },
-        "required": ["hosting_id", "ftp_id"],
+        "required": [
+          "hosting_id",
+          "ftp_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11442,11 +12539,15 @@
                 "type": "boolean"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["ftpAccount"],
+        "required": [
+          "ftpAccount"
+        ],
         "additionalProperties": false
       }
     },
@@ -11515,7 +12616,11 @@
           },
           "right": {
             "type": "string",
-            "enum": ["public", "password", "inherit"]
+            "enum": [
+              "public",
+              "password",
+              "inherit"
+            ]
           },
           "password": {
             "type": "string",
@@ -11536,7 +12641,10 @@
             "type": "boolean"
           }
         },
-        "required": ["drive_id", "file_id"],
+        "required": [
+          "drive_id",
+          "file_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11549,7 +12657,12 @@
           },
           "action": {
             "type": "string",
-            "enum": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"]
+            "enum": [
+              "updateShareLink",
+              "deleteShareLink",
+              "addFavorite",
+              "removeFavorite"
+            ]
           },
           "fileId": {
             "type": "integer",
@@ -11557,7 +12670,11 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["ok", "action", "fileId"],
+        "required": [
+          "ok",
+          "action",
+          "fileId"
+        ],
         "additionalProperties": false
       }
     },
@@ -11574,8 +12691,15 @@
           "proof": "baseline",
           "repository": "infomaniak_mcp",
           "revision": "1ab4761a60b94685ecaa8363ce390f1e1b9cb69a",
-          "paths": ["src/infomaniak-client.ts"],
-          "actions": ["updateShareLink", "deleteShareLink", "addFavorite", "removeFavorite"],
+          "paths": [
+            "src/infomaniak-client.ts"
+          ],
+          "actions": [
+            "updateShareLink",
+            "deleteShareLink",
+            "addFavorite",
+            "removeFavorite"
+          ],
           "mapping": "Validate success envelope; ignore data; return ok, action and requested fileId."
         }
       ],
@@ -11632,7 +12756,10 @@
             "exclusiveMinimum": 0
           }
         },
-        "required": ["mail_id", "mailbox_id"],
+        "required": [
+          "mail_id",
+          "mailbox_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11694,11 +12821,15 @@
                 "type": "number"
               }
             },
-            "required": ["mailboxName"],
+            "required": [
+              "mailboxName"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["mailbox"],
+        "required": [
+          "mailbox"
+        ],
         "additionalProperties": false
       }
     },
@@ -11780,7 +12911,11 @@
             "type": "string"
           }
         },
-        "required": ["mail_id", "mailbox_id", "enabled"],
+        "required": [
+          "mail_id",
+          "mailbox_id",
+          "enabled"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11809,7 +12944,9 @@
             "additionalProperties": false
           }
         },
-        "required": ["autoresponder"],
+        "required": [
+          "autoresponder"
+        ],
         "additionalProperties": false
       }
     },
@@ -11882,7 +13019,10 @@
             "type": "string"
           }
         },
-        "required": ["hosting_id", "site_id"],
+        "required": [
+          "hosting_id",
+          "site_id"
+        ],
         "additionalProperties": false
       },
       "output": {
@@ -11910,11 +13050,15 @@
                 "type": "boolean"
               }
             },
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["site"],
+        "required": [
+          "site"
+        ],
         "additionalProperties": false
       }
     },
@@ -12000,7 +13144,11 @@
           },
           "conflict": {
             "type": "string",
-            "enum": ["error", "rename", "version"]
+            "enum": [
+              "error",
+              "rename",
+              "version"
+            ]
           },
           "directory_path": {
             "type": "string"
@@ -12011,7 +13159,10 @@
             "maximum": 9007199254740991
           }
         },
-        "required": ["drive_id", "file_name"],
+        "required": [
+          "drive_id",
+          "file_name"
+        ],
         "additionalProperties": {}
       },
       "output": {
@@ -12031,7 +13182,10 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["dir", "file"]
+                "enum": [
+                  "dir",
+                  "file"
+                ]
               },
               "sizeBytes": {
                 "type": "integer",
@@ -12039,13 +13193,13 @@
                 "maximum": 9007199254740991
               },
               "createdAt": {
-                "type": "number"
+                "type": "string"
               },
               "modifiedAt": {
-                "type": "number"
+                "type": "string"
               },
               "addedAt": {
-                "type": "number"
+                "type": "string"
               },
               "parentId": {
                 "type": "integer",
@@ -12071,11 +13225,17 @@
                 "type": "boolean"
               }
             },
-            "required": ["id", "name", "type"],
+            "required": [
+              "id",
+              "name",
+              "type"
+            ],
             "additionalProperties": false
           }
         },
-        "required": ["item"],
+        "required": [
+          "item"
+        ],
         "additionalProperties": false
       }
     },
@@ -12091,6 +13251,9 @@
         {
           "path": "test/fixtures/kdrive-transfer.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "source": "relevé de types opérateur 2026-09-06"
         }
       ],
       "provider": "non prouvé côté fournisseur"

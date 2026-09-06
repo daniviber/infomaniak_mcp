@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { DrivePort } from '../../../application/drive/list-drives.js';
 import type { InfomaniakGateway } from './gateway.js';
 
+// Relevé /2/drive: used_size:int (provider key).
 const drivesDto = z.looseObject({
   result: z.string(),
   data: z.array(
