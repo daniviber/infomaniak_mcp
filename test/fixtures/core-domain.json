@@ -1,7 +1,10 @@
 {
   "proof": "baseline",
   "provenance": "src/infomaniak-client.ts: Account, Profile, Product, DomainNameserver, DnsRecord and core/domain methods; src/infomaniak-client.test.ts: profile, accounts and DNS doubles. Synthetic values. Operator addendum 6: optional ancillary fields; three acknowledgements from inputs, supplier JSON ignored.",
-  "ping": { "message": "pong", "extra": "PRIVATE" },
+  "ping": {
+    "message": "pong",
+    "extra": "PRIVATE"
+  },
   "profile": {
     "id": 1,
     "login": "user",
@@ -10,7 +13,11 @@
     "last_name": "Last",
     "extra": "PRIVATE"
   },
-  "account": { "id": 7, "name": "Account", "extra": "PRIVATE" },
+  "account": {
+    "id": 7,
+    "name": "Account",
+    "extra": "PRIVATE"
+  },
   "product": {
     "id": 8,
     "service_id": 9,
@@ -19,7 +26,11 @@
     "customer_name": "example.test",
     "extra": "PRIVATE"
   },
-  "nameserver": { "host": "ns.example.test", "ip": "192.0.2.1", "extra": "PRIVATE" },
+  "nameserver": {
+    "host": "ns.example.test",
+    "ip": "192.0.2.1",
+    "extra": "PRIVATE"
+  },
   "record": {
     "id": 12,
     "source": "@",
@@ -28,5 +39,50 @@
     "ttl": 3600,
     "priority": 0,
     "extra": "PRIVATE"
+  },
+  "endpoints": [
+    {
+      "name": "infomaniak_get_domain_nameservers",
+      "method": "GET",
+      "path": "/1/domain/{domain}/nameserver",
+      "proof": "unproven",
+      "evidence": {
+        "sources": [
+          {
+            "proof": "unproven",
+            "url": "https://developer.infomaniak.com/docs/api",
+            "description": "Recherche GET nameservers : aucune opération correspondante trouvée."
+          }
+        ]
+      }
+    },
+    {
+      "name": "infomaniak_update_domain_nameservers",
+      "method": "PUT",
+      "path": "/2/domains/domains/{domain}/nameservers",
+      "proof": "official",
+      "evidence": {
+        "sources": [
+          {
+            "proof": "official",
+            "url": "https://developer.infomaniak.com/docs/api/put/2/domains/domains/{domain}/nameservers",
+            "description": "Nameservers transmis comme tableau de host ; ip non envoyé. Le fournisseur documente au moins deux serveurs."
+          }
+        ]
+      }
+    }
+  ],
+  "observedRecord": {
+    "id": 12,
+    "source": "@",
+    "source_idn": "@",
+    "type": "A",
+    "ttl": 3600,
+    "ttl_idn": 3600,
+    "target_idn": "192.0.2.1",
+    "updated_at": 123,
+    "dyndns_id": null,
+    "delegated_zone_id": null,
+    "target": "192.0.2.1"
   }
 }

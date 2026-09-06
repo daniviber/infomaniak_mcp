@@ -112,7 +112,11 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
   }
   async updateNameservers(domain: string, nameservers: Nameserver[]) {
     await this.gateway.request(
-      { method: 'PUT', pathSegments: domainPath(domain, 'nameserver'), body: { nameservers } },
+      {
+        method: 'PUT',
+        pathSegments: ['2', 'domains', 'domains', domain, 'nameservers'],
+        body: { nameservers: nameservers.map((server) => server.host) },
+      },
       z.unknown(),
     );
     return { ok: true as const, action: 'update_nameservers' as const, domain };

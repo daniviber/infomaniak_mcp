@@ -47,8 +47,10 @@ conserve le même jeu de noms. Les deux fichiers sont des tableaux JSON de premi
 niveau, jamais des objets enveloppes. Le script d’acceptation contrôle séparément
 la composition des **9 modules**, les handlers, les schémas et la visibilité.
 
-Le catalogue par défaut contient **72 outils** : comptes/profil, DNS, kDrive,
-Calendar, hébergement web, bases, cron, FTP, Swiss Backup, certificats et factures.
+Le catalogue par défaut contient **62 outils** : comptes/profil, DNS, kDrive,
+Calendar, hébergement web, bases, Swiss Backup, certificats, liste des factures et
+mise à jour des serveurs de noms. Cron, FTP, fiche de facture et lecture des
+serveurs de noms sont désormais expérimentaux faute de route établie.
 Les outils expérimentaux couvrent notamment mail administratif, domaines par compte,
 VPS, serveurs dédiés et API brute. kChat nécessite `KCHAT_HOST` **et** `KCHAT_TOKEN`.
 Avec les deux indicateurs et kChat configuré, le catalogue contient **111 outils**.
@@ -126,10 +128,18 @@ succès sur compte fournisseur. Les preuves et leurs sources figurent par outil.
 - Les unions fermées `accessRightSchema` et les droits de lien de partage provoquent
   un **rejet DTO explicite** si le fournisseur renvoie une valeur inconnue, pas une
   dégradation. Leur ouverture éventuelle relève d’un cadrage distinct.
-- Les trois outils Swiss Backup utilisent la route baseline `/1/swiss_backup`
-  (singulier, sans pagination), avec `/slot`. La spécification OpenAPI officielle
-  publie `/1/swiss_backups` et `/slots` au pluriel avec pagination. Non vérifiable
-  sans accès fournisseur (C3) ; **aucune correction de route sans sandbox**.
+- FIX-12A — **routes confirmées en réel le 2026-09-06** par le relevé opérateur :
+  `/1/swiss_backups`, `/1/swiss_backups/{backup_id}`, `/slots`,
+  `/1/mail_hostings` et `/1/mail_hostings/{mail_id}/mailboxes`.
+  Le builder n'a effectué aucun appel fournisseur. Les listes web, certificats,
+  Swiss Backup, VPS et serveurs dédiés exigent et transmettent `account_id`.
+  Les boîtes sont identifiées par `mailbox_name`, sans `id` obligatoire.
+- Les routes mail compatibles (fiche/suppression de boîte, ajout/suppression
+  d'alias, suppression de redirection) et le PUT
+  `/2/domains/domains/{domain}/nameservers` portent une citation officielle exacte
+  dans l'inventaire. Les autres routes douteuses restent inchangées, expérimentales
+  et `unproven` ; leurs incompatibilités sont détaillées dans `knownLimits`.
+  Le PUT nameservers transmet les noms de serveurs ; l'API en exige au moins deux.
 - `infomaniak_kchat_search_users` diverge de GET vers POST. La source d’invalidité
   baseline est `mattermost/mattermost`, `api/v4/source/users.yaml`, chemin
   `/api/v4/users/search`, `post` uniquement. La forme corrigée vient de

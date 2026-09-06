@@ -95,7 +95,7 @@ try {
     assert.deepEqual(names(entries), names(baseline), 'Baseline orphan or unexpected tool');
   }
   assert.equal(files.length, 9);
-  assert.equal(normal.module.tools.length, 72);
+  assert.equal(normal.module.tools.length, 62);
   const visibility = [];
   for (const raw of [false, true])
     for (const experimental of [false, true])

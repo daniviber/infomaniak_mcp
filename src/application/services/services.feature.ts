@@ -30,6 +30,9 @@ export interface ServicesEndpoint {
 }
 const id = z.number().int().positive();
 const accountInput = z.object({ account_id: id });
+const productAccountInput = z.object({
+  account_id: id.describe("identifiant du compte ; exigé par l'API"),
+});
 const hostingInput = z.object({ hosting_id: id });
 const siteInput = hostingInput.extend({ site_id: id });
 const databaseInput = hostingInput.extend({ database_id: id });
@@ -82,12 +85,14 @@ function define<S extends z.ZodObject>(
   handle: (port: ServicesPort, input: z.infer<S>) => Promise<Record<string, unknown>>,
   limits: ToolContract['limits'] = {},
 ) {
+  const experimental =
+    /_(?:cron_job|ftp_account)s?$/.test(name) || name === 'infomaniak_get_invoice';
   const endpoint: ServicesEndpoint = {
     name,
     method,
     path,
-    proof: 'baseline',
-    enabled: true,
+    proof: experimental ? 'unproven' : 'baseline',
+    enabled: !experimental,
     pagination: 'none',
     limits,
   };
@@ -99,7 +104,7 @@ function define<S extends z.ZodObject>(
     classification: method === 'GET' ? 'read' : method === 'DELETE' ? 'destructive' : 'write',
     rawApi: false,
     idempotent: method === 'GET',
-    experimental: false,
+    experimental,
     limits,
     text: (output) => JSON.stringify(output, null, 2),
   };
@@ -118,7 +123,7 @@ const definitions = [
     'infomaniak_list_web_hostings',
     'GET',
     '/1/web',
-    accountInput,
+    productAccountInput,
     z.object({ hostings: z.array(hostingSchema) }),
     (p, v) => p.hosting.list(v.account_id),
   ),
@@ -297,15 +302,15 @@ const definitions = [
   define(
     'infomaniak_list_swiss_backups',
     'GET',
-    '/1/swiss_backup',
-    accountInput,
+    '/1/swiss_backups',
+    productAccountInput,
     z.object({ backups: z.array(backupSchema) }),
     (p, v) => p.backup.list(v.account_id),
   ),
   define(
     'infomaniak_get_swiss_backup',
     'GET',
-    '/1/swiss_backup/{backup_id}',
+    '/1/swiss_backups/{backup_id}',
     backupInput,
     z.object({ backup: backupSchema }),
     (p, v) => p.backup.get(v.backup_id),
@@ -313,7 +318,7 @@ const definitions = [
   define(
     'infomaniak_list_swiss_backup_slots',
     'GET',
-    '/1/swiss_backup/{backup_id}/slot',
+    '/1/swiss_backups/{backup_id}/slots',
     backupInput,
     z.object({ slots: z.array(backupSlotSchema) }),
     (p, v) => p.backup.listSlots(v.backup_id),
@@ -322,7 +327,7 @@ const definitions = [
     'infomaniak_list_certificates',
     'GET',
     '/1/certificate',
-    accountInput,
+    productAccountInput,
     z.object({ certificates: z.array(certificateSchema) }),
     (p, v) => p.certificate.list(v.account_id),
   ),
