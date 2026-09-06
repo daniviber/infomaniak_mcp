@@ -1,12 +1,13 @@
 import {
   createTransferFeature,
+  createTransferDeclarations,
   type TransferOptions,
 } from '../application/drive/transfer.feature.js';
 import { KDriveTransferAdapter } from '../adapters/outbound/infomaniak/kdrive-transfer.adapter.js';
 import type { InfomaniakGateway } from '../adapters/outbound/infomaniak/gateway.js';
 import type { InvocationContext } from '../domain/tool-contract.js';
 
-export { tools } from '../application/drive/transfer.feature.js';
+export const tools = createTransferDeclarations();
 
 export function createHandlers(deps: {
   gateway: InfomaniakGateway;

@@ -6,6 +6,7 @@ import {
   type GatewayClock,
 } from '../adapters/outbound/infomaniak/gateway.js';
 import { loadRuntimeConfig } from '../config/runtime-config.js';
+import { createBoundedFetch } from '../adapters/outbound/infomaniak/bounded-fetch.js';
 import { discoverFeatureModules } from './discover-feature-modules.js';
 
 export async function bootstrap(
@@ -25,13 +26,14 @@ export async function bootstrap(
       new Promise<void>((resolve) => setTimeout(resolve, milliseconds)),
   };
   const bucket = new TokenBucket(clock);
+  const boundedFetch = createBoundedFetch(options.fetch ?? fetch);
   const createGateway = ({ token, base }: { token: string; base?: string }) =>
     new InfomaniakGateway({
       token,
       base,
       timeoutMs: config.timeoutMs,
       bucket,
-      fetch: options.fetch ?? fetch,
+      fetch: boundedFetch,
       clock,
       random: options.random ?? Math.random,
       utcNow: options.utcNow ?? Date.now,

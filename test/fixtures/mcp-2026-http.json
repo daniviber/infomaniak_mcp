@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+    "io.modelcontextprotocol/clientCapabilities": {}
+  },
+  "providerAccounts": { "result": "success", "data": [] },
+  "accounts": { "accounts": [] },
+  "serverInfo": { "name": "infomaniak-mcp-server", "version": "1.1.0" }
+}

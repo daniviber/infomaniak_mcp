@@ -146,7 +146,7 @@ function response(dto: unknown) {
 describe('kDrive transfer contracts', () => {
   it('exports exactly seven classified tools and shared limits without redefining pagination', () => {
     expect(tools.map((tool) => tool.name)).toEqual(cases.map((c) => c.name));
-    expect(feature.tools).toBe(tools);
+    expect(feature.tools.map((tool) => tool.name)).toEqual(tools.map((tool) => tool.name));
     expect(tools.map((tool) => tool.classification)).toEqual([
       'read',
       'write',
@@ -365,6 +365,46 @@ describe('upload admission before decoding and port', () => {
     );
     expect(fetcher).not.toHaveBeenCalled();
   });
+
+  it.each(['reduced', 'increased'] as const)(
+    'uses captured %s limits through registry validation',
+    async (kind) => {
+      const { gateway, fetcher, clock } = setup();
+      const effective = kind === 'reduced' ? 256 : BODY_LIMIT;
+      const env = {
+        INFOMANIAK_API_TOKEN: 'SECRET',
+        MCP_HTTP_BODY_LIMIT: String(effective + ENVELOPE_RESERVE),
+        KDRIVE_MAX_UPLOAD_BYTES: String(effective),
+        KDRIVE_MAX_DOWNLOAD_BYTES: '3',
+      };
+      const config = loadRuntimeConfig(env);
+      env.KDRIVE_MAX_UPLOAD_BYTES = '1';
+      const module = composeFeatureModules([feature], {
+        gateway,
+        config,
+        clock,
+        createGateway: () => gateway,
+      });
+      const args = { drive_id: 9, file_name: 'x', base64_content: '', metadata: '' };
+      const overhead = Buffer.byteLength(JSON.stringify(args));
+      const encoded = Math.floor((effective - overhead) / 4) * 4;
+      args.base64_content = 'AAAA'.repeat(encoded / 4);
+      args.metadata = 'x'.repeat(effective - Buffer.byteLength(JSON.stringify(args)));
+      fetcher.mockResolvedValue(Response.json(fixture.item));
+      await module.invoke(cases[1].name, args, policy);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      fetcher.mockClear();
+      args.metadata += 'é';
+      await expect(module.invoke(cases[1].name, args, policy)).rejects.toThrow(
+        'Upload arguments limit exceeded',
+      );
+      expect(fetcher).not.toHaveBeenCalled();
+      fetcher.mockResolvedValue(new Response(new Uint8Array(4)));
+      await expect(module.invoke(cases[0].name, input, policy)).rejects.toThrow(
+        'Download limit exceeded',
+      );
+    },
+  );
 
   it.each([
     { downloadLimit: -1 },

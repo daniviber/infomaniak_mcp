@@ -170,6 +170,16 @@ function definitions(options: TransferOptions = {}) {
 
 export const tools: readonly ToolContract[] = definitions().contracts;
 
+// The shared registry is static; admission belongs to the per-runtime handlers.
+// Keeping the default size refinement here would silently cap configured increases.
+export function createTransferDeclarations(): readonly ToolContract[] {
+  return tools.map((tool) =>
+    tool.name === 'infomaniak_upload_kdrive_file'
+      ? { ...tool, inputSchema: z.looseObject(tool.inputSchema.shape) }
+      : tool,
+  );
+}
+
 export function createTransferBindings(
   port: DriveTransferPort,
   options: TransferOptions = {},
