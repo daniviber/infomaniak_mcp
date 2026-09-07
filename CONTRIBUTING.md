@@ -1,22 +1,37 @@
-# Contribution
+# Contributing to Infomaniak MCP Server
 
-Chaque lot possède un contrat, une branche `feat/NN` ou `fix/NN` issue de
-`integration` et son propre worktree. Outcome, Touches, Constraints et Verification
-fixent la contribution ; toute question non tranchée se remonte avant modification.
-Ne pas modifier les points d’entrée, dépendances ou fichiers voisins hors contrat.
-Committer sur la branche du lot, sans force-push, et arrêter dès la condition de fin
-satisfaite. Trois échecs consécutifs du même test imposent un arrêt et un rapport.
+Thanks for contributing. This guide covers the development setup, the verification sequence every
+change must pass, and the conventions the code base relies on. Architecture notes are in
+`CLAUDE.md`; user documentation is in `README.md`.
 
-## Environnement
+## Reporting bugs and suggesting features
 
-Référence : Node 20.19.2, npm 9.2.0, Git et shell POSIX. Conserver le lockfile v3.
-`npm ci` installe uniquement les dépendances déjà verrouillées. Un runtime absent du
-PATH, un besoin root ou de gestionnaire de paquets système se rapporte à l’opérateur :
-aucune installation système, binaire vendored ou shim de substitution.
+Open an issue with the tool name, the MCP client and protocol revision, the entry point used and
+the redacted error text. The gateway never logs provider payloads: an error such as
+`Invalid Infomaniak response: data.0.created_at: invalid_type` gives the field path and the
+validation code, which is enough to fix a DTO. Never paste tokens, account identifiers or
+personal data.
 
-## Vérification composée
+## Development setup
 
-Depuis le worktree du lot, exécuter dans cet ordre :
+Reference toolchain: Node **20.19.2**, npm **9.2.0**, Git and a POSIX shell. `engines.node` is
+`>=20`.
+
+```sh
+git clone <your fork>
+cd infomaniak_mcp
+npm ci            # locked dependencies only (lockfile v3)
+npm run build
+npm test
+```
+
+Keep `package-lock.json` authoritative. Do not vendor binaries or add system dependencies.
+`npm run inspector` runs the MCP Inspector against the stdio build; it needs a real token and is
+not part of the verification below.
+
+## Verification sequence
+
+Run these commands in order before opening a pull request; every one of them must exit 0.
 
 ```sh
 npm ci
@@ -24,48 +39,51 @@ npm run lint
 npm run format:check
 npm run typecheck
 npm test
-npm exec -- vitest run test/acceptance/mvp-demo.test.ts
-node scripts/verify-mvp.mjs
 npm run build
+npm run verify:mvp
 npm audit --audit-level=high
 ```
 
-Tous les codes doivent être 0, lint/format sans écart, suite complète et scénario
-Vitest verts, `MVP OFFLINE PASS` et `orphan tools: 0`, build vert et zéro vulnérabilité
-haute/critique. `npm run verify:mvp` est le raccourci autonome du script ; il construit
-ses imports même si aucun build n’existe. Il ne remplace pas lint, format, la suite
-complète ou l’audit de cette procédure.
+`npm test` must be fully green with no skipped test. `npm run verify:mvp` is self-contained: it
+builds, checks the inventory against the code (names, handlers, endpoints, proof levels, JSON
+schemas) and replays the offline scenario on stdio and HTTP for both protocol revisions; it must
+print `MVP OFFLINE PASS` and `orphan tools: 0`. `format:check` covers the paths listed in
+`.prettierignore`; format new scripts explicitly if they fall outside it.
 
-Le périmètre de `format:check` est celui de `.prettierignore`. Formater explicitement
-les nouveaux scripts et documents du lot s’ils en sont exclus. `typecheck` suit le
-tsconfig existant ; Vitest exécute les tests hors de son périmètre.
+Tests never reach the Infomaniak API: use sentinel tokens, fetch doubles and loopback listeners
+only. Do not add literal waits; inject clocks or use fake timers.
 
-C3 impose des tokens sentinelles et des doubles, sans aucun socket fournisseur.
-L’écoute loopback des tests HTTP est admise, le registry sert uniquement à
-l’installation et à l’audit. Aucune attente réelle à délai littéral dans les tests :
-employer horloges injectées, fake timers ou synchronisation par événements.
-L’Inspector et les comptes fournisseur ne font pas partie de cette acceptation.
+## Coding guidelines
 
-## Contrats et preuves
+- TypeScript strict, ESM, Zod 4. Respect the layers `domain → application → adapters → main`;
+  `test/architecture/dependencies.test.ts` fails otherwise.
+- Provider DTOs are typed from **observed** payloads: Unix-second dates, string ids where the API
+  uses strings, nullable fields where it returns `null`. Convert in the adapter, keep the domain
+  in strings and numbers, do not use `.strict()` and do not widen types speculatively.
+- Declare everything on the tool contract: classification, idempotence, `experimental` and
+  `rawApi` flags, input and output schemas, limits. Never derive behaviour from a tool name.
+- Keep the fixed refusal and success formats described in `CLAUDE.md`, and keep error messages
+  free of payload values.
+- Feature tests compare sets and measurements between themselves; the global totals belong to
+  `scripts/verify-mvp.mjs` only.
+- Keep `product/inventory/tools.json` and `test/fixtures/baseline-tools.json` as top-level JSON
+  arrays with a `name` per entry; enrich entries, never wrap the array.
 
-Les définitions sous `src/features/` exportent leurs outils et leurs handlers ; la
-composition rejette doublons et handlers manquants. Les schémas d’entrée/sortie, la
-classe, l’idempotence et les limites sont déclarés explicitement. Respecter les
-frontières domaine → application → adaptateurs → composition, et le test
-architectural existant.
+## Adding a tool
 
-Conserver `product/inventory/tools.json` et `test/fixtures/baseline-tools.json` en
-tableaux de premier niveau, avec `name` dans chaque entrée. Enrichir l’entrée de
-l’inventaire, jamais son enveloppe. Les noms doivent correspondre aux déclarations
-et au registre complet, indépendamment des indicateurs de visibilité.
+1. Domain schema.
+2. Port, use case and `ToolContract` in the family feature file.
+3. Adapter DTO, projection and route.
+4. Fixture with realistic types and fictitious values, plus a feature test.
+5. Inventory entry with `endpoint`, `proof` (`official` with a citation, `baseline`, or `unproven`
+   together with `experimental: true`), limits and regenerated JSON schemas.
+6. The verification sequence above.
 
-Les tests d’un lot comparent des ensembles ou des mesures entre elles ; ils ne
-figent pas les totaux globaux du dépôt, même via un ternaire. Les totaux absolus
-appartiennent à la vérification composée et au script FEAT-12. Les preuves
-`official`/`baseline`/`unproven` restent distinctes de la preuve fournisseur : les
-cycles sur doubles sont « non prouvés côté fournisseur ».
+A tool whose route is not established by an official Infomaniak source stays experimental.
 
-Le rapport de livraison fournit SHA des commits et parents, `git status --porcelain`
-avant/après, neuf commandes et codes de sortie, mesures d’invariants et limites de
-preuve. Il doit être confirmé indépendamment par reviewer et verif sur le SHA livré.
-Aucune publication, release ou déploiement n’est implicite.
+## Commit messages and pull requests
+
+Use conventional commits (`feat(kdrive): …`, `fix(services): …`, `test: …`, `docs: …`). Keep one
+concern per pull request and summarise the verification output in the description (test count,
+`verify:mvp` result). Never include tokens, account identifiers, personal data or local paths in
+code, fixtures, documentation or commit messages.
