@@ -677,7 +677,14 @@ describe('FEAT-15 task list', () => {
     );
     expect(output).toStrictEqual({ tasks: [expectedTask] });
     expect(output.tasks[0]).not.toBe(fixture.tasks.data[0]);
-    for (const key of ['due_date', 'raw', 'created_at', 'updated_at', 'calendar_id', 'has_attachments'])
+    for (const key of [
+      'due_date',
+      'raw',
+      'created_at',
+      'updated_at',
+      'calendar_id',
+      'has_attachments',
+    ])
       expect(output.tasks[0]).not.toHaveProperty(key);
   });
 
@@ -692,16 +699,26 @@ describe('FEAT-15 task list', () => {
 
   it('rejects missing, null and wrongly typed consumed T1 fields without leaking values', async () => {
     const wrong: Record<string, unknown> = {
-      id: 'synthetic-sensitive-id', calendar_id: 'synthetic-sensitive-calendar',
-      type: 'event', title: 12345, description: 12345, location: 12345,
-      private: 'synthetic-sensitive-boolean', done: 'synthetic-sensitive-boolean',
-      progress: 'synthetic-sensitive-progress', priority: 'synthetic-sensitive-priority',
+      id: 'synthetic-sensitive-id',
+      calendar_id: 'synthetic-sensitive-calendar',
+      type: 'event',
+      title: 12345,
+      description: 12345,
+      location: 12345,
+      private: 'synthetic-sensitive-boolean',
+      done: 'synthetic-sensitive-boolean',
+      progress: 'synthetic-sensitive-progress',
+      priority: 'synthetic-sensitive-priority',
       has_attachments: 'synthetic-sensitive-boolean',
     };
     for (const [key, value] of Object.entries(wrong)) {
       const missing = { ...fixture.tasks.data[0] };
       delete missing[key];
-      for (const dto of [missing, { ...fixture.tasks.data[0], [key]: null }, { ...fixture.tasks.data[0], [key]: value }]) {
+      for (const dto of [
+        missing,
+        { ...fixture.tasks.data[0], [key]: null },
+        { ...fixture.tasks.data[0], [key]: value },
+      ]) {
         const app = await setup({ response: () => ({ result: 'success', data: [dto] }) });
         let message = '';
         try {
@@ -724,8 +741,9 @@ describe('FEAT-15 task list', () => {
       const app = await setup({
         response: () => ({ result: 'success', data: [{ ...fixture.tasks.data[0], [key]: 1.5 }] }),
       });
-      await expect(app.module.invoke(name, { calendar_id: 7 }, policy))
-        .rejects.toThrow('Invalid Infomaniak response');
+      await expect(app.module.invoke(name, { calendar_id: 7 }, policy)).rejects.toThrow(
+        'Invalid Infomaniak response',
+      );
     },
   );
 
@@ -741,14 +759,15 @@ describe('FEAT-15 task list', () => {
     });
   });
 
-  it.each([{ result: 'error', data: [] }, { result: 'success', data: {} }])(
-    'rejects an invalid task envelope: %j',
-    async (response) => {
-      const app = await setup({ response: () => response });
-      await expect(app.module.invoke(name, { calendar_id: 7 }, policy))
-        .rejects.toThrow('Invalid Infomaniak response');
-    },
-  );
+  it.each([
+    { result: 'error', data: [] },
+    { result: 'success', data: {} },
+  ])('rejects an invalid task envelope: %j', async (response) => {
+    const app = await setup({ response: () => response });
+    await expect(app.module.invoke(name, { calendar_id: 7 }, policy)).rejects.toThrow(
+      'Invalid Infomaniak response',
+    );
+  });
 
   it('is visible by default and callable read-only in all eight flag combinations', async () => {
     const fetcher = vi.fn<typeof fetch>(async (input, init) => {
@@ -759,15 +778,24 @@ describe('FEAT-15 task list', () => {
     for (const raw of [false, true])
       for (const experimental of [false, true])
         for (const chat of [false, true]) {
-          const runtime = await bootstrap({
-            INFOMANIAK_API_TOKEN: 'offline-placeholder',
-            INFOMANIAK_READ_ONLY: 'true',
-            INFOMANIAK_ALLOW_RAW_API: String(raw),
-            INFOMANIAK_ALLOW_EXPERIMENTAL: String(experimental),
-            ...(chat ? { KCHAT_HOST: 'chat.example.test', KCHAT_TOKEN: 'offline-chat-placeholder' } : {}),
-          }, { fetch: fetcher, pattern: 'src/features/**/*.feature.ts' });
+          const runtime = await bootstrap(
+            {
+              INFOMANIAK_API_TOKEN: 'offline-placeholder',
+              INFOMANIAK_READ_ONLY: 'true',
+              INFOMANIAK_ALLOW_RAW_API: String(raw),
+              INFOMANIAK_ALLOW_EXPERIMENTAL: String(experimental),
+              ...(chat
+                ? { KCHAT_HOST: 'chat.example.test', KCHAT_TOKEN: 'offline-chat-placeholder' }
+                : {}),
+            },
+            { fetch: fetcher, pattern: 'src/features/**/*.feature.ts' },
+          );
           expect(runtime.module.tools.filter((tool) => tool.name === name)).toHaveLength(1);
-          const output = await runtime.module.invoke(name, { calendar_id: 7 }, runtime.config.policy);
+          const output = await runtime.module.invoke(
+            name,
+            { calendar_id: 7 },
+            runtime.config.policy,
+          );
           expect(output.isError).toBeUndefined();
           expect(output.structuredContent).toStrictEqual({ tasks: [expectedTask] });
         }

@@ -131,8 +131,7 @@ export const tools = [
 
 export function createCalendarHandlers(port: CalendarPort) {
   return {
-    infomaniak_calendar_list_tasks: (input: unknown) =>
-      port.listTasks(listTasksInput.parse(input)),
+    infomaniak_calendar_list_tasks: (input: unknown) => port.listTasks(listTasksInput.parse(input)),
     infomaniak_calendar_list_calendars: async (input: unknown) => {
       tools[0].inputSchema.parse(input);
       return port.listCalendars();
