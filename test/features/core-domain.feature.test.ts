@@ -266,12 +266,12 @@ describe('FEAT-06 core/domain', () => {
     s.fetch.mockResolvedValueOnce(
       new Response(
         JSON.stringify(
-          success({ ...fixture.account, legal_entity_type: 'company', created_at: '2026-01-01' }),
+          success({ ...fixture.account, legal_entity_type: 'company', created_at: 1767225600 }),
         ),
       ),
     );
     expect(await s.adapter.getAccount(7)).toEqual({
-      account: { ...account, legalEntityType: 'company', createdAt: '2026-01-01' },
+      account: { ...account, legalEntityType: 'company', createdAt: '2026-01-01T00:00:00.000Z' },
     });
   });
   it.each([
@@ -387,4 +387,17 @@ it('FIX-12B parses the account list and converts its creation date to UTC', asyn
   expect(result.content).toEqual([
     { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
   ]);
+});
+
+// Relevé /1/account/{id}: created_at:int, converted from Unix seconds.
+it('FIX-15A maps the observed account detail to UTC and renders domain JSON', async () => {
+  const s = setup(success(fixture.observedAccountDetail.data));
+  const result = await s.module.invoke('infomaniak_get_account', { account_id: 7 }, policy);
+  expect(result.structuredContent).toStrictEqual({
+    account: { ...account, legalEntityType: 'company', createdAt: '2026-01-01T00:00:00.000Z' },
+  });
+  expect(result.content).toEqual([
+    { type: 'text', text: JSON.stringify(result.structuredContent, null, 2) },
+  ]);
+  expect(JSON.stringify(result)).not.toContain('PRIVATE');
 });

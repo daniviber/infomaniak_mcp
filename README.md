@@ -436,8 +436,8 @@ exits non-zero on any drift. The full test suite and the other checks are descri
   not in `MCP_ALLOWED_HOSTS`.
 - `Unsupported protocol version: 2025-11-25` – the client negotiates the 2025 revision; use
   `build/main/legacy.js`.
-- `Infomaniak HTTP 401 / 403 / 429` – invalid token, missing scope, or rate limit
-  (60 requests per minute) on the provider side.
+- `Infomaniak HTTP <statut>[: <code>]` – 401 / 403 / 429: invalid token, missing scope, or rate limit
+  (60 requests per minute); optional code from the Infomaniak API, never its description.
 - `Invalid Infomaniak response: <path>: <code>` – the provider payload does not match the
   expected shape. The message lists field paths and validation codes only, never values; please
   report it with the tool name.

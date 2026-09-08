@@ -73,6 +73,46 @@ export function retryDelay(
   return Math.min(8000, 500 * 2 ** (attempt - 1) * (1 + random()));
 }
 
+async function httpErrorMessage(response: Response): Promise<string> {
+  const message = `Infomaniak HTTP ${response.status}`;
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  try {
+    reader = response.body?.getReader();
+    if (!reader) return message;
+    const buffer = new Uint8Array(65536);
+    let size = 0;
+    let exceeded = false;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const observed = Math.min(value.byteLength, buffer.byteLength - size + 1);
+      if (size + observed > buffer.byteLength) {
+        exceeded = true;
+        break;
+      }
+      buffer.set(value.subarray(0, observed), size);
+      size += observed;
+    }
+    if (exceeded) {
+      void reader.cancel().catch(() => undefined);
+      return message;
+    }
+    const payload: unknown = JSON.parse(new TextDecoder().decode(buffer.subarray(0, size)));
+    if (typeof payload !== 'object' || payload === null || !('error' in payload)) return message;
+    const error = payload.error;
+    if (typeof error !== 'object' || error === null || !('code' in error)) return message;
+    const code = error.code;
+    return typeof code === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(code)
+      ? `${message}: ${code}`
+      : message;
+  } catch {
+    void reader?.cancel().catch(() => undefined);
+    return message;
+  } finally {
+    reader?.releaseLock();
+  }
+}
+
 export class InfomaniakGateway {
   constructor(private readonly options: GatewayOptions) {}
 
@@ -110,8 +150,8 @@ export class InfomaniakGateway {
         throw new Error('Infomaniak request failed');
       }
       if (!response.ok) {
-        await response.body?.cancel().catch(() => undefined);
         if ((response.status === 429 || response.status >= 500) && attempt < 3) {
+          await response.body?.cancel().catch(() => undefined);
           await this.options.clock.wait(
             retryDelay(
               attempt,
@@ -122,7 +162,7 @@ export class InfomaniakGateway {
           );
           continue;
         }
-        throw new Error(`Infomaniak HTTP ${response.status}`);
+        throw new Error(await httpErrorMessage(response));
       }
       const reader = response.body?.getReader();
       const buffer = new Uint8Array(options.maxBytes);
@@ -204,8 +244,7 @@ export class InfomaniakGateway {
       throw new Error('Infomaniak request failed');
     }
     if (!response.ok) {
-      await response.body?.cancel().catch(() => undefined);
-      throw new Error(`Infomaniak HTTP ${response.status}`);
+      throw new Error(await httpErrorMessage(response));
     }
     try {
       return await response.json();
@@ -267,7 +306,7 @@ export class InfomaniakGateway {
           );
           continue;
         }
-        throw new Error(`Infomaniak HTTP ${response.status}`);
+        throw new Error(await httpErrorMessage(response));
       }
       try {
         const body =

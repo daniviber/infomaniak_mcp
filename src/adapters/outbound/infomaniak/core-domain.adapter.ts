@@ -18,8 +18,6 @@ const accountDto = z.object({
   legal_entity_type: z.string().optional(),
   created_at: z.number().int().optional(),
 });
-// /1/account/{id} is not in the relevé: preserve its baseline string DTO.
-const accountDetailDto = accountDto.extend({ created_at: z.string().optional() });
 const profileDto = z.object({
   id,
   login: z.string(),
@@ -87,15 +85,10 @@ export class CoreDomainAdapter implements CorePort, DomainPort {
   async getAccount(accountId: number) {
     const { data } = await this.gateway.request(
       { method: 'GET', pathSegments: ['1', 'account', accountId] },
-      envelope(accountDetailDto),
+      envelope(accountDto),
     );
     return {
-      account: accountSchema.parse({
-        id: data.id,
-        name: data.name,
-        legalEntityType: data.legal_entity_type,
-        createdAt: data.created_at,
-      }),
+      account: mapAccount(data),
     };
   }
   async listProducts(accountId: number) {

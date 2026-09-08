@@ -3755,7 +3755,7 @@
       "sources": [
         {
           "path": "test/fixtures/core-domain.json",
-          "note": "Synthetic baseline DTOs; no live provider validation."
+          "note": "relevé opérateur 2026-09-08 : GET /1/account/{id}, created_at entier Unix comme la liste ; projection ISO 8601 UTC. Échantillon synthétique observedAccountDetail."
         }
       ],
       "provider": "non prouvé côté fournisseur"
