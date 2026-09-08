@@ -12367,7 +12367,6 @@
               "id",
               "path",
               "name",
-              "role",
               "unread_count",
               "total_count",
               "children"
@@ -12413,6 +12412,12 @@
             "src/mail-client.ts:362"
           ],
           "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "GET folders with=ik-static; M-B2 recursive role is an open string.",
@@ -12420,7 +12425,8 @@
     },
     "knownLimits": [
       "GET folders with=ik-static; M-B2 recursive role is an open string.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Personal folders are included recursively; role is omitted when the provider returns null."
     ]
   },
   {
@@ -12457,6 +12463,7 @@
             "type": "string"
           },
           "thread": {
+            "default": "on",
             "type": "string",
             "enum": [
               "on",
@@ -12852,6 +12859,12 @@
             "src/mail-client.ts:362"
           ],
           "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "GET offset/limit/thread=on|off. M-B8 single envelope; resource_next alone determines hasMore; links validated then discarded, never followed. Product limit 1..200, default 50, explicitly sent.",
@@ -12859,7 +12872,9 @@
     },
     "knownLimits": [
       "GET offset/limit/thread=on|off. M-B8 single envelope; resource_next alone determines hasMore; links validated then discarded, never followed. Product limit 1..200, default 50, explicitly sent.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId.",
+      "thread is optional and defaults to on."
     ]
   },
   {
@@ -13221,6 +13236,12 @@
             "src/mail-client.ts:362"
           ],
           "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "GET prefered_format=html&with=auto_uncrypt,thread_context; body and opaque headers are inert external data.",
@@ -13228,7 +13249,8 @@
     },
     "knownLimits": [
       "GET prefered_format=html&with=auto_uncrypt,thread_context; body and opaque headers are inert external data.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -13265,6 +13287,7 @@
             "type": "string"
           },
           "thread": {
+            "default": "on",
             "type": "string",
             "enum": [
               "on",
@@ -13685,6 +13708,12 @@
             "src/mail-client.ts:362"
           ],
           "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "Same single M-B8 page; optional severywhere=0|1, scontains/sfrom/sto/ssubject, date-only sfromdate/stodate suffixed 00:00:00. Product limits, not measured provider limits.",
@@ -13692,7 +13721,9 @@
     },
     "knownLimits": [
       "Same single M-B8 page; optional severywhere=0|1, scontains/sfrom/sto/ssubject, date-only sfromdate/stodate suffixed 00:00:00. Product limits, not measured provider limits.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId.",
+      "thread is optional and defaults to on."
     ]
   },
   {
@@ -13808,6 +13839,12 @@
             "src/mail-client.ts:362"
           ],
           "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "Structured route segments; gateway.download ceiling config.transfer.downloadLimit (KDRIVE_MAX_DOWNLOAD_BYTES), no input override. Returns base64 and decoded byte count. Binary response is not a measured JSON DTO.",
@@ -13815,7 +13852,8 @@
     },
     "knownLimits": [
       "Structured route segments; gateway.download ceiling config.transfer.downloadLimit (KDRIVE_MAX_DOWNLOAD_BYTES), no input override. Returns base64 and decoded byte count. Binary response is not a measured JSON DTO.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -14650,6 +14688,7 @@
             "type": "string"
           },
           "thread": {
+            "default": "on",
             "type": "string",
             "enum": [
               "on",
@@ -15041,6 +15080,12 @@
             "src/mail-client.ts:362"
           ],
           "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "GET /mail/{uuid}/folder?with=ik-static -> recursive DRAFT role (M-B2) -> GET single M-B8 page with effective limit. Read-only allowed for both GETs. Missing/ambiguous role rejected.",
@@ -15048,7 +15093,9 @@
     },
     "knownLimits": [
       "GET /mail/{uuid}/folder?with=ik-static -> recursive DRAFT role (M-B2) -> GET single M-B8 page with effective limit. Read-only allowed for both GETs. Missing/ambiguous role rejected.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId.",
+      "thread is optional and defaults to on."
     ]
   },
   {
@@ -15242,6 +15289,12 @@
             "src/mail-client.ts:800",
             "src/mail-client.ts:817"
           ]
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "seen boolean selects POST /message/seen or /message/unseen, official {uids}; adapter constructs uid@folderId, no composite input. Idempotent. Ignored response; local HTTP acknowledgement.",
@@ -15249,7 +15302,8 @@
     },
     "knownLimits": [
       "seen boolean selects POST /message/seen or /message/unseen, official {uids}; adapter constructs uid@folderId, no composite input. Idempotent. Ignored response; local HTTP acknowledgement.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -15344,6 +15398,12 @@
             "src/mail-client.ts:867",
             "src/mail-client.ts:884"
           ]
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "flagged boolean selects POST /message/star or /message/unstar, official {uids}; structured inputs composed internally. Idempotent. Ignored response; local HTTP acknowledgement.",
@@ -15351,7 +15411,8 @@
     },
     "knownLimits": [
       "flagged boolean selects POST /message/star or /message/unstar, official {uids}; structured inputs composed internally. Idempotent. Ignored response; local HTTP acknowledgement.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -15447,6 +15508,12 @@
             "src/mail-client.ts:848-852",
             "src/index.ts:553"
           ]
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "POST /message/move with composite uids, destination identifier to, move_reactions false. Non-idempotent. Ignored response; local HTTP acknowledgement.",
@@ -15454,7 +15521,8 @@
     },
     "knownLimits": [
       "POST /message/move with composite uids, destination identifier to, move_reactions false. Non-idempotent. Ignored response; local HTTP acknowledgement.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -15555,6 +15623,12 @@
             "src/mail-client.ts:848-852",
             "src/index.ts:553"
           ]
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "GET folders -> unique recursive ARCHIVE role (M-B2) -> POST /message/move (official). Policy before prerequisite GET; non-idempotent mutation. Ignored response, local HTTP acknowledgement.",
@@ -15562,7 +15636,8 @@
     },
     "knownLimits": [
       "GET folders -> unique recursive ARCHIVE role (M-B2) -> POST /message/move (official). Policy before prerequisite GET; non-idempotent mutation. Ignored response, local HTTP acknowledgement.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -15674,6 +15749,12 @@
             "src/mail-client.ts:848-852",
             "src/index.ts:553"
           ]
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "GET folders -> unique recursive TRASH role (M-B2) -> POST /message/move (official), never /message/delete. Recoverable write, non-idempotent, policy before prerequisite GET. Ignored response; local HTTP acknowledgement.",
@@ -15681,7 +15762,8 @@
     },
     "knownLimits": [
       "GET folders -> unique recursive TRASH role (M-B2) -> POST /message/move (official), never /message/delete. Recoverable write, non-idempotent, policy before prerequisite GET. Ignored response; local HTTP acknowledgement.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {
@@ -15772,6 +15854,12 @@
             "src/mail-client.ts:928",
             "src/mail-client.ts:944"
           ]
+        },
+        {
+          "proof": "baseline",
+          "source": "relevé opérateur 2026-09-08 §6",
+          "blob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+          "note": "Types and identifier shapes only; fixture values are synthetic."
         }
       ],
       "steps": "POST /message/delete with composite uids and move_reactions false; irreversible destructive, non-idempotent. Ignored response; local HTTP acknowledgement.",
@@ -15779,7 +15867,8 @@
     },
     "knownLimits": [
       "POST /message/delete with composite uids and move_reactions false; irreversible destructive, non-idempotent. Ignored response; local HTTP acknowledgement.",
-      "Attachment sending and selectable identity are not covered."
+      "Attachment sending and selectable identity are not covered.",
+      "Message uid is the part before the first @, as returned by list_messages; inputs remain bare and actions compose uid@folderId."
     ]
   },
   {

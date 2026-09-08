@@ -29,7 +29,7 @@ const folderDto = z.object({
   id: z.string(),
   path: z.string(),
   name: z.string(),
-  role: z.string(),
+  role: z.string().nullable(),
   unread_count: z.number().int(),
   total_count: z.number().int(),
   get children() {
@@ -107,7 +107,7 @@ function mapFolder(dto: z.infer<typeof folderDto>): z.infer<typeof folder> {
     id: dto.id,
     path: dto.path,
     name: dto.name,
-    role: dto.role,
+    ...(dto.role === null ? {} : { role: dto.role }),
     unread_count: dto.unread_count,
     total_count: dto.total_count,
     children: dto.children.map(mapFolder),
@@ -115,7 +115,7 @@ function mapFolder(dto: z.infer<typeof folderDto>): z.infer<typeof folder> {
 }
 function mapMessage(dto: z.infer<typeof listMessageDto>) {
   return listMessage.parse({
-    uid: dto.uid,
+    uid: dto.uid.split('@')[0],
     msg_id: dto.msg_id,
     date: dto.date,
     subject: dto.subject,
@@ -193,8 +193,17 @@ export class MailAdapter implements MailPort {
       const resultSchema = envelope(schema);
       // Gateway validates but retains original payload. Parse again to strip unconsumed keys.
       return resultSchema.parse(await this.gateway.request(request, resultSchema)).data;
-    } catch {
-      // Fixed code even for opaque object keys or malicious provider validation paths.
+    } catch (error) {
+      // Reuse gateway schema diagnostics; JSON decoding and other failures keep the fixed code.
+      if (
+        error instanceof Error &&
+        error.message.startsWith('Invalid Infomaniak response: ') &&
+        error.message !== 'Invalid Infomaniak response: invalid_json'
+      ) {
+        throw new Error(
+          `MAIL_RESPONSE_INVALID: ${error.message.slice('Invalid Infomaniak response: '.length)}`,
+        );
+      }
       throw new Error('MAIL_RESPONSE_INVALID');
     }
   }
