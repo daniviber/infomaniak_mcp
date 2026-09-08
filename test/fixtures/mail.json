@@ -4,9 +4,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B1"
-        ],
+        "lines": ["M-B1"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -18,9 +16,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B2"
-        ],
+        "lines": ["M-B2"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -32,9 +28,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B6"
-        ],
+        "lines": ["M-B6"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -46,9 +40,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B7"
-        ],
+        "lines": ["M-B7"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -60,10 +52,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B4",
-          "M-B6"
-        ],
+        "lines": ["M-B4", "M-B6"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -75,11 +64,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B3",
-          "M-B4",
-          "M-B6"
-        ],
+        "lines": ["M-B3", "M-B4", "M-B6"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -91,12 +76,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B4",
-          "M-B5",
-          "M-B6",
-          "M-B7"
-        ],
+        "lines": ["M-B4", "M-B5", "M-B6", "M-B7"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -108,11 +88,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B4",
-          "M-B5",
-          "M-B6"
-        ],
+        "lines": ["M-B4", "M-B5", "M-B6"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -124,12 +100,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B8",
-          "M-B3",
-          "M-B4",
-          "M-B6"
-        ],
+        "lines": ["M-B8", "M-B3", "M-B4", "M-B6"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -141,9 +112,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B8"
-        ],
+        "lines": ["M-B8"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -155,9 +124,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B8"
-        ],
+        "lines": ["M-B8"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -169,12 +136,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B8",
-          "M-B3",
-          "M-B4",
-          "M-B6"
-        ],
+        "lines": ["M-B8", "M-B3", "M-B4", "M-B6"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -186,9 +148,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B9"
-        ],
+        "lines": ["M-B9"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -200,9 +160,7 @@
       "types": {
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
-        "lines": [
-          "M-B9"
-        ],
+        "lines": ["M-B9"],
         "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
       },
       "values": {
@@ -795,15 +753,9 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:796",
-        "src/mail-client.ts:800",
-        "src/mail-client.ts:817"
-      ],
+      "lines": ["src/mail-client.ts:796", "src/mail-client.ts:800", "src/mail-client.ts:817"],
       "body": {
-        "uids": [
-          "synthetic-uid@synthetic-inbox"
-        ]
+        "uids": ["synthetic-uid@synthetic-inbox"]
       }
     },
     "flag": {
@@ -812,14 +764,9 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:867",
-        "src/mail-client.ts:884"
-      ],
+      "lines": ["src/mail-client.ts:867", "src/mail-client.ts:884"],
       "body": {
-        "uids": [
-          "synthetic-uid@synthetic-inbox"
-        ]
+        "uids": ["synthetic-uid@synthetic-inbox"]
       }
     },
     "move": {
@@ -828,15 +775,9 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:832",
-        "src/mail-client.ts:848-852",
-        "src/index.ts:553"
-      ],
+      "lines": ["src/mail-client.ts:832", "src/mail-client.ts:848-852", "src/index.ts:553"],
       "body": {
-        "uids": [
-          "synthetic-uid@synthetic-inbox"
-        ],
+        "uids": ["synthetic-uid@synthetic-inbox"],
         "to": "synthetic-target",
         "move_reactions": false
       }
@@ -847,9 +788,7 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:962"
-      ],
+      "lines": ["src/mail-client.ts:962"],
       "note": "Resolve TRASH then move; no permanent delete route."
     },
     "permanent": {
@@ -858,14 +797,9 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:928",
-        "src/mail-client.ts:944"
-      ],
+      "lines": ["src/mail-client.ts:928", "src/mail-client.ts:944"],
       "body": {
-        "uids": [
-          "synthetic-uid@synthetic-inbox"
-        ],
+        "uids": ["synthetic-uid@synthetic-inbox"],
         "move_reactions": false
       }
     },
@@ -875,11 +809,7 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:206",
-        "src/mail-client.ts:211",
-        "src/index.ts:81"
-      ],
+      "lines": ["src/mail-client.ts:206", "src/mail-client.ts:211", "src/index.ts:81"],
       "body": {
         "name": "Synthetic folder",
         "parent": "synthetic-parent"
@@ -891,10 +821,7 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:252",
-        "src/mail-client.ts:259"
-      ],
+      "lines": ["src/mail-client.ts:252", "src/mail-client.ts:259"],
       "body": {
         "name": "Synthetic folder"
       }
@@ -905,9 +832,7 @@
       "version": "1.10.1",
       "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
       "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
-      "lines": [
-        "src/mail-client.ts:234"
-      ],
+      "lines": ["src/mail-client.ts:234"],
       "note": "DELETE with no body."
     },
     "createdRead": {
