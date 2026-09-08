@@ -1,5 +1,8 @@
-import type { Calendar, CalendarEvent, Identifier } from '../../domain/calendar/event.js';
+import type { Calendar, CalendarEvent, CalendarTask, Identifier } from '../../domain/calendar/event.js';
 
+export interface ListTasksQuery {
+  calendar_id: number;
+}
 export interface ListEventsQuery {
   from: string;
   to: string;
@@ -29,6 +32,7 @@ export interface DeleteEventCommand {
   calendar_id?: Identifier;
 }
 export interface CalendarPort {
+  listTasks(query: ListTasksQuery): Promise<{ tasks: CalendarTask[] }>;
   listCalendars(): Promise<{ calendars: Calendar[] }>;
   listEvents(query: ListEventsQuery): Promise<{ events: CalendarEvent[] }>;
   getEvent(id: Identifier): Promise<{ event: CalendarEvent }>;

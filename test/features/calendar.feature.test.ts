@@ -47,6 +47,7 @@ async function setup(
       authorization: new Headers(init?.headers).get('Authorization'),
     });
     if (options.response) return Response.json(options.response(method, url));
+    if (url.pathname === '/1/calendar/pim/task') return Response.json(fixture.tasks);
     if (url.pathname === '/2/profile') return Response.json(fixture.profile);
     if (url.pathname.endsWith('/calendar')) return Response.json(fixture.calendars);
     if (method === 'POST' || method === 'PUT') {
@@ -146,7 +147,7 @@ describe('Calendar offline feature', () => {
     ];
     const listed = await app.rpc('tools/list');
     expect(listed.result.tools.map((tool: { name: string }) => tool.name).sort()).toEqual(
-      names.map((name) => prefix + name).sort(),
+      [...names, 'list_tasks'].map((name) => prefix + name).sort(),
     );
     const inputs = [
       {},
@@ -517,6 +518,7 @@ describe('Calendar offline feature', () => {
     'denies %s before any port method, even with invalid input',
     async (name) => {
       const port = {
+        listTasks: vi.fn(),
         listCalendars: vi.fn(),
         listEvents: vi.fn(),
         getEvent: vi.fn(),
@@ -555,6 +557,7 @@ describe('Calendar offline feature', () => {
       'write',
       'write',
       'destructive',
+      'read',
     ]);
     for (const tool of tools) {
       expect(tool.rawApi).toBe(false);
