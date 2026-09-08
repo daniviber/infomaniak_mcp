@@ -440,7 +440,7 @@ exits non-zero on any drift. The full test suite and the other checks are descri
   (60 requests per minute) on the provider side.
 - `Invalid Infomaniak response: <path>: <code>` – the provider payload does not match the
   expected shape. The message lists field paths and validation codes only, never values; please
-  report it with the tool name. Mail tools use `MAIL_RESPONSE_INVALID: <path>: <code>`.
+  report it with the tool name.
 
 ## License
 
