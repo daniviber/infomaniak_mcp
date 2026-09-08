@@ -13,7 +13,7 @@ export const folder = z.object({
   id: z.string(),
   path: z.string(),
   name: z.string(),
-  role: z.string(),
+  role: z.string().optional(),
   unread_count: z.number().int(),
   total_count: z.number().int(),
   get children() {
@@ -91,7 +91,7 @@ const location = { ...box, folderId: simpleIdentifier };
 const messageLocation = { ...location, uid: simpleIdentifier };
 const pagination = {
   ...box,
-  thread: z.enum(['on', 'off']),
+  thread: z.enum(['on', 'off']).default('on'),
   offset: z.number().int().nonnegative().optional(),
   limit: z.number().int().min(1).max(200).default(50),
 };
