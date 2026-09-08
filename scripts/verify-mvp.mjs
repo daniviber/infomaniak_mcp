@@ -90,12 +90,12 @@ try {
   const declarations = definitions.flatMap((definition) => definition.tools);
   for (const entries of [baseline, inventory, declarations, complete.module.tools]) {
     assert.ok(Array.isArray(entries));
-    assert.equal(entries.length, 111);
+    assert.equal(entries.length, 132);
     assert.equal(new Set(names(entries)).size, entries.length, 'Duplicate inventory/registry name');
     assert.deepEqual(names(entries), names(baseline), 'Baseline orphan or unexpected tool');
   }
-  assert.equal(files.length, 9);
-  assert.equal(normal.module.tools.length, 62);
+  assert.equal(files.length, 10);
+  assert.equal(normal.module.tools.length, 83);
   const visibility = [];
   for (const raw of [false, true])
     for (const experimental of [false, true])
