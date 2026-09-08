@@ -771,3 +771,146 @@ describe('additive requestWithStatus', () => {
     },
   );
 });
+
+describe.each(['request', 'download', 'upload'] as const)('FIX-15A %s HTTP errors', (method) => {
+  const invoke = (gateway: InfomaniakGateway) => {
+    if (method === 'download') return gateway.download(['file'], { maxBytes: 3 });
+    if (method === 'upload')
+      return gateway.upload(['file'], {
+        query: {},
+        bytes: new Uint8Array([1]),
+        contentType: 'application/octet-stream',
+      });
+    return gateway.request(request, schema);
+  };
+
+  it.each([
+    [400, 'permission_denied'],
+    [404, 'object_not_found'],
+    [400, 'not_available_for_this_hosting_type'],
+    [403, 'a'],
+    [403, 'a'.repeat(64)],
+  ])('renders only the safe code for %s: %s', async (status, code) => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json(
+        {
+          error: {
+            code,
+            description: 'DESCRIPTION_SENTINEL',
+            context: 'CONTEXT_SENTINEL',
+            errors: ['ERRORS_SENTINEL'],
+          },
+          other: 'OTHER_SENTINEL',
+        },
+        { status: Number(status) },
+      ),
+    );
+    const failure = await invoke(setup(fetcher)).catch((error: Error) => error);
+    expect(failure).toBeInstanceOf(Error);
+    expect((failure as Error).message).toBe(`Infomaniak HTTP ${status}: ${code}`);
+    expect((failure as Error).message).not.toContain('SENTINEL');
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['uppercase', 'Permission_denied'],
+    ['space', 'permission denied'],
+    ['less-than', 'permission<denied'],
+    ['65 characters', 'a'.repeat(65)],
+    ['number', 7],
+    ['object', { value: 'permission_denied' }],
+    ['null', null],
+  ])('keeps the exact bare message for a code with %s', async (_label, code) => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        Response.json({ error: { code, description: 'DESCRIPTION_SENTINEL' } }, { status: 403 }),
+      );
+    await expect(invoke(setup(fetcher))).rejects.toThrow(/^Infomaniak HTTP 403$/);
+  });
+
+  it.each([null, '', 'NON_JSON_SENTINEL', '{}', '{"error":{}}', '{"error":null}'])(
+    'keeps the exact bare message for absent, non-JSON or missing-code body %s',
+    async (body) => {
+      const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(body, { status: 403 }));
+      await expect(invoke(setup(fetcher))).rejects.toThrow(/^Infomaniak HTTP 403$/);
+    },
+  );
+
+  it('keeps the bare message when reading fails', async () => {
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        controller.error(new Error('READ_FAILURE_SENTINEL'));
+      },
+    });
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(body, { status: 403 }));
+    await expect(invoke(setup(fetcher))).rejects.toThrow(/^Infomaniak HTTP 403$/);
+  });
+
+  it('accepts a JSON body of exactly 65536 bytes', async () => {
+    const body = JSON.stringify({ error: { code: 'permission_denied' } }).padEnd(65536, ' ');
+    expect(new TextEncoder().encode(body).byteLength).toBe(65536);
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(body, { status: 403 }));
+    await expect(invoke(setup(fetcher))).rejects.toThrow(
+      /^Infomaniak HTTP 403: permission_denied$/,
+    );
+  });
+
+  it('stops after 65536 bytes plus the first excess byte and cancels the stream', async () => {
+    const prefix = JSON.stringify({ error: { code: 'permission_denied' } }).padEnd(65536, ' ');
+    const chunks = [new TextEncoder().encode(prefix), new Uint8Array([32]), new Uint8Array(8192)];
+    let consumed = 0;
+    let reads = 0;
+    const cancel = vi.fn();
+    const body = new ReadableStream<Uint8Array>(
+      {
+        pull(controller) {
+          const chunk = chunks[reads++];
+          consumed += chunk.byteLength;
+          controller.enqueue(chunk);
+        },
+        cancel,
+      },
+      { highWaterMark: 0 },
+    );
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(body, { status: 403 }));
+    await expect(invoke(setup(fetcher))).rejects.toThrow(/^Infomaniak HTTP 403$/);
+    expect(consumed).toBe(65537);
+    expect(reads).toBe(2);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(body.locked).toBe(false);
+  });
+
+  if (method !== 'upload') {
+    it.each([429, 503])(
+      'reads the code only on the final failure after %s retries',
+      async (status) => {
+        const responses = ['ignored_first', 'ignored_second', 'final_code'].map((code) => {
+          const response = Response.json({ error: { code } }, { status });
+          const getReader = vi.spyOn(response.body!, 'getReader');
+          const cancel = vi.spyOn(response.body!, 'cancel');
+          return { response, getReader, cancel };
+        });
+        const fetcher = vi
+          .fn<typeof fetch>()
+          .mockResolvedValueOnce(responses[0].response)
+          .mockResolvedValueOnce(responses[1].response)
+          .mockResolvedValueOnce(responses[2].response);
+        const time = clock();
+        await expect(invoke(setup(fetcher, new TokenBucket(time), time))).rejects.toThrow(
+          new RegExp(`^Infomaniak HTTP ${status}: final_code$`),
+        );
+        expect(fetcher).toHaveBeenCalledTimes(3);
+        expect(time.wait.mock.calls).toEqual([[500], [1000]]);
+        expect(responses[0].getReader).not.toHaveBeenCalled();
+        expect(responses[1].getReader).not.toHaveBeenCalled();
+        expect(responses[2].getReader).toHaveBeenCalledTimes(1);
+        if (method === 'download') {
+          expect(responses[0].cancel).toHaveBeenCalledTimes(1);
+          expect(responses[1].cancel).toHaveBeenCalledTimes(1);
+        }
+        expect(responses[2].cancel).not.toHaveBeenCalled();
+      },
+    );
+  }
+});
