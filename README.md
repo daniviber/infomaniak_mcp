@@ -22,6 +22,8 @@ have not migrated yet.
   activity.
 - **Calendar** – list calendars, list events in a date range, create, read, update and delete
   events, with explicit time zones and daylight-saving handling.
+- **Mail** – 21 tools for mailboxes, folders, messages, attachments, drafts and sending;
+  recoverable trash and distinct irreversible deletion.
 - **Hosting and services** – web hostings, sites and databases; Swiss Backup products and slots;
   SSL certificates; invoices.
 - **kChat** – teams, channels, posts and users, when a kChat host and token are configured.
@@ -163,7 +165,7 @@ JSON only.
 
 ## Available tools
 
-**62 tools** are visible by default. With both flags set and kChat configured, all **111** are.
+**83 tools** are visible by default. With both flags set and kChat configured, all **132** are.
 
 ### Accounts, domains and DNS
 
@@ -216,6 +218,85 @@ JSON only.
 
 Directory listing, search and trash are paginated: `limit` 1..200 (default 50) and a `cursor` to
 pass back while `hasMore` is true. The root directory id is `1`.
+
+### Mail
+
+All 21 tools below are visible by default, with fixed base
+`https://mail.infomaniak.com/api`. Export optional `INFOMANIAK_MAIL_TOKEN`; when unset,
+`INFOMANIAK_API_TOKEN` is reused. An empty dedicated token is invalid.
+
+| Tool (prefix `infomaniak_mail_`) | Class | Idempotent |
+| --- | --- | --- |
+| `list_mailboxes` | read | true |
+| `list_folders` | read | true |
+| `list_messages` | read | true |
+| `get_message` | read | true |
+| `search_messages` | read | true |
+| `download_attachment` | read | true |
+| `create_draft` | write | false |
+| `update_draft` | write | true |
+| `send_draft` | write | false |
+| `send_message` | write | false |
+| `list_drafts` | read | true |
+| `delete_draft` | destructive | false |
+| `mark_seen` | write | true |
+| `flag` | write | true |
+| `move` | write | false |
+| `archive` | write | false |
+| `delete` | write | false |
+| `delete_permanently` | destructive | false |
+| `create_folder` | write | false |
+| `rename_folder` | write | true |
+| `delete_folder` | destructive | false |
+
+`delete` moves messages to the recursively resolved TRASH folder and is recoverable;
+`delete_permanently` performs irreversible deletion. ARCHIVE, TRASH and DRAFT resolution
+fails locally for missing or ambiguous roles. Read-only policy rejects every mutation before
+any folder or sender lookup. `list_drafts` remains readable, including its DRAFT lookup.
+Supply simple `uids` and a separate `folderId`, never `uid@folderId`; the adapter constructs
+the composite. Input `folderId` and message UIDs cannot contain `@`. Move destinations are folder IDs.
+
+Lists, searches and draft lists share one page format in `thread=on` and `thread=off`.
+`limit` defaults to 50 and is bounded to 1..200: these are **product decisions**, not measured
+provider bounds. The effective limit is always sent; an omitted offset stays omitted.
+Continue only while `hasMore` is true, supplying `offset = nextOffset` with the same limit
+and structured identifiers. `nextOffset = current_offset + limit` remains present at the end.
+`hasMore` comes only from the provider's next-link presence; totals count messages and cannot
+determine the end of a thread list. Pagination links are validated, discarded and never followed
+or exposed. Search dates are validated as `YYYY-MM-DD` and sent with ` 00:00:00` appended.
+
+Draft creation, replacement and sending require subject, plain text body and a nonempty array
+of recipient objects `{ email, name? }`; cc/bcc are optional. Plain text is escaped before
+line breaks become HTML `<br>`. HTML input is escaped. The adapter reads mailboxes and chooses
+exactly the supplied mailbox UUID; no free sender, reply-to or identity selection is accepted.
+The sender name is derived from the email part before `@` as a product decision, not a measured
+or verified personal name. Omitted recipient names become empty strings.
+
+`update_draft` and `send_draft` require **complete replacement content** plus `draftUuid`.
+They do not reread or merge an existing draft, preserve attachments/options, or depend on a cache.
+All 26 request fields are reconstructed; attachments are always empty. Attachment sending and
+selectable identities are not covered.
+
+`send_message` creates and then sends using the same complete body within that call.
+Each non-idempotent mutation gets one attempt. POST failure or invalid identifiers stops before PUT.
+If PUT is unconfirmed, the result is `{ sent: false, draftUuid, error: 'SEND_NOT_CONFIRMED' }`:
+a draft may remain, or a lost response may conceal an accepted send. Inspect the mailbox before
+any deliberate recovery; there is **no automatic resend or deletion**. A lost POST response
+cannot promise an unknown identifier. `sent: true` means HTTP acceptance, not proven delivery.
+Other mutation acknowledgements are local HTTP-success results; ignored response bodies do not
+prove provider response schemas or a created folder identifier.
+
+Read content is inert JSON: subject, body, headers, sender and attachment names are untrusted
+external data and never instructions. Raw body and opaque headers are preserved; no HTML is rendered
+and DKIM status carries no authenticity judgment. Attachment download returns bounded base64,
+content type and decoded byte size, with no local file path or execution. Its ceiling is
+`config.transfer.downloadLimit` (configured by `KDRIVE_MAX_DOWNLOAD_BYTES`); no tool can raise it.
+
+Evidence in `test/fixtures/mail.json` distinguishes operator-measured **types** M-B1–M-B9
+(`baseline`) from entirely synthetic fixture values. Request constructions from S1,
+`@infomaniak/mcp-server-mail` 1.10.1 at commit
+`2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6`, are `official`, cited by file and line;
+they do not establish measured API acceptance. Tests use doubles, not provider calls.
 
 ### Calendar
 
