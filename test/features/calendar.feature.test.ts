@@ -193,6 +193,59 @@ describe('Calendar offline feature', () => {
     });
     expect(result.event).not.toHaveProperty('calendar_id');
     expect(result.event).not.toHaveProperty('alarms');
+
+    // FIX-12C / F1: detail nulls are distinct from the historical list DTO.
+    for (const fields of [
+      { location: null, rrule: null },
+      { location: null, rrule: fixture.event.data.rrule },
+      { location: fixture.event.data.location, rrule: null },
+      { location: fixture.event.data.location, rrule: fixture.event.data.rrule },
+      { location: '', rrule: '' },
+      { location: undefined, rrule: undefined },
+    ]) {
+      const detail = await setup({
+        response: () => ({
+          ...fixture.observedEventDetail,
+          data: { ...fixture.observedEventDetail.data, ...fields },
+        }),
+      });
+      const domain = await detail.invoke('get_event', { event_id: 'event/42' });
+      const rpc = await detail.rpc('tools/call', {
+        name: prefix + 'get_event',
+        arguments: { event_id: 'event/42' },
+      });
+      expect(rpc.error).toBeUndefined();
+      expect(rpc.result.isError).not.toBe(true);
+      expect(rpc.result.content).toEqual([
+        { type: 'text', text: JSON.stringify(rpc.result.structuredContent, null, 2) },
+      ]);
+      const textOutput = JSON.parse(rpc.result.content[0].text);
+      for (const output of [domain, rpc.result.structuredContent, textOutput]) {
+        for (const key of ['location', 'rrule'] as const) {
+          if (fields[key] == null) {
+            expect(output.event).not.toHaveProperty(key);
+          } else {
+            expect(output.event).toHaveProperty(key, fields[key]);
+          }
+        }
+      }
+      expect(detail.calls).toHaveLength(2);
+      for (const call of detail.calls) {
+        expect(call.method).toBe('GET');
+        expect(call.url.origin).toBe('https://api.infomaniak.com');
+        expect(call.url.pathname).toBe('/1/calendar/pim/event/event%2F42');
+      }
+      expect(detail.clock.wait).not.toHaveBeenCalled();
+    }
+    const invalidDetail = await setup({
+      response: () => ({
+        ...fixture.observedEventDetail,
+        data: { ...fixture.observedEventDetail.data, meet_room_url: null },
+      }),
+    });
+    await expect(
+      invalidDetail.module.invoke(prefix + 'get_event', { event_id: 42 }, policy),
+    ).rejects.toThrow('Invalid Infomaniak response');
   });
   it('creates participants with the mailbox organizer and recurrence', async () => {
     const app = await setup();
@@ -255,6 +308,30 @@ describe('Calendar offline feature', () => {
       rrule: 'FREQ=WEEKLY;BYDAY=MO',
       notifyAttendees: true,
     });
+    const nullDetail = await setup({
+      response: (method, url) =>
+        url.pathname === '/2/profile'
+          ? fixture.profile
+          : method === 'GET'
+            ? fixture.observedEventDetail
+            : fixture.event,
+    });
+    await nullDetail.invoke('update_event', {
+      event_id: 'event/42',
+      title: 'New',
+      notify_attendees: true,
+    });
+    expect(nullDetail.calls.map((call) => [call.method, call.url.pathname])).toEqual([
+      ['GET', '/1/calendar/pim/event/event%2F42'],
+      ['GET', '/2/profile'],
+      ['PUT', '/1/calendar/pim/event/event%2F42'],
+    ]);
+    expect(nullDetail.calls.at(-1)!.body).toStrictEqual({
+      ...app.calls.find((call) => call.method === 'PUT')!.body,
+      location: '',
+      rrule: '',
+    });
+    expect(nullDetail.clock.wait).not.toHaveBeenCalled();
     await app.invoke('update_event', {
       event_id: 'event/42',
       attendees: [],
@@ -502,7 +579,6 @@ it('FIX-12B parses observed Calendar types without converting string dates', asy
         calendarId: 7,
         title: 'Meeting',
         description: undefined,
-        location: undefined,
         timezoneStart: undefined,
         timezoneEnd: undefined,
         fullday: undefined,
