@@ -69,7 +69,7 @@ const recipients = (values: DraftContent['to'] | undefined) => values?.length
 export class MailAdapter implements MailPort {
   constructor(private readonly gateway: InfomaniakGateway, private readonly downloadLimit: number) {}
 
-  private async read<T extends z.ZodType>(request: GatewayRequest, schema: T): Promise<z.infer<T>> {
+  private async read<T>(request: GatewayRequest, schema: z.ZodType<T>): Promise<T> {
     try {
       const resultSchema = envelope(schema);
       // Gateway validates but retains original payload. Parse again to strip unconsumed keys.

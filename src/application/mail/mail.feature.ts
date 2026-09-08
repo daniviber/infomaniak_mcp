@@ -30,7 +30,7 @@ const definitions: [MailOperation, ToolContract['classification'], boolean, stri
   ['rename_folder', 'write', true, 'Renomme un dossier sans changer son parent.'],
   ['delete_folder', 'destructive', false, 'Supprime un dossier.'],
 ];
-export const tools: readonly ToolContract[] = definitions.map(([name, classification, idempotent, description]) => ({
+export const tools: readonly ToolContract[] = definitions.map(([name, classification, idempotent, description]): ToolContract => ({
   name: `infomaniak_mail_${name}`, description, classification, idempotent,
   inputSchema: inputs[name], outputSchema: outputs[name], experimental: false, rawApi: false,
   // null: actual transfer ceiling is injected from config.transfer.downloadLimit.
