@@ -200,7 +200,9 @@ export class MailAdapter implements MailPort {
         error.message.startsWith('Invalid Infomaniak response: ') &&
         error.message !== 'Invalid Infomaniak response: invalid_json'
       ) {
-        throw new Error(`MAIL_RESPONSE_INVALID: ${error.message}`);
+        throw new Error(
+          `MAIL_RESPONSE_INVALID: ${error.message.slice('Invalid Infomaniak response: '.length)}`,
+        );
       }
       throw new Error('MAIL_RESPONSE_INVALID');
     }

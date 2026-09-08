@@ -868,7 +868,7 @@ describe('FIX-14A production shapes offline', () => {
     const error = await app.invoke('list_folders').catch((error: unknown) => error);
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toBe(
-      'MAIL_RESPONSE_INVALID: Invalid Infomaniak response: data.0.unread_count: invalid_type expected number received string; data.0.total_count: invalid_type expected number received string',
+      'MAIL_RESPONSE_INVALID: data.0.unread_count: invalid_type expected number received string; data.0.total_count: invalid_type expected number received string',
     );
     expect((error as Error).message).not.toContain(sentinel);
   });
