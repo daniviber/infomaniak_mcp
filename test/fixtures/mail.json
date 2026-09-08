@@ -1,0 +1,953 @@
+{
+  "provenance": {
+    "mailboxes": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B1"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "folders": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B2"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "address": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B6"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "attachment": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B7"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "listMessage": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B4",
+          "M-B6"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "thread": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B3",
+          "M-B4",
+          "M-B6"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "detail": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B4",
+          "M-B5",
+          "M-B6",
+          "M-B7"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "detailNullAttachments": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B4",
+          "M-B5",
+          "M-B6"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "pageFirstOn": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B8",
+          "M-B3",
+          "M-B4",
+          "M-B6"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "pageLastOn": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B8"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "pageBeyondOn": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B8"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "pageFirstOff": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B8",
+          "M-B3",
+          "M-B4",
+          "M-B6"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "created": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B9"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    },
+    "deletedDraft": {
+      "types": {
+        "proof": "baseline",
+        "source": "Operator types-only measurement 2026-09-08",
+        "lines": [
+          "M-B9"
+        ],
+        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+      },
+      "values": {
+        "kind": "synthetic",
+        "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
+      }
+    }
+  },
+  "samples": {
+    "mailboxes": {
+      "result": "success",
+      "data": [
+        {
+          "uuid": "synthetic-mailbox",
+          "email": "sender@example.test",
+          "is_primary": true,
+          "is_valid": true,
+          "is_locked": false,
+          "provider_only": "ignored"
+        }
+      ]
+    },
+    "folders": {
+      "result": "success",
+      "data": [
+        {
+          "id": "synthetic-inbox",
+          "path": "Synthetic/INBOX",
+          "name": "INBOX",
+          "role": "INBOX",
+          "unread_count": 0,
+          "total_count": 0,
+          "children": [
+            {
+              "id": "synthetic-draft",
+              "path": "Synthetic/DRAFT",
+              "name": "DRAFT",
+              "role": "DRAFT",
+              "unread_count": 0,
+              "total_count": 0,
+              "children": []
+            },
+            {
+              "id": "synthetic-archive",
+              "path": "Synthetic/ARCHIVE",
+              "name": "ARCHIVE",
+              "role": "ARCHIVE",
+              "unread_count": 0,
+              "total_count": 0,
+              "children": []
+            },
+            {
+              "id": "synthetic-trash",
+              "path": "Synthetic/TRASH",
+              "name": "TRASH",
+              "role": "TRASH",
+              "unread_count": 0,
+              "total_count": 0,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "synthetic-sent",
+          "path": "Synthetic/SENT",
+          "name": "SENT",
+          "role": "SENT",
+          "unread_count": 0,
+          "total_count": 0,
+          "children": []
+        },
+        {
+          "id": "synthetic-spam",
+          "path": "Synthetic/SPAM",
+          "name": "SPAM",
+          "role": "SPAM",
+          "unread_count": 0,
+          "total_count": 0,
+          "children": []
+        },
+        {
+          "id": "synthetic-commercial",
+          "path": "Synthetic/COMMERCIAL",
+          "name": "COMMERCIAL",
+          "role": "COMMERCIAL",
+          "unread_count": 0,
+          "total_count": 0,
+          "children": []
+        },
+        {
+          "id": "synthetic-socialnetworks",
+          "path": "Synthetic/SOCIALNETWORKS",
+          "name": "SOCIALNETWORKS",
+          "role": "SOCIALNETWORKS",
+          "unread_count": 0,
+          "total_count": 0,
+          "children": []
+        }
+      ]
+    },
+    "address": {
+      "email": "sender@example.test",
+      "name": "Synthetic sender"
+    },
+    "attachment": {
+      "part_id": 1,
+      "mime_type": "text/plain",
+      "encoding": "base64",
+      "size": 3,
+      "name": "synthetic.txt",
+      "disposition": "attachment",
+      "resource": "/synthetic/attachment",
+      "content_id": null,
+      "drive_url": null
+    },
+    "listMessage": {
+      "uid": "synthetic-uid",
+      "msg_id": "synthetic-msg-id",
+      "date": "synthetic-date",
+      "subject": "Synthetic subject",
+      "from": [
+        {
+          "email": "sender@example.test",
+          "name": "Synthetic sender"
+        }
+      ],
+      "to": [
+        {
+          "email": "recipient@example.test",
+          "name": "Synthetic recipient"
+        }
+      ],
+      "cc": [],
+      "bcc": [],
+      "reply_to": [],
+      "in_reply_to": null,
+      "references": null,
+      "folder_id": "synthetic-inbox",
+      "folder": "Synthetic/INBOX",
+      "resource": "/synthetic/message",
+      "is_draft": false,
+      "has_attachments": true,
+      "seen": false,
+      "answered": false,
+      "forwarded": false,
+      "flagged": false,
+      "preview": "Synthetic preview",
+      "size": 3,
+      "dkim_status": "synthetic-status",
+      "provider_only": "ignored"
+    },
+    "thread": {
+      "uid": "synthetic-thread",
+      "subject": "Synthetic subject",
+      "date": "synthetic-date",
+      "from": [
+        {
+          "email": "sender@example.test",
+          "name": "Synthetic sender"
+        }
+      ],
+      "to": [
+        {
+          "email": "recipient@example.test",
+          "name": "Synthetic recipient"
+        }
+      ],
+      "messages_count": 1,
+      "unseen_messages": 1,
+      "has_attachments": true,
+      "flagged": false,
+      "answered": false,
+      "forwarded": false,
+      "messages": [
+        {
+          "uid": "synthetic-uid",
+          "msg_id": "synthetic-msg-id",
+          "date": "synthetic-date",
+          "subject": "Synthetic subject",
+          "from": [
+            {
+              "email": "sender@example.test",
+              "name": "Synthetic sender"
+            }
+          ],
+          "to": [
+            {
+              "email": "recipient@example.test",
+              "name": "Synthetic recipient"
+            }
+          ],
+          "cc": [],
+          "bcc": [],
+          "reply_to": [],
+          "in_reply_to": null,
+          "references": null,
+          "folder_id": "synthetic-inbox",
+          "folder": "Synthetic/INBOX",
+          "resource": "/synthetic/message",
+          "is_draft": false,
+          "has_attachments": true,
+          "seen": false,
+          "answered": false,
+          "forwarded": false,
+          "flagged": false,
+          "preview": "Synthetic preview",
+          "size": 3,
+          "dkim_status": "synthetic-status",
+          "provider_only": "ignored"
+        }
+      ]
+    },
+    "detail": {
+      "result": "success",
+      "data": {
+        "uid": "synthetic-uid",
+        "msg_id": "synthetic-msg-id",
+        "date": "synthetic-date",
+        "subject": "Synthetic subject",
+        "from": [
+          {
+            "email": "sender@example.test",
+            "name": "Synthetic sender"
+          }
+        ],
+        "to": [
+          {
+            "email": "recipient@example.test",
+            "name": "Synthetic recipient"
+          }
+        ],
+        "cc": [],
+        "bcc": [],
+        "reply_to": [],
+        "in_reply_to": null,
+        "references": null,
+        "folder_id": "synthetic-inbox",
+        "folder": "Synthetic/INBOX",
+        "resource": "/synthetic/message",
+        "is_draft": false,
+        "has_attachments": true,
+        "seen": false,
+        "answered": false,
+        "forwarded": false,
+        "flagged": false,
+        "preview": "Synthetic preview",
+        "size": 3,
+        "dkim_status": "synthetic-status",
+        "provider_only": "ignored",
+        "body": {
+          "type": "html",
+          "value": "<b>Synthetic body</b>"
+        },
+        "headers": {
+          "Synthetic-Header": "opaque"
+        },
+        "attachments": [
+          {
+            "part_id": 1,
+            "mime_type": "text/plain",
+            "encoding": "base64",
+            "size": 3,
+            "name": "synthetic.txt",
+            "disposition": "attachment",
+            "resource": "/synthetic/attachment",
+            "content_id": null,
+            "drive_url": null
+          }
+        ],
+        "subBody": "ignored",
+        "raw_headers": "ignored",
+        "attachments_resources": "/ignored",
+        "safe_display": true,
+        "acknowledge": "ignored"
+      }
+    },
+    "detailNullAttachments": {
+      "result": "success",
+      "data": {
+        "uid": "synthetic-uid",
+        "msg_id": "synthetic-msg-id",
+        "date": "synthetic-date",
+        "subject": "Synthetic subject",
+        "from": [
+          {
+            "email": "sender@example.test",
+            "name": "Synthetic sender"
+          }
+        ],
+        "to": [
+          {
+            "email": "recipient@example.test",
+            "name": "Synthetic recipient"
+          }
+        ],
+        "cc": [],
+        "bcc": [],
+        "reply_to": [],
+        "in_reply_to": null,
+        "references": null,
+        "folder_id": "synthetic-inbox",
+        "folder": "Synthetic/INBOX",
+        "resource": "/synthetic/message",
+        "is_draft": false,
+        "has_attachments": true,
+        "seen": false,
+        "answered": false,
+        "forwarded": false,
+        "flagged": false,
+        "preview": "Synthetic preview",
+        "size": 3,
+        "dkim_status": "synthetic-status",
+        "provider_only": "ignored",
+        "body": {
+          "type": "text",
+          "value": "Synthetic body"
+        },
+        "headers": {},
+        "attachments": null
+      }
+    },
+    "pageFirstOn": {
+      "result": "success",
+      "data": {
+        "threads": [
+          {
+            "uid": "synthetic-thread",
+            "subject": "Synthetic subject",
+            "date": "synthetic-date",
+            "from": [
+              {
+                "email": "sender@example.test",
+                "name": "Synthetic sender"
+              }
+            ],
+            "to": [
+              {
+                "email": "recipient@example.test",
+                "name": "Synthetic recipient"
+              }
+            ],
+            "messages_count": 1,
+            "unseen_messages": 1,
+            "has_attachments": true,
+            "flagged": false,
+            "answered": false,
+            "forwarded": false,
+            "messages": [
+              {
+                "uid": "synthetic-uid",
+                "msg_id": "synthetic-msg-id",
+                "date": "synthetic-date",
+                "subject": "Synthetic subject",
+                "from": [
+                  {
+                    "email": "sender@example.test",
+                    "name": "Synthetic sender"
+                  }
+                ],
+                "to": [
+                  {
+                    "email": "recipient@example.test",
+                    "name": "Synthetic recipient"
+                  }
+                ],
+                "cc": [],
+                "bcc": [],
+                "reply_to": [],
+                "in_reply_to": null,
+                "references": null,
+                "folder_id": "synthetic-inbox",
+                "folder": "Synthetic/INBOX",
+                "resource": "/synthetic/message",
+                "is_draft": false,
+                "has_attachments": true,
+                "seen": false,
+                "answered": false,
+                "forwarded": false,
+                "flagged": false,
+                "preview": "Synthetic preview",
+                "size": 3,
+                "dkim_status": "synthetic-status",
+                "provider_only": "ignored"
+              }
+            ]
+          }
+        ],
+        "total_messages_count": 68,
+        "messages_count": 1,
+        "current_offset": 0,
+        "thread_mode": "on",
+        "folder_unseen_messages": 1,
+        "resource_previous": null,
+        "resource_next": "/synthetic/next",
+        "provider_only": "ignored"
+      }
+    },
+    "pageLastOn": {
+      "result": "success",
+      "data": {
+        "threads": [],
+        "total_messages_count": 68,
+        "messages_count": 0,
+        "current_offset": 67,
+        "thread_mode": "on",
+        "folder_unseen_messages": 1,
+        "resource_previous": "/synthetic/previous",
+        "resource_next": null,
+        "provider_only": "ignored"
+      }
+    },
+    "pageBeyondOn": {
+      "result": "success",
+      "data": {
+        "threads": [],
+        "total_messages_count": 68,
+        "messages_count": 0,
+        "current_offset": 118,
+        "thread_mode": "on",
+        "folder_unseen_messages": 1,
+        "resource_previous": "/synthetic/previous",
+        "resource_next": null,
+        "provider_only": "ignored"
+      }
+    },
+    "pageFirstOff": {
+      "result": "success",
+      "data": {
+        "threads": [
+          {
+            "uid": "synthetic-thread",
+            "subject": "Synthetic subject",
+            "date": "synthetic-date",
+            "from": [
+              {
+                "email": "sender@example.test",
+                "name": "Synthetic sender"
+              }
+            ],
+            "to": [
+              {
+                "email": "recipient@example.test",
+                "name": "Synthetic recipient"
+              }
+            ],
+            "messages_count": 1,
+            "unseen_messages": 1,
+            "has_attachments": true,
+            "flagged": false,
+            "answered": false,
+            "forwarded": false,
+            "messages": [
+              {
+                "uid": "synthetic-uid",
+                "msg_id": "synthetic-msg-id",
+                "date": "synthetic-date",
+                "subject": "Synthetic subject",
+                "from": [
+                  {
+                    "email": "sender@example.test",
+                    "name": "Synthetic sender"
+                  }
+                ],
+                "to": [
+                  {
+                    "email": "recipient@example.test",
+                    "name": "Synthetic recipient"
+                  }
+                ],
+                "cc": [],
+                "bcc": [],
+                "reply_to": [],
+                "in_reply_to": null,
+                "references": null,
+                "folder_id": "synthetic-inbox",
+                "folder": "Synthetic/INBOX",
+                "resource": "/synthetic/message",
+                "is_draft": false,
+                "has_attachments": true,
+                "seen": false,
+                "answered": false,
+                "forwarded": false,
+                "flagged": false,
+                "preview": "Synthetic preview",
+                "size": 3,
+                "dkim_status": "synthetic-status",
+                "provider_only": "ignored"
+              }
+            ]
+          }
+        ],
+        "total_messages_count": 68,
+        "messages_count": 1,
+        "current_offset": 0,
+        "thread_mode": "off",
+        "folder_unseen_messages": 1,
+        "resource_previous": null,
+        "resource_next": "/synthetic/next",
+        "provider_only": "ignored"
+      }
+    },
+    "created": {
+      "result": "success",
+      "data": {
+        "uuid": "synthetic-draft",
+        "uid": "synthetic-draft-message",
+        "attachments": []
+      }
+    },
+    "deletedDraft": {
+      "result": "success",
+      "data": null
+    }
+  },
+  "constructions": {
+    "draft": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:20",
+        "src/mail-client.ts:46",
+        "src/mail-client.ts:122",
+        "src/mail-client.ts:570",
+        "src/mail-client.ts:592-626"
+      ],
+      "note": "Official literal construction, no declared request-body type; name derivation and structured recipients are product decisions.",
+      "body": {
+        "uuid": null,
+        "subject": "Synthetic subject",
+        "body": "Synthetic &lt;body&gt;<br>line",
+        "quote": null,
+        "mime_type": "text/html",
+        "from": {
+          "id": null,
+          "name": "sender",
+          "email": "sender@example.test"
+        },
+        "reply_to": {
+          "name": "sender",
+          "email": "sender@example.test"
+        },
+        "to": [
+          {
+            "name": "",
+            "email": "recipient@example.test"
+          }
+        ],
+        "cc": null,
+        "bcc": null,
+        "references": null,
+        "in_reply_to": null,
+        "in_reply_to_uid": null,
+        "forwarded_uid": null,
+        "attachments": [],
+        "identity_id": null,
+        "ack_request": false,
+        "st_uuid": null,
+        "uid": null,
+        "resource": null,
+        "priority": "normal",
+        "encrypted": false,
+        "encryption_password": "",
+        "event_poll_uuid": null,
+        "action": "save",
+        "delay": 0
+      }
+    },
+    "replacement": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:11",
+        "src/mail-client.ts:668",
+        "src/mail-client.ts:675",
+        "src/mail-client.ts:693",
+        "src/mail-client.ts:737",
+        "src/mail-client.ts:744-752"
+      ],
+      "note": "Official code copies a cached complete body; product rebuilds full content without persistent cache. This is not baseline evidence of API acceptance."
+    },
+    "seen": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:796",
+        "src/mail-client.ts:800",
+        "src/mail-client.ts:817"
+      ],
+      "body": {
+        "uids": [
+          "synthetic-uid@synthetic-inbox"
+        ]
+      }
+    },
+    "flag": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:867",
+        "src/mail-client.ts:884"
+      ],
+      "body": {
+        "uids": [
+          "synthetic-uid@synthetic-inbox"
+        ]
+      }
+    },
+    "move": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:832",
+        "src/mail-client.ts:848-852",
+        "src/index.ts:553"
+      ],
+      "body": {
+        "uids": [
+          "synthetic-uid@synthetic-inbox"
+        ],
+        "to": "synthetic-target",
+        "move_reactions": false
+      }
+    },
+    "trash": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:962"
+      ],
+      "note": "Resolve TRASH then move; no permanent delete route."
+    },
+    "permanent": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:928",
+        "src/mail-client.ts:944"
+      ],
+      "body": {
+        "uids": [
+          "synthetic-uid@synthetic-inbox"
+        ],
+        "move_reactions": false
+      }
+    },
+    "createFolder": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:206",
+        "src/mail-client.ts:211",
+        "src/index.ts:81"
+      ],
+      "body": {
+        "name": "Synthetic folder",
+        "parent": "synthetic-parent"
+      }
+    },
+    "renameFolder": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:252",
+        "src/mail-client.ts:259"
+      ],
+      "body": {
+        "name": "Synthetic folder"
+      }
+    },
+    "deleteFolder": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:234"
+      ],
+      "note": "DELETE with no body."
+    },
+    "createdRead": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:558",
+        "src/mail-client.ts:628-631",
+        "src/mail-client.ts:633",
+        "src/mail-client.ts:637",
+        "src/mail-client.ts:643",
+        "src/mail-client.ts:650"
+      ],
+      "note": "Reads data.uuid without type/presence validation. M-B9, not S1, proves consumed response field types."
+    },
+    "reads": {
+      "proof": "official",
+      "package": "@infomaniak/mcp-server-mail",
+      "version": "1.10.1",
+      "commit": "2739f6c9b3af9c9ea77e43b20e601a7e53a99bb6",
+      "blob": "88a3856050e7c924381cc9d8d24f0dd5b11bd034",
+      "lines": [
+        "src/mail-client.ts:51",
+        "src/mail-client.ts:61",
+        "src/mail-client.ts:68",
+        "src/mail-client.ts:71",
+        "src/mail-client.ts:161",
+        "src/mail-client.ts:177",
+        "src/mail-client.ts:203",
+        "src/mail-client.ts:282",
+        "src/mail-client.ts:362"
+      ],
+      "note": "Raw JSON and lax envelope handling; strict success/data validation is product policy. Pagination links and off-mode types are baseline M-B8 only."
+    }
+  },
+  "limits": [
+    "Attachment sending and identity selection are not covered.",
+    "No real provider request; official constructions do not establish baseline acceptance."
+  ]
+}
