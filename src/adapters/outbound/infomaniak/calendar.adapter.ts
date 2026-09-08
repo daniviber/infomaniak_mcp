@@ -49,6 +49,12 @@ const readEventDto = eventDto.extend({
   rrule: eventDto.shape.rrule.nullable(),
   meet_room_url: eventDto.shape.meet_room_url.nullable(),
 });
+// F1, operator observation 2026-09-07: GET /1/calendar/pim/event/{id}
+// returns location:null and rrule:null on the detail response.
+const eventDetailDto = eventDto.extend({
+  location: eventDto.shape.location.nullable(),
+  rrule: eventDto.shape.rrule.nullable(),
+});
 const profileDto = z.object({
   email: z.email(),
   display_name: z.string().optional(),
@@ -62,7 +68,7 @@ const calendarsDto = z.union([
   z.object({ calendars: z.array(calendar).optional() }),
 ]);
 const path = ['1', 'calendar', 'pim', 'event'] as const;
-function mapEvent(dto: z.infer<typeof readEventDto>) {
+function mapEvent(dto: z.infer<typeof readEventDto> | z.infer<typeof eventDetailDto>) {
   return event.parse({
     id: dto.id,
     calendarId: dto.calendar_id,
@@ -70,7 +76,7 @@ function mapEvent(dto: z.infer<typeof readEventDto>) {
     start: dto.start,
     end: dto.end,
     description: dto.description,
-    location: dto.location,
+    ...(dto.location == null ? {} : { location: dto.location }),
     timezoneStart: dto.timezone_start,
     timezoneEnd: dto.timezone_end,
     fullday: dto.fullday,
@@ -166,9 +172,9 @@ export class CalendarAdapter implements CalendarPort {
   private async readEvent(id: Identifier) {
     const response = await this.gateway.request(
       { method: 'GET', pathSegments: [...path, id] },
-      envelope(eventDto),
+      envelope(eventDetailDto),
     );
-    return eventDto.parse(response.data);
+    return eventDetailDto.parse(response.data);
   }
   async getEvent(id: Identifier) {
     return { event: mapEvent(await this.readEvent(id)) };

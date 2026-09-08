@@ -79,5 +79,48 @@
         "updated_at": "2026-03-02 10:00:00"
       }
     ]
+  },
+  "observedEventDetail": {
+    "result": "success",
+    "data": {
+      "id": "event/42",
+      "calendar_id": "7",
+      "title": "Meeting",
+      "description": "Agenda",
+      "location": null,
+      "start": "2026-03-29T01:30:00+01:00",
+      "end": "2026-03-29T03:30:00+02:00",
+      "timezone_start": "Europe/Zurich",
+      "timezone_end": "Europe/Zurich",
+      "fullday": false,
+      "freebusy": "busy",
+      "private": false,
+      "rrule": null,
+      "attendees": [
+        {
+          "address": "guest@example.test",
+          "name": "Guest",
+          "className": "Attendee",
+          "organizer": false,
+          "state": "ACCEPTED"
+        }
+      ],
+      "alarms": [
+        {
+          "action": "DISPLAY"
+        }
+      ],
+      "attachments": [],
+      "provider_only": "hidden"
+    }
+  },
+  "observedEventDetailProvenance": {
+    "source": "F1 — operator report supplied 2026-09-08; production observation 2026-09-07 on mcp.horahow.com",
+    "route": "GET /1/calendar/pim/event/{id}",
+    "observedTypes": {
+      "location": "null",
+      "rrule": "null"
+    },
+    "note": "Synthetic anonymized detail sample based on the existing baseline event. Only location:null and rrule:null are established by F1; other values are synthetic. No live provider call by FIX-12C."
   }
 }

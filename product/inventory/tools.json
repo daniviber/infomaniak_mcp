@@ -914,9 +914,13 @@
         {
           "path": "test/fixtures/calendar.json",
           "note": "Synthetic baseline DTOs; no live provider validation."
+        },
+        {
+          "path": "test/fixtures/calendar.json",
+          "note": "FIX-12C / F1: operator observed location:null and rrule:null on GET /1/calendar/pim/event/{id} on 2026-09-07 (report supplied 2026-09-08). observedEventDetail is synthetic and anonymized; observedEventDetailProvenance records the scope. Offline regression covers both nulls, each isolated null, omitted keys, preserved strings and update reread."
         }
       ],
-      "provider": "non prouvé côté fournisseur"
+      "provider": "F1: operator observation of detail location:null and rrule:null on 2026-09-07; FIX-12C verification uses offline doubles only."
     },
     "knownLimits": [
       "Appels auxiliaires GET /2/profile et GET /1/calendar/pim/calendar selon arguments ; update recharge GET /1/calendar/pim/event/{event_id}. Dates murales conservées ; offsets convertis avec IANA, chevauchements DST non désambiguïsés."
