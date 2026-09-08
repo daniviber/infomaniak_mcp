@@ -165,7 +165,7 @@ JSON only.
 
 ## Available tools
 
-**83 tools** are visible by default. With both flags set and kChat configured, all **132** are.
+**84 tools** are visible by default. With both flags set and kChat configured, all **133** are.
 
 ### Accounts, domains and DNS
 
@@ -304,6 +304,7 @@ they do not establish measured API acceptance. Tests use doubles, not provider c
 | -------------------------------------- | ----------- |
 | `infomaniak_calendar_list_calendars`   | read        |
 | `infomaniak_calendar_list_events`      | read        |
+| `infomaniak_calendar_list_tasks`      | read        |
 | `infomaniak_calendar_get_event`        | read        |
 | `infomaniak_calendar_create_event`     | write       |
 | `infomaniak_calendar_update_event`     | write       |
@@ -312,6 +313,13 @@ they do not establish measured API acceptance. Tests use doubles, not provider c
 Dates are accepted as wall-clock values (`YYYY-MM-DD HH:mm[:ss]`), as a date alone (whole day), or
 with an offset, in which case they are converted into the explicit IANA time zone or the profile
 time zone. Calendar operations act as the owner of the calendar token.
+
+Task reading is limited to `infomaniak_calendar_list_tasks`, visible by default, with a
+required integer `calendar_id`. It lists tasks via `GET /1/calendar/pim/task`; no task detail
+or write operation is provided. The baseline proof is operator report T1 (2026-09-08),
+reproduced by type in `test/fixtures/calendar.json` with synthetic values. Tasks are distinct
+from events. Due dates are omitted: T1 establishes only `due_date: null`, so a non-null
+observation is needed before exposure. `raw`, `created_at` and `updated_at` are also omitted.
 
 ### Web hosting, Swiss Backup, certificates and invoices
 

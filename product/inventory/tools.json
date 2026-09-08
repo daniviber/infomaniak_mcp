@@ -16055,5 +16055,137 @@
       "DELETE without body, non-idempotent. Ignored response; local HTTP acknowledgement.",
       "Attachment sending and selectable identity are not covered."
     ]
+  },
+  {
+    "name": "infomaniak_calendar_list_tasks",
+    "useCase": "List tasks of the specified calendar without due dates",
+    "classification": "read",
+    "idempotent": true,
+    "limits": {},
+    "endpoint": {
+      "method": "GET",
+      "path": "/1/calendar/pim/task",
+      "base": "https://api.infomaniak.com"
+    },
+    "proof": "baseline",
+    "experimental": false,
+    "rawApi": false,
+    "methodPolicy": null,
+    "visibility": {
+      "allowExperimental": false,
+      "allowRawApi": false,
+      "kchatConfigured": false,
+      "readOnly": "Does not hide tools; policy gates calls and raw HTTP method."
+    },
+    "schemas": {
+      "input": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "calendar_id": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "calendar_id"
+        ],
+        "additionalProperties": false
+      },
+      "output": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "calendarId": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "type": {
+                  "type": "string",
+                  "const": "todo"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "private": {
+                  "type": "boolean"
+                },
+                "done": {
+                  "type": "boolean"
+                },
+                "progress": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "priority": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "hasAttachments": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "calendarId",
+                "type",
+                "title",
+                "description",
+                "location",
+                "private",
+                "done",
+                "progress",
+                "priority",
+                "hasAttachments"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "tasks"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "handler": {
+      "module": "src/features/calendar.feature.ts",
+      "export": "createHandlers",
+      "key": "infomaniak_calendar_list_tasks"
+    },
+    "evidence": {
+      "fixture": "test/fixtures/calendar.json",
+      "tests": "test/features/calendar.feature.test.ts",
+      "sources": [
+        {
+          "path": "test/fixtures/calendar.json",
+          "note": "T1 — operator type report 2026-09-08, reproduced in tasksProvenance. Task sample values are synthetic; no live provider call."
+        }
+      ],
+      "provider": "T1 operator observation by types; synthetic offline verification only for FEAT-15."
+    },
+    "knownLimits": [
+      "List only; task detail returned 404 in T1. due_date is not exposed: only null is established by T1. raw, created_at and updated_at are not consumed."
+    ]
   }
 ]

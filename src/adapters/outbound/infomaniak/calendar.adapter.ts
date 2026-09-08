@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   calendar,
+  task,
   event,
   identifier,
   assertTimeZone,
@@ -13,9 +14,41 @@ import type {
   UpdateEventCommand,
   DeleteEventCommand,
   ListEventsQuery,
+  ListTasksQuery,
 } from '../../../application/calendar/calendar.port.js';
 import type { InfomaniakGateway } from './gateway.js';
 
+// T1: all consumed fields are required with these types.
+// due_date:null, raw:null, created_at:null and updated_at:null are unconsumed
+// unknown keys. No non-null date type is established or inferred.
+const taskDto = z.object({
+  id: z.number().int(),
+  calendar_id: z.number().int(),
+  type: z.literal('todo'),
+  title: z.string(),
+  description: z.string(),
+  location: z.string(),
+  private: z.boolean(),
+  done: z.boolean(),
+  progress: z.number().int(),
+  priority: z.number().int(),
+  has_attachments: z.boolean(),
+});
+function mapTask(dto: z.infer<typeof taskDto>) {
+  return task.parse({
+    id: dto.id,
+    calendarId: dto.calendar_id,
+    type: dto.type,
+    title: dto.title,
+    description: dto.description,
+    location: dto.location,
+    private: dto.private,
+    done: dto.done,
+    progress: dto.progress,
+    priority: dto.priority,
+    hasAttachments: dto.has_attachments,
+  });
+}
 const attendeeDto = z.object({
   address: z.email(),
   name: z.string(),
@@ -151,6 +184,17 @@ export class CalendarAdapter implements CalendarPort {
     );
     const data = calendarsDto.parse(response.data);
     return { calendars: Array.isArray(data) ? data : (data.calendars ?? []) };
+  }
+  async listTasks(query: ListTasksQuery) {
+    const response = await this.gateway.request(
+      {
+        method: 'GET',
+        pathSegments: ['1', 'calendar', 'pim', 'task'],
+        query: { calendar_id: query.calendar_id },
+      },
+      envelope(z.array(taskDto)),
+    );
+    return { tasks: response.data.map(mapTask) };
   }
   async listEvents(query: ListEventsQuery) {
     const timezone = await this.timezone(query.timezone);

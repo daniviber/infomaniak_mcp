@@ -394,5 +394,8 @@
   },
   {
     "name": "infomaniak_mail_delete_folder"
+  },
+  {
+    "name": "infomaniak_calendar_list_tasks"
   }
 ]

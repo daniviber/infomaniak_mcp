@@ -29,6 +29,21 @@ export const event = z.object({
   rrule: z.string().optional(),
   attendees: z.array(attendee).optional(),
 });
+// T1 (2026-09-08): consumed task fields are required; dates are not projected.
+export const task = z.object({
+  id: z.number().int(),
+  calendarId: z.number().int(),
+  type: z.literal('todo'),
+  title: z.string(),
+  description: z.string(),
+  location: z.string(),
+  private: z.boolean(),
+  done: z.boolean(),
+  progress: z.number().int(),
+  priority: z.number().int(),
+  hasAttachments: z.boolean(),
+});
+export type CalendarTask = z.infer<typeof task>;
 export type Calendar = z.infer<typeof calendar>;
 export type CalendarEvent = z.infer<typeof event>;
 export type Identifier = z.infer<typeof identifier>;
