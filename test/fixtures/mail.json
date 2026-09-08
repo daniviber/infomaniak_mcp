@@ -5,7 +5,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B1"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -17,7 +17,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B2"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -29,7 +29,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B6"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -41,7 +41,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B7"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -53,7 +53,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B4", "M-B6"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -65,7 +65,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B3", "M-B4", "M-B6"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -77,7 +77,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B4", "M-B5", "M-B6", "M-B7"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -89,7 +89,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B4", "M-B5", "M-B6"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -101,7 +101,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B8", "M-B3", "M-B4", "M-B6"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -113,7 +113,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B8"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -125,7 +125,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B8"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -137,7 +137,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B8", "M-B3", "M-B4", "M-B6"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -149,7 +149,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B9"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
@@ -161,7 +161,7 @@
         "proof": "baseline",
         "source": "Operator types-only measurement 2026-09-08",
         "lines": ["M-B9"],
-        "contractBlob": "ba76468fd13b63a44b198179d4dc4e126a8a74c2"
+        "contractBlob": "0ed51fe2393ccffbdc56160bf48a0419dd314f5d"
       },
       "values": {
         "kind": "synthetic",
