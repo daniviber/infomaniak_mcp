@@ -60,6 +60,7 @@ const configuration = z.object({
   KCHAT_TOKEN: z.string().min(1).optional(),
   INFOMANIAK_API_TOKEN: z.string().min(1),
   INFOMANIAK_CALENDAR_TOKEN: z.string().min(1).optional(),
+  INFOMANIAK_MAIL_TOKEN: z.string().min(1).optional(),
   INFOMANIAK_READ_ONLY: boolean.default(false),
   INFOMANIAK_ALLOW_RAW_API: boolean.default(false),
   INFOMANIAK_ALLOW_EXPERIMENTAL: boolean.default(false),
@@ -94,6 +95,7 @@ export function loadRuntimeConfig(env: Readonly<Record<string, string | undefine
         ? Object.freeze({ host: value.KCHAT_HOST, token: value.KCHAT_TOKEN })
         : undefined,
     calendarToken: value.INFOMANIAK_CALENDAR_TOKEN ?? value.INFOMANIAK_API_TOKEN,
+    mailToken: value.INFOMANIAK_MAIL_TOKEN ?? value.INFOMANIAK_API_TOKEN,
     timeoutMs: value.INFOMANIAK_TIMEOUT_MS,
     toolsTtlMs: value.MCP_TOOLS_TTL_MS,
     http: Object.freeze({

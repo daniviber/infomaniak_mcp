@@ -230,7 +230,11 @@ describe('kChat offline vertical slice', () => {
       if (!enabled) {
         for (const contract of tools)
           await expect(module.invoke(contract.name, {}, policy)).rejects.toThrow('Unknown tool');
-        expect(deps.createGateway).not.toHaveBeenCalled();
+        expect(
+          deps.createGateway.mock.calls.some(
+            ([{ base }]) => base !== undefined && new URL(base).host === configured.KCHAT_HOST,
+          ),
+        ).toBe(false);
       }
       expect(deps.fetcher).not.toHaveBeenCalled();
       expect(tools).toHaveLength(13);

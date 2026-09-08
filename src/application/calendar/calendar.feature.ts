@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   calendar,
+  task,
   event,
   identifier,
   toApiDateTime,
@@ -54,6 +55,7 @@ const listInput = z.object({
   calendar_id: identifier.optional(),
   timezone,
 });
+const listTasksInput = z.object({ calendar_id: z.number().int() });
 const getInput = z.object({ event_id: identifier });
 const updateInput = createInput
   .partial()
@@ -118,10 +120,18 @@ export const tools = [
     z.object({ deleted: z.boolean(), eventId: identifier }),
     'destructive',
   ),
+  contract(
+    'list_tasks',
+    'List tasks of the specified calendar without due dates',
+    listTasksInput,
+    z.object({ tasks: z.array(task) }),
+    'read',
+  ),
 ] as const;
 
 export function createCalendarHandlers(port: CalendarPort) {
   return {
+    infomaniak_calendar_list_tasks: (input: unknown) => port.listTasks(listTasksInput.parse(input)),
     infomaniak_calendar_list_calendars: async (input: unknown) => {
       tools[0].inputSchema.parse(input);
       return port.listCalendars();

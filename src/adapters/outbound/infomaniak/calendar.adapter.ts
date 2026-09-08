@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   calendar,
+  task,
   event,
   identifier,
   assertTimeZone,
@@ -13,9 +14,41 @@ import type {
   UpdateEventCommand,
   DeleteEventCommand,
   ListEventsQuery,
+  ListTasksQuery,
 } from '../../../application/calendar/calendar.port.js';
 import type { InfomaniakGateway } from './gateway.js';
 
+// T1: all consumed fields are required with these types.
+// due_date:null, raw:null, created_at:null and updated_at:null are unconsumed
+// unknown keys. No non-null date type is established or inferred.
+const taskDto = z.object({
+  id: z.number().int(),
+  calendar_id: z.number().int(),
+  type: z.literal('todo'),
+  title: z.string(),
+  description: z.string(),
+  location: z.string(),
+  private: z.boolean(),
+  done: z.boolean(),
+  progress: z.number().int(),
+  priority: z.number().int(),
+  has_attachments: z.boolean(),
+});
+function mapTask(dto: z.infer<typeof taskDto>) {
+  return task.parse({
+    id: dto.id,
+    calendarId: dto.calendar_id,
+    type: dto.type,
+    title: dto.title,
+    description: dto.description,
+    location: dto.location,
+    private: dto.private,
+    done: dto.done,
+    progress: dto.progress,
+    priority: dto.priority,
+    hasAttachments: dto.has_attachments,
+  });
+}
 const attendeeDto = z.object({
   address: z.email(),
   name: z.string(),
@@ -49,6 +82,12 @@ const readEventDto = eventDto.extend({
   rrule: eventDto.shape.rrule.nullable(),
   meet_room_url: eventDto.shape.meet_room_url.nullable(),
 });
+// F1, operator observation 2026-09-07: GET /1/calendar/pim/event/{id}
+// returns location:null and rrule:null on the detail response.
+const eventDetailDto = eventDto.extend({
+  location: eventDto.shape.location.nullable(),
+  rrule: eventDto.shape.rrule.nullable(),
+});
 const profileDto = z.object({
   email: z.email(),
   display_name: z.string().optional(),
@@ -62,7 +101,7 @@ const calendarsDto = z.union([
   z.object({ calendars: z.array(calendar).optional() }),
 ]);
 const path = ['1', 'calendar', 'pim', 'event'] as const;
-function mapEvent(dto: z.infer<typeof readEventDto>) {
+function mapEvent(dto: z.infer<typeof readEventDto> | z.infer<typeof eventDetailDto>) {
   return event.parse({
     id: dto.id,
     calendarId: dto.calendar_id,
@@ -70,7 +109,7 @@ function mapEvent(dto: z.infer<typeof readEventDto>) {
     start: dto.start,
     end: dto.end,
     description: dto.description,
-    location: dto.location,
+    ...(dto.location == null ? {} : { location: dto.location }),
     timezoneStart: dto.timezone_start,
     timezoneEnd: dto.timezone_end,
     fullday: dto.fullday,
@@ -146,6 +185,17 @@ export class CalendarAdapter implements CalendarPort {
     const data = calendarsDto.parse(response.data);
     return { calendars: Array.isArray(data) ? data : (data.calendars ?? []) };
   }
+  async listTasks(query: ListTasksQuery) {
+    const response = await this.gateway.request(
+      {
+        method: 'GET',
+        pathSegments: ['1', 'calendar', 'pim', 'task'],
+        query: { calendar_id: query.calendar_id },
+      },
+      envelope(z.array(taskDto)),
+    );
+    return { tasks: response.data.map(mapTask) };
+  }
   async listEvents(query: ListEventsQuery) {
     const timezone = await this.timezone(query.timezone);
     const calendar_id = await this.calendarId(query.calendar_id);
@@ -166,9 +216,9 @@ export class CalendarAdapter implements CalendarPort {
   private async readEvent(id: Identifier) {
     const response = await this.gateway.request(
       { method: 'GET', pathSegments: [...path, id] },
-      envelope(eventDto),
+      envelope(eventDetailDto),
     );
-    return eventDto.parse(response.data);
+    return eventDetailDto.parse(response.data);
   }
   async getEvent(id: Identifier) {
     return { event: mapEvent(await this.readEvent(id)) };

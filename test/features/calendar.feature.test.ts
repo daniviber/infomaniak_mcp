@@ -1,3 +1,6 @@
+import { bootstrap } from '../../src/main/bootstrap.js';
+import { CalendarAdapter } from '../../src/adapters/outbound/infomaniak/calendar.adapter.js';
+import { task } from '../../src/domain/calendar/event.js';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -47,6 +50,7 @@ async function setup(
       authorization: new Headers(init?.headers).get('Authorization'),
     });
     if (options.response) return Response.json(options.response(method, url));
+    if (url.pathname === '/1/calendar/pim/task') return Response.json(fixture.tasks);
     if (url.pathname === '/2/profile') return Response.json(fixture.profile);
     if (url.pathname.endsWith('/calendar')) return Response.json(fixture.calendars);
     if (method === 'POST' || method === 'PUT') {
@@ -146,7 +150,7 @@ describe('Calendar offline feature', () => {
     ];
     const listed = await app.rpc('tools/list');
     expect(listed.result.tools.map((tool: { name: string }) => tool.name).sort()).toEqual(
-      names.map((name) => prefix + name).sort(),
+      [...names, 'list_tasks'].map((name) => prefix + name).sort(),
     );
     const inputs = [
       {},
@@ -193,6 +197,59 @@ describe('Calendar offline feature', () => {
     });
     expect(result.event).not.toHaveProperty('calendar_id');
     expect(result.event).not.toHaveProperty('alarms');
+
+    // FIX-12C / F1: detail nulls are distinct from the historical list DTO.
+    for (const fields of [
+      { location: null, rrule: null },
+      { location: null, rrule: fixture.event.data.rrule },
+      { location: fixture.event.data.location, rrule: null },
+      { location: fixture.event.data.location, rrule: fixture.event.data.rrule },
+      { location: '', rrule: '' },
+      { location: undefined, rrule: undefined },
+    ]) {
+      const detail = await setup({
+        response: () => ({
+          ...fixture.observedEventDetail,
+          data: { ...fixture.observedEventDetail.data, ...fields },
+        }),
+      });
+      const domain = await detail.invoke('get_event', { event_id: 'event/42' });
+      const rpc = await detail.rpc('tools/call', {
+        name: prefix + 'get_event',
+        arguments: { event_id: 'event/42' },
+      });
+      expect(rpc.error).toBeUndefined();
+      expect(rpc.result.isError).not.toBe(true);
+      expect(rpc.result.content).toEqual([
+        { type: 'text', text: JSON.stringify(rpc.result.structuredContent, null, 2) },
+      ]);
+      const textOutput = JSON.parse(rpc.result.content[0].text);
+      for (const output of [domain, rpc.result.structuredContent, textOutput]) {
+        for (const key of ['location', 'rrule'] as const) {
+          if (fields[key] == null) {
+            expect(output.event).not.toHaveProperty(key);
+          } else {
+            expect(output.event).toHaveProperty(key, fields[key]);
+          }
+        }
+      }
+      expect(detail.calls).toHaveLength(2);
+      for (const call of detail.calls) {
+        expect(call.method).toBe('GET');
+        expect(call.url.origin).toBe('https://api.infomaniak.com');
+        expect(call.url.pathname).toBe('/1/calendar/pim/event/event%2F42');
+      }
+      expect(detail.clock.wait).not.toHaveBeenCalled();
+    }
+    const invalidDetail = await setup({
+      response: () => ({
+        ...fixture.observedEventDetail,
+        data: { ...fixture.observedEventDetail.data, meet_room_url: null },
+      }),
+    });
+    await expect(
+      invalidDetail.module.invoke(prefix + 'get_event', { event_id: 42 }, policy),
+    ).rejects.toThrow('Invalid Infomaniak response');
   });
   it('creates participants with the mailbox organizer and recurrence', async () => {
     const app = await setup();
@@ -255,6 +312,30 @@ describe('Calendar offline feature', () => {
       rrule: 'FREQ=WEEKLY;BYDAY=MO',
       notifyAttendees: true,
     });
+    const nullDetail = await setup({
+      response: (method, url) =>
+        url.pathname === '/2/profile'
+          ? fixture.profile
+          : method === 'GET'
+            ? fixture.observedEventDetail
+            : fixture.event,
+    });
+    await nullDetail.invoke('update_event', {
+      event_id: 'event/42',
+      title: 'New',
+      notify_attendees: true,
+    });
+    expect(nullDetail.calls.map((call) => [call.method, call.url.pathname])).toEqual([
+      ['GET', '/1/calendar/pim/event/event%2F42'],
+      ['GET', '/2/profile'],
+      ['PUT', '/1/calendar/pim/event/event%2F42'],
+    ]);
+    expect(nullDetail.calls.at(-1)!.body).toStrictEqual({
+      ...app.calls.find((call) => call.method === 'PUT')!.body,
+      location: '',
+      rrule: '',
+    });
+    expect(nullDetail.clock.wait).not.toHaveBeenCalled();
     await app.invoke('update_event', {
       event_id: 'event/42',
       attendees: [],
@@ -440,6 +521,7 @@ describe('Calendar offline feature', () => {
     'denies %s before any port method, even with invalid input',
     async (name) => {
       const port = {
+        listTasks: vi.fn(),
         listCalendars: vi.fn(),
         listEvents: vi.fn(),
         getEvent: vi.fn(),
@@ -478,6 +560,7 @@ describe('Calendar offline feature', () => {
       'write',
       'write',
       'destructive',
+      'read',
     ]);
     for (const tool of tools) {
       expect(tool.rawApi).toBe(false);
@@ -502,7 +585,6 @@ it('FIX-12B parses observed Calendar types without converting string dates', asy
         calendarId: 7,
         title: 'Meeting',
         description: undefined,
-        location: undefined,
         timezoneStart: undefined,
         timezoneEnd: undefined,
         fullday: undefined,
@@ -513,5 +595,210 @@ it('FIX-12B parses observed Calendar types without converting string dates', asy
         end: '2026-03-29T03:30:00+02:00',
       },
     ],
+  });
+});
+
+describe('FEAT-15 task list', () => {
+  const name = prefix + 'list_tasks';
+  const expectedTask = {
+    id: 63,
+    calendarId: 7,
+    type: 'todo',
+    title: 'Synthetic task',
+    description: 'Synthetic description',
+    location: 'Synthetic location',
+    private: false,
+    done: false,
+    progress: 0,
+    priority: 5,
+    hasAttachments: false,
+  };
+
+  it('declares exactly the task list with required integer input and domain output', () => {
+    const added = tools.filter((tool) => tool.name.includes('task'));
+    expect(added).toHaveLength(1);
+    expect(added[0]).toMatchObject({
+      name,
+      classification: 'read',
+      idempotent: true,
+      experimental: false,
+      rawApi: false,
+      limits: {},
+    });
+    expect(added[0].inputSchema.parse({ calendar_id: 7 })).toEqual({ calendar_id: 7 });
+    expect(task.parse(expectedTask)).toStrictEqual(expectedTask);
+    for (const key of Object.keys(expectedTask)) {
+      const missing: Record<string, unknown> = { ...expectedTask };
+      delete missing[key];
+      expect(task.safeParse(missing).success).toBe(false);
+      expect(task.safeParse({ ...expectedTask, [key]: null }).success).toBe(false);
+    }
+  });
+
+  it('returns an empty list, then the synthetic T1 sample, over the sole GET route', async () => {
+    for (const data of [[], fixture.tasks.data]) {
+      const app = await setup({ readOnly: true, response: () => ({ result: 'success', data }) });
+      const expected = { tasks: data.length ? [expectedTask] : [] };
+      expect(await app.invoke('list_tasks', { calendar_id: 7 })).toStrictEqual(expected);
+      const rpc = await app.rpc('tools/call', { name, arguments: { calendar_id: 7 } });
+      expect(rpc.result.isError).not.toBe(true);
+      expect(rpc.result.structuredContent).toStrictEqual(expected);
+      expect(rpc.result.content).toStrictEqual([
+        { type: 'text', text: JSON.stringify(expected, null, 2) },
+      ]);
+      expect(app.calls).toHaveLength(2);
+      for (const call of app.calls) {
+        expect(call.method).toBe('GET');
+        expect(call.url.origin).toBe('https://api.infomaniak.com');
+        expect(call.url.pathname).toBe('/1/calendar/pim/task');
+        expect(Object.fromEntries(call.url.searchParams)).toEqual({ calendar_id: '7' });
+        expect(call.body).toBeUndefined();
+      }
+      expect(app.clock.wait).not.toHaveBeenCalled();
+    }
+  });
+
+  it('passes an integer query to the gateway and explicitly projects only consumed fields', async () => {
+    const app = await setup();
+    const gateway = new InfomaniakGateway({
+      token: 'offline-placeholder',
+      timeoutMs: 1000,
+      bucket: new TokenBucket(app.clock),
+      fetch: app.fetcher,
+      clock: app.clock,
+      random: () => 0,
+      utcNow: () => 0,
+    });
+    const request = vi.spyOn(gateway, 'request');
+    const output = await new CalendarAdapter(gateway).listTasks({ calendar_id: 7 });
+    expect(request).toHaveBeenCalledExactlyOnceWith(
+      { method: 'GET', pathSegments: ['1', 'calendar', 'pim', 'task'], query: { calendar_id: 7 } },
+      expect.anything(),
+    );
+    expect(output).toStrictEqual({ tasks: [expectedTask] });
+    expect(output.tasks[0]).not.toBe(fixture.tasks.data[0]);
+    for (const key of [
+      'due_date',
+      'raw',
+      'created_at',
+      'updated_at',
+      'calendar_id',
+      'has_attachments',
+    ])
+      expect(output.tasks[0]).not.toHaveProperty(key);
+  });
+
+  it.each([{}, { calendar_id: '7' }, { calendar_id: 7.5 }, { calendar_id: null }])(
+    'rejects invalid task input before any call: %j',
+    async (input) => {
+      const app = await setup();
+      await expect(app.module.invoke(name, input, policy)).rejects.toThrow();
+      expect(app.fetcher).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects missing, null and wrongly typed consumed T1 fields without leaking values', async () => {
+    const wrong: Record<string, unknown> = {
+      id: 'synthetic-sensitive-id',
+      calendar_id: 'synthetic-sensitive-calendar',
+      type: 'event',
+      title: 12345,
+      description: 12345,
+      location: 12345,
+      private: 'synthetic-sensitive-boolean',
+      done: 'synthetic-sensitive-boolean',
+      progress: 'synthetic-sensitive-progress',
+      priority: 'synthetic-sensitive-priority',
+      has_attachments: 'synthetic-sensitive-boolean',
+    };
+    for (const [key, value] of Object.entries(wrong)) {
+      const missing = { ...fixture.tasks.data[0] };
+      delete missing[key];
+      for (const dto of [
+        missing,
+        { ...fixture.tasks.data[0], [key]: null },
+        { ...fixture.tasks.data[0], [key]: value },
+      ]) {
+        const app = await setup({ response: () => ({ result: 'success', data: [dto] }) });
+        let message = '';
+        try {
+          await app.module.invoke(name, { calendar_id: 7 }, policy);
+        } catch (error) {
+          message = (error as Error).message;
+        }
+        expect(message).toContain('Invalid Infomaniak response');
+        expect(message).toContain(key);
+        expect(message).not.toContain(String(value));
+        expect(message).not.toContain(fixture.tasks.data[0].title);
+        expect(app.calls).toHaveLength(1);
+      }
+    }
+  });
+
+  it.each(['id', 'calendar_id', 'progress', 'priority'])(
+    'rejects fractional %s without coercion',
+    async (key) => {
+      const app = await setup({
+        response: () => ({ result: 'success', data: [{ ...fixture.tasks.data[0], [key]: 1.5 }] }),
+      });
+      await expect(app.module.invoke(name, { calendar_id: 7 }, policy)).rejects.toThrow(
+        'Invalid Infomaniak response',
+      );
+    },
+  );
+
+  it('does not infer priority enums or progress bounds from the synthetic T1 sample', async () => {
+    const app = await setup({
+      response: () => ({
+        result: 'success',
+        data: [{ ...fixture.tasks.data[0], priority: -3, progress: 150 }],
+      }),
+    });
+    expect(await app.invoke('list_tasks', { calendar_id: 7 })).toStrictEqual({
+      tasks: [{ ...expectedTask, priority: -3, progress: 150 }],
+    });
+  });
+
+  it.each([
+    { result: 'error', data: [] },
+    { result: 'success', data: {} },
+  ])('rejects an invalid task envelope: %j', async (response) => {
+    const app = await setup({ response: () => response });
+    await expect(app.module.invoke(name, { calendar_id: 7 }, policy)).rejects.toThrow(
+      'Invalid Infomaniak response',
+    );
+  });
+
+  it('is visible by default and callable read-only in all eight flag combinations', async () => {
+    const fetcher = vi.fn<typeof fetch>(async (input, init) => {
+      expect(String(input)).toBe('https://api.infomaniak.com/1/calendar/pim/task?calendar_id=7');
+      expect(init?.method).toBe('GET');
+      return Response.json(fixture.tasks);
+    });
+    for (const raw of [false, true])
+      for (const experimental of [false, true])
+        for (const chat of [false, true]) {
+          const runtime = await bootstrap(
+            {
+              INFOMANIAK_API_TOKEN: 'offline-placeholder',
+              INFOMANIAK_READ_ONLY: 'true',
+              INFOMANIAK_ALLOW_RAW_API: String(raw),
+              INFOMANIAK_ALLOW_EXPERIMENTAL: String(experimental),
+              ...(chat
+                ? { KCHAT_HOST: 'chat.example.test', KCHAT_TOKEN: 'offline-chat-placeholder' }
+                : {}),
+            },
+            { fetch: fetcher, pattern: 'src/features/**/*.feature.ts' },
+          );
+          expect(runtime.module.tools.filter((tool) => tool.name === name)).toHaveLength(1);
+          const output = await runtime.module.invoke(
+            name,
+            { calendar_id: 7 },
+            runtime.config.policy,
+          );
+          expect(output.isError).toBeUndefined();
+          expect(output.structuredContent).toStrictEqual({ tasks: [expectedTask] });
+        }
+    expect(fetcher).toHaveBeenCalledTimes(8);
   });
 });

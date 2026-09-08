@@ -79,5 +79,91 @@
         "updated_at": "2026-03-02 10:00:00"
       }
     ]
+  },
+  "observedEventDetail": {
+    "result": "success",
+    "data": {
+      "id": "event/42",
+      "calendar_id": "7",
+      "title": "Meeting",
+      "description": "Agenda",
+      "location": null,
+      "start": "2026-03-29T01:30:00+01:00",
+      "end": "2026-03-29T03:30:00+02:00",
+      "timezone_start": "Europe/Zurich",
+      "timezone_end": "Europe/Zurich",
+      "fullday": false,
+      "freebusy": "busy",
+      "private": false,
+      "rrule": null,
+      "attendees": [
+        {
+          "address": "guest@example.test",
+          "name": "Guest",
+          "className": "Attendee",
+          "organizer": false,
+          "state": "ACCEPTED"
+        }
+      ],
+      "alarms": [
+        {
+          "action": "DISPLAY"
+        }
+      ],
+      "attachments": [],
+      "provider_only": "hidden"
+    }
+  },
+  "observedEventDetailProvenance": {
+    "source": "F1 — operator report supplied 2026-09-08; production observation 2026-09-07 on the deployed HTTPS instance",
+    "route": "GET /1/calendar/pim/event/{id}",
+    "observedTypes": {
+      "location": "null",
+      "rrule": "null"
+    },
+    "note": "Synthetic anonymized detail sample based on the existing baseline event. Only location:null and rrule:null are established by F1; other values are synthetic. No live provider call by FIX-12C."
+  },
+  "tasks": {
+    "result": "success",
+    "data": [
+      {
+        "id": 63,
+        "calendar_id": 7,
+        "type": "todo",
+        "title": "Synthetic task",
+        "description": "Synthetic description",
+        "due_date": null,
+        "location": "Synthetic location",
+        "private": false,
+        "raw": null,
+        "done": false,
+        "progress": 0,
+        "priority": 5,
+        "has_attachments": false,
+        "created_at": null,
+        "updated_at": null
+      }
+    ]
+  },
+  "tasksProvenance": {
+    "source": "T1 — operator report 2026-09-08; task created in the kSuite Tasks app and read via GET /1/calendar/pim/task?calendar_id=<id>",
+    "observedTypes": {
+      "id": "int",
+      "calendar_id": "int",
+      "type": "\"todo\"",
+      "title": "str",
+      "description": "str",
+      "due_date": "null",
+      "location": "str",
+      "private": "bool",
+      "raw": "null",
+      "done": "bool",
+      "progress": "int",
+      "priority": "int (5 observed)",
+      "has_attachments": "bool",
+      "created_at": "null",
+      "updated_at": "null"
+    },
+    "note": "All sample values are synthetic; only types and priority 5 are reported observations. No live provider call. The Tasks interface did not allow a due date. GET /1/calendar/pim/task/{id} returned 404. The task was absent from GET /1/calendar/pim/event; an item created through the event window is an event. Tasks and events are disjoint. Unconsumed due_date, raw, created_at and updated_at are not projected; no non-null due_date type is established."
   }
 }

@@ -331,5 +331,71 @@
   },
   {
     "name": "infomaniak_upload_kdrive_file"
+  },
+  {
+    "name": "infomaniak_mail_list_mailboxes"
+  },
+  {
+    "name": "infomaniak_mail_list_folders"
+  },
+  {
+    "name": "infomaniak_mail_list_messages"
+  },
+  {
+    "name": "infomaniak_mail_get_message"
+  },
+  {
+    "name": "infomaniak_mail_search_messages"
+  },
+  {
+    "name": "infomaniak_mail_download_attachment"
+  },
+  {
+    "name": "infomaniak_mail_create_draft"
+  },
+  {
+    "name": "infomaniak_mail_update_draft"
+  },
+  {
+    "name": "infomaniak_mail_send_draft"
+  },
+  {
+    "name": "infomaniak_mail_send_message"
+  },
+  {
+    "name": "infomaniak_mail_list_drafts"
+  },
+  {
+    "name": "infomaniak_mail_delete_draft"
+  },
+  {
+    "name": "infomaniak_mail_mark_seen"
+  },
+  {
+    "name": "infomaniak_mail_flag"
+  },
+  {
+    "name": "infomaniak_mail_move"
+  },
+  {
+    "name": "infomaniak_mail_archive"
+  },
+  {
+    "name": "infomaniak_mail_delete"
+  },
+  {
+    "name": "infomaniak_mail_delete_permanently"
+  },
+  {
+    "name": "infomaniak_mail_create_folder"
+  },
+  {
+    "name": "infomaniak_mail_rename_folder"
+  },
+  {
+    "name": "infomaniak_mail_delete_folder"
+  },
+  {
+    "name": "infomaniak_calendar_list_tasks"
   }
 ]
