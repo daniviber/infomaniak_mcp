@@ -115,7 +115,7 @@
     }
   },
   "observedEventDetailProvenance": {
-    "source": "F1 — operator report supplied 2026-09-08; production observation 2026-09-07 on mcp.horahow.com",
+    "source": "F1 — operator report supplied 2026-09-08; production observation 2026-09-07 on the deployed HTTPS instance",
     "route": "GET /1/calendar/pim/event/{id}",
     "observedTypes": {
       "location": "null",
