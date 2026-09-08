@@ -167,6 +167,39 @@
         "kind": "synthetic",
         "note": "Fictitious test values, never claimed to have been observed. Boundary offsets 0/67/118 and total 68 reproduce the scenarios described in M-B8 where applicable."
       }
+    },
+    "personalFolders": {
+      "types": {
+        "proof": "baseline",
+        "source": "relevé opérateur 2026-09-08 §6",
+        "contractBlob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+        "lines": ["§6"]
+      },
+      "values": {
+        "kind": "synthetic"
+      }
+    },
+    "compositePage": {
+      "types": {
+        "proof": "baseline",
+        "source": "relevé opérateur 2026-09-08 §6",
+        "contractBlob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+        "lines": ["§6"]
+      },
+      "values": {
+        "kind": "synthetic"
+      }
+    },
+    "compositeDetail": {
+      "types": {
+        "proof": "baseline",
+        "source": "relevé opérateur 2026-09-08 §6",
+        "contractBlob": "5fc1f9b69709ef558f08fafbc762c7e73a9449bd",
+        "lines": ["§6"]
+      },
+      "values": {
+        "kind": "synthetic"
+      }
     }
   },
   "samples": {
@@ -673,6 +706,179 @@
     "deletedDraft": {
       "result": "success",
       "data": null
+    },
+    "personalFolders": {
+      "result": "success",
+      "data": [
+        {
+          "id": "synthetic-personal",
+          "path": "Synthetic/Personal",
+          "name": "Personal",
+          "role": null,
+          "unread_count": 0,
+          "total_count": 0,
+          "children": [
+            {
+              "id": "synthetic-sent",
+              "path": "Synthetic/SENT",
+              "name": "SENT",
+              "role": "SENT",
+              "unread_count": 0,
+              "total_count": 0,
+              "children": []
+            },
+            {
+              "id": "synthetic-spam",
+              "path": "Synthetic/SPAM",
+              "name": "SPAM",
+              "role": "SPAM",
+              "unread_count": 0,
+              "total_count": 0,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "compositePage": {
+      "result": "success",
+      "data": {
+        "threads": [
+          {
+            "uid": "synthetic-thread",
+            "subject": "Synthetic subject",
+            "date": "synthetic-date",
+            "from": [
+              {
+                "email": "sender@example.test",
+                "name": "Synthetic sender"
+              }
+            ],
+            "to": [
+              {
+                "email": "recipient@example.test",
+                "name": "Synthetic recipient"
+              }
+            ],
+            "messages_count": 1,
+            "unseen_messages": 1,
+            "has_attachments": true,
+            "flagged": false,
+            "answered": false,
+            "forwarded": false,
+            "messages": [
+              {
+                "uid": "123@synthetic-inbox",
+                "msg_id": "synthetic-msg-id",
+                "date": "synthetic-date",
+                "subject": "Synthetic subject",
+                "from": [
+                  {
+                    "email": "sender@example.test",
+                    "name": "Synthetic sender"
+                  }
+                ],
+                "to": [
+                  {
+                    "email": "recipient@example.test",
+                    "name": "Synthetic recipient"
+                  }
+                ],
+                "cc": [],
+                "bcc": [],
+                "reply_to": [],
+                "in_reply_to": null,
+                "references": null,
+                "folder_id": "synthetic-inbox",
+                "folder": "Synthetic/INBOX",
+                "resource": "/api/mail/synthetic-mailbox/folder/synthetic-inbox/message/123",
+                "is_draft": false,
+                "has_attachments": true,
+                "seen": false,
+                "answered": false,
+                "forwarded": false,
+                "flagged": false,
+                "preview": "Synthetic preview",
+                "size": 3,
+                "dkim_status": "synthetic-status",
+                "provider_only": "ignored"
+              }
+            ]
+          }
+        ],
+        "total_messages_count": 68,
+        "messages_count": 1,
+        "current_offset": 0,
+        "thread_mode": "on",
+        "folder_unseen_messages": 1,
+        "resource_previous": null,
+        "resource_next": "/synthetic/next",
+        "provider_only": "ignored"
+      }
+    },
+    "compositeDetail": {
+      "result": "success",
+      "data": {
+        "uid": "123@synthetic-inbox",
+        "msg_id": "synthetic-msg-id",
+        "date": "synthetic-date",
+        "subject": "Synthetic subject",
+        "from": [
+          {
+            "email": "sender@example.test",
+            "name": "Synthetic sender"
+          }
+        ],
+        "to": [
+          {
+            "email": "recipient@example.test",
+            "name": "Synthetic recipient"
+          }
+        ],
+        "cc": [],
+        "bcc": [],
+        "reply_to": [],
+        "in_reply_to": null,
+        "references": null,
+        "folder_id": "synthetic-inbox",
+        "folder": "Synthetic/INBOX",
+        "resource": "/api/mail/synthetic-mailbox/folder/synthetic-inbox/message/123",
+        "is_draft": false,
+        "has_attachments": true,
+        "seen": false,
+        "answered": false,
+        "forwarded": false,
+        "flagged": false,
+        "preview": "Synthetic preview",
+        "size": 3,
+        "dkim_status": "synthetic-status",
+        "provider_only": "ignored",
+        "body": {
+          "type": "html",
+          "value": "<b>Synthetic body</b>"
+        },
+        "headers": {
+          "Synthetic-Header": "opaque"
+        },
+        "attachments": [
+          {
+            "part_id": 1,
+            "mime_type": "text/plain",
+            "encoding": "base64",
+            "size": 3,
+            "name": "synthetic.txt",
+            "disposition": "attachment",
+            "resource": "/synthetic/attachment",
+            "content_id": null,
+            "drive_url": null
+          }
+        ],
+        "subBody": "ignored",
+        "raw_headers": "ignored",
+        "attachments_resources": "/ignored",
+        "safe_display": true,
+        "acknowledge": "ignored"
+      }
     }
   },
   "constructions": {

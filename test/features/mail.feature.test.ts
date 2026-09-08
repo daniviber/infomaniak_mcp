@@ -803,3 +803,84 @@ describe('FEAT-14 offline mail', () => {
     }
   });
 });
+
+describe('FIX-14A production shapes offline', () => {
+  it('omits null folder roles while retaining the complete personal tree', async () => {
+    const app = await setup({ response: () => Response.json(samples.personalFolders) });
+    const { structuredContent } = await app.invoke('list_folders');
+    const parent = structuredClone(samples.personalFolders.data[0]);
+    delete parent.role;
+    expect(structuredContent.folders).toEqual([parent]);
+    expect(structuredContent.folders[0]).not.toHaveProperty('role');
+  });
+  it.each(['list_messages', 'search_messages', 'list_drafts'])(
+    '%s exposes the bare message uid, preserves thread uid and defaults omitted thread to on',
+    async (name) => {
+      const app = await setup({
+        response: (call) =>
+          call.url.pathname.endsWith('/message') ? Response.json(samples.compositePage) : undefined,
+      });
+      const input = { ...inputByName[name] };
+      delete input.thread;
+      const { structuredContent } = await app.invoke(name, input);
+      expect(structuredContent.threads[0].uid).toBe(samples.compositePage.data.threads[0].uid);
+      expect(structuredContent.threads[0].messages[0].uid).toBe('123');
+      expect(app.calls.at(-1)?.url.searchParams.get('thread')).toBe('on');
+    },
+  );
+  it.each(['123', '123@synthetic-inbox', '123@synthetic-inbox@extra'])(
+    'normalizes %s at the first separator in the detail projection',
+    async (uid) => {
+      const payload = structuredClone(samples.compositeDetail);
+      payload.data.uid = uid;
+      const app = await setup({ response: () => Response.json(payload) });
+      const result = await app.invoke('get_message', { ...location, uid: '123' });
+      expect(result.structuredContent.message.uid).toBe('123');
+      expect(app.calls[0].url.pathname).toBe(
+        '/api/mail/synthetic-mailbox/folder/synthetic-inbox/message/123',
+      );
+    },
+  );
+  it('reuses a listed uid in detail, attachment and action requests', async () => {
+    const app = await setup({
+      response: (call) =>
+        call.url.pathname.endsWith('/message') ? Response.json(samples.compositePage) : undefined,
+    });
+    const page = await app.invoke('list_messages');
+    const uid = page.structuredContent.threads[0].messages[0].uid;
+    await app.invoke('get_message', { ...location, uid });
+    expect(app.calls.at(-1)?.url.pathname).toBe(
+      '/api/mail/synthetic-mailbox/folder/synthetic-inbox/message/123',
+    );
+    await app.invoke('download_attachment', { ...location, uid, attachmentId: 1 });
+    expect(app.calls.at(-1)?.url.pathname).toBe(
+      '/api/mail/synthetic-mailbox/folder/synthetic-inbox/message/123/attachment/1',
+    );
+    await app.invoke('mark_seen', { ...location, uids: [uid], seen: true });
+    expect(app.calls.at(-1)?.body).toEqual({ uids: ['123@synthetic-inbox'] });
+  });
+  it('retains gateway paths and codes without provider values', async () => {
+    const sentinel = 'SYNTHETIC_BODY_VALUE_SENTINEL';
+    const payload = structuredClone(samples.folders);
+    payload.data[0].unread_count = sentinel;
+    payload.data[0].total_count = sentinel;
+    const app = await setup({ response: () => Response.json(payload) });
+    const error = await app.invoke('list_folders').catch((error: unknown) => error);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toBe(
+      'MAIL_RESPONSE_INVALID: Invalid Infomaniak response: data.0.unread_count: invalid_type expected number received string; data.0.total_count: invalid_type expected number received string',
+    );
+    expect((error as Error).message).not.toContain(sentinel);
+  });
+  it.each([400, 200])(
+    'keeps a fixed code for HTTP or invalid JSON failures (%s)',
+    async (status) => {
+      const app = await setup({
+        response: () => new Response('SYNTHETIC_INVALID_JSON', { status }),
+      });
+      const error = await app.invoke('list_folders').catch((error: unknown) => error);
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toBe('MAIL_RESPONSE_INVALID');
+    },
+  );
+});

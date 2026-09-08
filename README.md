@@ -253,10 +253,13 @@ All 21 tools below are visible by default, with fixed base
 `delete_permanently` performs irreversible deletion. ARCHIVE, TRASH and DRAFT resolution
 fails locally for missing or ambiguous roles. Read-only policy rejects every mutation before
 any folder or sender lookup. `list_drafts` remains readable, including its DRAFT lookup.
-Supply simple `uids` and a separate `folderId`, never `uid@folderId`; the adapter constructs
+Folder `role` is optional and omitted for provider `null`, including personal folders.
+Supply `uid`/`uids` exactly as returned by `list_messages` (the part before the first `@`)
+and a separate `folderId`, never `uid@folderId`; the adapter constructs
 the composite. Input `folderId` and message UIDs cannot contain `@`. Move destinations are folder IDs.
 
 Lists, searches and draft lists share one page format in `thread=on` and `thread=off`.
+`thread` is optional and defaults to `on`.
 `limit` defaults to 50 and is bounded to 1..200: these are **product decisions**, not measured
 provider bounds. The effective limit is always sent; an omitted offset stays omitted.
 Continue only while `hasMore` is true, supplying `offset = nextOffset` with the same limit
