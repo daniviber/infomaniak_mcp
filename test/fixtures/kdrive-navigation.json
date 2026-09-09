@@ -1,0 +1,35 @@
+{
+  "drive": {
+    "id": 9,
+    "name": "Équipe",
+    "account_id": 123,
+    "size": 1000,
+    "provider_secret": "RAW_SECRET",
+    "used_size": 12
+  },
+  "file": {
+    "id": 42,
+    "name": "rapport.txt",
+    "type": "file",
+    "size": 12,
+    "created_at": 10,
+    "last_modified_at": 20,
+    "added_at": 15,
+    "parent_id": 1,
+    "mime_type": "text/plain",
+    "extension_type": "text",
+    "path": "/rapport.txt",
+    "visibility": "private",
+    "status": "active",
+    "is_favorite": true,
+    "provider_secret": "RAW_SECRET"
+  },
+  "directory": {
+    "id": 43,
+    "name": "Archives",
+    "type": "dir",
+    "parent_id": 1,
+    "created_at": null
+  },
+  "cursor": "opaque+/=&?é"
+}

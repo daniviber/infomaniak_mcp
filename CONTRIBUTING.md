@@ -1,145 +1,89 @@
 # Contributing to Infomaniak MCP Server
 
-Thank you for your interest in contributing to the Infomaniak MCP Server! This document provides guidelines and instructions for contributing.
+Thanks for contributing. This guide covers the development setup, the verification sequence every
+change must pass, and the conventions the code base relies on. Architecture notes are in
+`CLAUDE.md`; user documentation is in `README.md`.
 
-## Code of Conduct
+## Reporting bugs and suggesting features
 
-By participating in this project, you agree to maintain a respectful and inclusive environment for everyone.
+Open an issue with the tool name, the MCP client and protocol revision, the entry point used and
+the redacted error text. The gateway never logs provider payloads: an error such as
+`Invalid Infomaniak response: data.0.created_at: invalid_type` gives the field path and the
+validation code, which is enough to fix a DTO. Never paste tokens, account identifiers or
+personal data.
 
-## How to Contribute
+## Development setup
 
-### Reporting Bugs
+Reference toolchain: Node **20.19.2**, npm **9.2.0**, Git and a POSIX shell. `engines.node` is
+`>=20`.
 
-Before creating a bug report, please check existing issues to avoid duplicates. When creating a bug report, include:
-
-- A clear, descriptive title
-- Steps to reproduce the issue
-- Expected behavior vs actual behavior
-- Your environment (Node.js version, OS, etc.)
-- Any relevant error messages or logs
-
-### Suggesting Features
-
-Feature suggestions are welcome! When suggesting a feature:
-
-- Provide a clear description of the feature
-- Explain the use case and why it would be valuable
-- Consider if it aligns with the Infomaniak API capabilities
-
-### Pull Requests
-
-1. **Fork the repository** and create your branch from `main`
-2. **Install dependencies**: `npm install`
-3. **Make your changes** following the coding style
-4. **Build the project**: `npm run build`
-5. **Test your changes** manually with the MCP Inspector: `npm run inspector`
-6. **Update documentation** if needed
-7. **Submit a pull request** with a clear description
-
-## Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-
-# Install dependencies
-npm install
-
-# Build
+```sh
+git clone <your fork>
+cd infomaniak_mcp
+npm ci            # locked dependencies only (lockfile v3)
 npm run build
-
-# Watch mode for development
-npm run dev
-
-# Test with MCP Inspector
-INFOMANIAK_API_TOKEN=your-token npm run inspector
+npm test
 ```
 
-## Coding Guidelines
+Keep `package-lock.json` authoritative. Do not vendor binaries or add system dependencies.
+`npm run inspector` runs the MCP Inspector against the stdio build; it needs a real token and is
+not part of the verification below.
 
-### TypeScript
+## Verification sequence
 
-- Use TypeScript strict mode
-- Define proper types for all function parameters and return values
-- Avoid using `any` type when possible
-- Use meaningful variable and function names
+Run these commands in order before opening a pull request; every one of them must exit 0.
 
-### Code Style
-
-- Use 2 spaces for indentation
-- Use single quotes for strings
-- Add trailing commas in multi-line arrays/objects
-- Document public functions with JSDoc comments
-
-### Commit Messages
-
-Follow conventional commit format:
-
-```
-type(scope): description
-
-[optional body]
-
-[optional footer]
+```sh
+npm ci
+npm run lint
+npm run format:check
+npm run typecheck
+npm test
+npm run build
+npm run verify:mvp
+npm audit --audit-level=high
 ```
 
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+`npm test` must be fully green with no skipped test. `npm run verify:mvp` is self-contained: it
+builds, checks the inventory against the code (names, handlers, endpoints, proof levels, JSON
+schemas) and replays the offline scenario on stdio and HTTP for both protocol revisions; it must
+print `MVP OFFLINE PASS` and `orphan tools: 0`. `format:check` covers the paths listed in
+`.prettierignore`; format new scripts explicitly if they fall outside it.
 
-Examples:
-- `feat(dns): add support for CAA records`
-- `fix(mail): handle empty mailbox list response`
-- `docs: update installation instructions`
+Tests never reach the Infomaniak API: use sentinel tokens, fetch doubles and loopback listeners
+only. Do not add literal waits; inject clocks or use fake timers.
 
-## Adding New Tools
+## Coding guidelines
 
-When adding new tools to the MCP server:
+- TypeScript strict, ESM, Zod 4. Respect the layers `domain → application → adapters → main`;
+  `test/architecture/dependencies.test.ts` fails otherwise.
+- Provider DTOs are typed from **observed** payloads: Unix-second dates, string ids where the API
+  uses strings, nullable fields where it returns `null`. Convert in the adapter, keep the domain
+  in strings and numbers, do not use `.strict()` and do not widen types speculatively.
+- Declare everything on the tool contract: classification, idempotence, `experimental` and
+  `rawApi` flags, input and output schemas, limits. Never derive behaviour from a tool name.
+- Keep the fixed refusal and success formats described in `CLAUDE.md`, and keep error messages
+  free of payload values.
+- Feature tests compare sets and measurements between themselves; the global totals belong to
+  `scripts/verify-mvp.mjs` only.
+- Keep `product/inventory/tools.json` and `test/fixtures/baseline-tools.json` as top-level JSON
+  arrays with a `name` per entry; enrich entries, never wrap the array.
 
-1. **Add the API method** in `src/infomaniak-client.ts`:
-   ```typescript
-   async newMethod(param: string): Promise<ApiResponse<ResultType>> {
-     return this.request<ApiResponse<ResultType>>('GET', `/1/endpoint/${param}`);
-   }
-   ```
+## Adding a tool
 
-2. **Define the tool** in `src/index.ts` tools array:
-   ```typescript
-   {
-     name: "infomaniak_new_tool",
-     description: "Clear description of what this tool does",
-     inputSchema: {
-       type: "object",
-       properties: {
-         param: {
-           type: "string",
-           description: "Description of the parameter",
-         },
-       },
-       required: ["param"],
-     },
-   },
-   ```
+1. Domain schema.
+2. Port, use case and `ToolContract` in the family feature file.
+3. Adapter DTO, projection and route.
+4. Fixture with realistic types and fictitious values, plus a feature test.
+5. Inventory entry with `endpoint`, `proof` (`official` with a citation, `baseline`, or `unproven`
+   together with `experimental: true`), limits and regenerated JSON schemas.
+6. The verification sequence above.
 
-3. **Add the handler** in the switch statement:
-   ```typescript
-   case "infomaniak_new_tool":
-     result = await client.newMethod(args?.param as string);
-     break;
-   ```
+A tool whose route is not established by an official Infomaniak source stays experimental.
 
-4. **Update README.md** with the new tool documentation
+## Commit messages and pull requests
 
-## Testing
-
-Currently, the project uses manual testing with the MCP Inspector. When testing:
-
-1. Set your `INFOMANIAK_API_TOKEN` environment variable
-2. Run `npm run inspector`
-3. Test each modified tool with various inputs
-4. Verify error handling with invalid inputs
-
-## Questions?
-
-Feel free to open an issue for any questions about contributing.
-
-Thank you for contributing! 🎉
+Use conventional commits (`feat(kdrive): …`, `fix(services): …`, `test: …`, `docs: …`). Keep one
+concern per pull request and summarise the verification output in the description (test count,
+`verify:mvp` result). Never include tokens, account identifiers, personal data or local paths in
+code, fixtures, documentation or commit messages.

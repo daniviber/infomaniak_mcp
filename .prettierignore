@@ -1,0 +1,17 @@
+# Only the FEAT-00 footprint is formatted; baseline formatting is frozen.
+/*
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/vitest.config.ts
+!/eslint.config.js
+!/.prettierrc.json
+!/src/
+/src/*
+!/src/domain/
+!/src/application/
+!/src/adapters/
+!/src/config/
+!/src/main/
+!/src/features/
+!/test/
