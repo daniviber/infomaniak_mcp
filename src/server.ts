@@ -563,7 +563,7 @@ export const tools: Tool[] = [
   },
   {
     name: "infomaniak_create_site",
-    description: "Create a new site on a web hosting",
+    description: "Create a new site on a web hosting. This call can take more than 30 seconds.",
     inputSchema: {
       type: "object",
       properties: {
@@ -571,20 +571,28 @@ export const tools: Tool[] = [
           type: "number",
           description: "The web hosting ID",
         },
-        fqdn: {
+        domain: {
           type: "string",
-          description: "The fully qualified domain name for the site",
+          description: "The fully qualified domain name for the site (e.g. example.com)",
         },
-        path: {
+        directory: {
           type: "string",
-          description: "The document root path (optional)",
+          description: "The site directory on the hosting (optional, defaults to /sites/<domain>)",
         },
         php_version: {
           type: "string",
           description: "PHP version to use (optional)",
         },
+        fqdn: {
+          type: "string",
+          description: "Deprecated alias of domain",
+        },
+        path: {
+          type: "string",
+          description: "Deprecated alias of directory",
+        },
       },
-      required: ["hosting_id", "fqdn"],
+      required: ["hosting_id"],
     },
   },
   {
@@ -1445,8 +1453,8 @@ async function handleToolCall(
     case "infomaniak_create_site": {
       const validated = validate(CreateSiteSchema, args);
       return client.createSite(validated.hosting_id, {
-        fqdn: validated.fqdn,
-        path: validated.path,
+        domain: validated.domain,
+        directory: validated.directory,
         php_version: validated.php_version,
       });
     }

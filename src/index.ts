@@ -10,6 +10,9 @@
  * - INFOMANIAK_API_TOKEN: Your Infomaniak API token (required)
  * - MCP_TRANSPORT: Transport mode - 'stdio' (default) or 'http'
  * - MCP_PORT: HTTP port when using http transport (default: 3000)
+ * - MCP_HOST: HTTP host to bind to (default: 127.0.0.1)
+ * - MCP_AUTH_TOKEN: Bearer token required on /mcp (required when MCP_HOST is not loopback)
+ * - MCP_CORS_ORIGINS: Comma-separated list of allowed CORS origins (default: CORS disabled)
  * - MCP_STATELESS: Set to 'true' for stateless mode (default: false)
  *
  * Get your API token from: https://manager.infomaniak.com/v3/ng/accounts/token/list
@@ -43,11 +46,17 @@ const kchatClient = (kchatHost && kchatToken)
 const transport = process.env.MCP_TRANSPORT || "stdio";
 const port = parseInt(process.env.PORT || process.env.MCP_PORT || "3000", 10);
 const stateless = process.env.MCP_STATELESS === "true";
+const host = process.env.MCP_HOST || undefined;
+const authToken = process.env.MCP_AUTH_TOKEN || undefined;
+const corsOrigins = (process.env.MCP_CORS_ORIGINS ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
 
 // Start the server with the selected transport
 async function main() {
   if (transport === "http") {
-    await startHttpServer(client, { port, stateless }, kchatClient);
+    await startHttpServer(client, { port, host, stateless, authToken, corsOrigins }, kchatClient);
   } else if (transport === "stdio") {
     await startStdioServer(client, kchatClient);
   } else {

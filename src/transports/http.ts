@@ -4,13 +4,22 @@
  * Provides HTTP-based transport with SSE streaming for the MCP server.
  * Implements the MCP Streamable HTTP specification (2025-03-26).
  *
+ * Security defaults:
+ * - Listens on 127.0.0.1 unless another host is configured.
+ * - Refuses to listen on a non-loopback host without a bearer token.
+ * - CORS is disabled unless allowed origins are configured.
+ * - When listening on loopback without a token, the Host header is validated
+ *   to protect against DNS rebinding.
+ *
  * @see https://modelcontextprotocol.io/specification/2025-03-26/basic/transports
  */
 
-import express, { Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { randomUUID } from "crypto";
+import { createHash, randomUUID, timingSafeEqual } from "crypto";
+import { isIPv4 } from "net";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { localhostHostValidation } from "@modelcontextprotocol/sdk/server/middleware/hostHeaderValidation.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "../infomaniak-client.js";
 import { KChatClient } from "../kchat-client.js";
@@ -19,51 +28,127 @@ import { createMcpServer } from "../server.js";
 export interface HttpServerOptions {
   /** Port to listen on (default: 3000) */
   port?: number;
-  /** Host to bind to (default: '0.0.0.0' for cloud compatibility) */
+  /** Host to bind to (default: '127.0.0.1'). A non-loopback host requires `authToken`. */
   host?: string;
   /** Enable stateless mode where each request creates a new session */
   stateless?: boolean;
-  /** Allowed CORS origins (default: '*' allows all) */
-  corsOrigins?: string | string[];
+  /** Allowed CORS origins (default: none, CORS disabled). '*' requires `authToken`. */
+  corsOrigins?: string[];
+  /** Bearer token required on all /mcp routes when set */
+  authToken?: string;
 }
 
-// Store active transports for session management (stateful mode)
-const activeSessions = new Map<string, StreamableHTTPServerTransport>();
+export const DEFAULT_HTTP_HOST = "127.0.0.1";
 
 /**
- * Start the MCP server with HTTP transport
- *
- * @param client - The Infomaniak API client
- * @param options - HTTP server configuration options
- * @param kchatClient - Optional kChat API client
+ * Whether a host only accepts connections from the local machine.
  */
-export async function startHttpServer(
+export function isLoopbackHost(host: string): boolean {
+  const normalized = host.trim().toLowerCase();
+  if (normalized === "localhost" || normalized === "::1" || normalized === "[::1]") {
+    return true;
+  }
+  return isIPv4(normalized) && normalized.startsWith("127.");
+}
+
+/**
+ * Validate an HTTP configuration before starting the server.
+ * Throws with an actionable message when the configuration is unsafe.
+ */
+export function assertSafeHttpOptions(options: HttpServerOptions): void {
+  const host = options.host ?? DEFAULT_HTTP_HOST;
+  const hasToken = Boolean(options.authToken);
+
+  if (!hasToken && !isLoopbackHost(host)) {
+    throw new Error(
+      `Refusing to listen on ${host} without authentication. ` +
+        "Set MCP_AUTH_TOKEN to require a bearer token on /mcp, " +
+        "or unset MCP_HOST to listen on 127.0.0.1 only.",
+    );
+  }
+
+  if (!hasToken && options.corsOrigins?.includes("*")) {
+    throw new Error(
+      "MCP_CORS_ORIGINS='*' requires MCP_AUTH_TOKEN. " +
+        "List the allowed origins explicitly or set MCP_AUTH_TOKEN.",
+    );
+  }
+}
+
+function tokensMatch(provided: string, expected: string): boolean {
+  // Hash both values so the comparison is constant-time regardless of length.
+  const a = createHash("sha256").update(provided).digest();
+  const b = createHash("sha256").update(expected).digest();
+  return timingSafeEqual(a, b);
+}
+
+function requireBearerToken(expected: string) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const header = req.headers.authorization ?? "";
+    const match = /^Bearer\s+(.+)$/i.exec(header);
+
+    if (!match || !tokensMatch(match[1].trim(), expected)) {
+      res.setHeader("WWW-Authenticate", 'Bearer realm="mcp"');
+      res.status(401).json({
+        jsonrpc: "2.0",
+        error: { code: -32001, message: "Unauthorized" },
+        id: null,
+      });
+      return;
+    }
+
+    next();
+  };
+}
+
+/**
+ * Build the Express application serving the MCP endpoints.
+ * Exported for testing; use `startHttpServer` to run the server.
+ */
+export function createHttpApp(
   client: InfomaniakClient,
   options: HttpServerOptions = {},
   kchatClient?: KChatClient | null,
-): Promise<void> {
-  const port = options.port ?? 3000;
-  const host = options.host ?? "0.0.0.0";
+): Express {
+  const host = options.host ?? DEFAULT_HTTP_HOST;
   const stateless = options.stateless ?? false;
-  const corsOrigins = options.corsOrigins ?? "*";
+  const corsOrigins = options.corsOrigins ?? [];
+  const authToken = options.authToken;
+
+  // Store active transports for session management (stateful mode)
+  const activeSessions = new Map<string, StreamableHTTPServerTransport>();
 
   const app = express();
 
-  // Enable CORS for browser-based MCP clients
-  app.use(cors({
-    origin: corsOrigins,
-    methods: ["GET", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Accept", "Mcp-Session-Id", "Last-Event-ID"],
-    exposedHeaders: ["Mcp-Session-Id"],
-    credentials: true,
-  }));
+  // Without a token, a loopback server is protected from browsers only by the
+  // Host header check (DNS rebinding protection).
+  if (!authToken && isLoopbackHost(host)) {
+    app.use(localhostHostValidation());
+  }
 
-  app.use(express.json());
+  // CORS is only enabled for explicitly allowed origins. Credentials (cookies)
+  // are not used: clients authenticate with the Authorization header.
+  if (corsOrigins.length > 0) {
+    app.use(cors({
+      origin: corsOrigins.includes("*") ? "*" : corsOrigins,
+      methods: ["GET", "POST", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Accept", "Authorization", "Mcp-Session-Id", "Last-Event-ID"],
+      exposedHeaders: ["Mcp-Session-Id"],
+    }));
+  }
 
-  // Health check endpoint
+  // Health check endpoint (unauthenticated, exposes no account data)
   app.get("/health", (_req: Request, res: Response) => {
     res.json({ status: "ok", transport: "http", stateless });
   });
+
+  // All /mcp routes require the bearer token when one is configured.
+  // Registered before the body parser so unauthenticated bodies are not parsed.
+  if (authToken) {
+    app.use("/mcp", requireBearerToken(authToken));
+  }
+
+  app.use(express.json());
 
   // MCP endpoint - POST for client-to-server messages
   app.post("/mcp", async (req: Request, res: Response) => {
@@ -194,18 +279,46 @@ export async function startHttpServer(
     }
   });
 
-  // Session management endpoints (for debugging/monitoring)
+  // Session count (for monitoring). Session IDs are not listed: they act as
+  // credentials for an open session.
   app.get("/mcp/sessions", (_req: Request, res: Response) => {
-    res.json({
-      activeSessions: Array.from(activeSessions.keys()),
-      count: activeSessions.size,
-    });
+    res.json({ count: activeSessions.size });
   });
 
-  // Start the server
-  app.listen(port, host, () => {
-    console.error(`Infomaniak MCP Server running on http://${host}:${port}/mcp`);
-    console.error(`Mode: ${stateless ? "stateless" : "stateful"}`);
-    console.error(`Health check: http://${host}:${port}/health`);
+  return app;
+}
+
+/**
+ * Start the MCP server with HTTP transport
+ *
+ * @param client - The Infomaniak API client
+ * @param options - HTTP server configuration options
+ * @param kchatClient - Optional kChat API client
+ */
+export async function startHttpServer(
+  client: InfomaniakClient,
+  options: HttpServerOptions = {},
+  kchatClient?: KChatClient | null,
+): Promise<void> {
+  assertSafeHttpOptions(options);
+
+  const port = options.port ?? 3000;
+  const host = options.host ?? DEFAULT_HTTP_HOST;
+  const stateless = options.stateless ?? false;
+
+  const app = createHttpApp(client, options, kchatClient);
+
+  await new Promise<void>((resolve, reject) => {
+    app.listen(port, host, (error?: Error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      console.error(`Infomaniak MCP Server running on http://${host}:${port}/mcp`);
+      console.error(`Mode: ${stateless ? "stateless" : "stateful"}`);
+      console.error(`Authentication: ${options.authToken ? "bearer token" : "none (loopback only)"}`);
+      console.error(`Health check: http://${host}:${port}/health`);
+      resolve();
+    });
   });
 }

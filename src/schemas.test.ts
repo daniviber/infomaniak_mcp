@@ -275,21 +275,72 @@ describe('MailboxAliasSchema', () => {
 });
 
 describe('CreateSiteSchema', () => {
-  it('should accept valid site creation', () => {
+  it('should accept domain and directory', () => {
     const result = validate(CreateSiteSchema, {
       hosting_id: 50,
-      fqdn: 'mysite.example.com',
+      domain: 'example.com',
+      directory: '/sites/example.com',
     });
-    expect(result.fqdn).toBe('mysite.example.com');
+    expect(result).toEqual({
+      hosting_id: 50,
+      domain: 'example.com',
+      directory: '/sites/example.com',
+      php_version: undefined,
+    });
+  });
+
+  it('should default directory to /sites/<domain>', () => {
+    const result = validate(CreateSiteSchema, {
+      hosting_id: 50,
+      domain: 'example.com',
+    });
+    expect(result.directory).toBe('/sites/example.com');
+  });
+
+  it('should map the deprecated fqdn and path aliases', () => {
+    const result = validate(CreateSiteSchema, {
+      hosting_id: 50,
+      fqdn: 'example.com',
+      path: '/sites/custom',
+    });
+    expect(result.domain).toBe('example.com');
+    expect(result.directory).toBe('/sites/custom');
+    expect(result).not.toHaveProperty('fqdn');
+    expect(result).not.toHaveProperty('path');
+  });
+
+  it('should prefer domain and directory over their aliases', () => {
+    const result = validate(CreateSiteSchema, {
+      hosting_id: 50,
+      domain: 'example.com',
+      fqdn: 'other.example.com',
+      directory: '/sites/example.com',
+      path: '/sites/other',
+    });
+    expect(result.domain).toBe('example.com');
+    expect(result.directory).toBe('/sites/example.com');
+  });
+
+  it('should require a domain', () => {
+    expect(() => validate(CreateSiteSchema, { hosting_id: 50 })).toThrow('domain is required');
   });
 
   it('should accept optional php_version', () => {
     const result = validate(CreateSiteSchema, {
       hosting_id: 50,
-      fqdn: 'mysite.example.com',
+      domain: 'example.com',
       php_version: '8.2',
     });
     expect(result.php_version).toBe('8.2');
+  });
+
+  it('should reject empty domain', () => {
+    expect(() =>
+      validate(CreateSiteSchema, {
+        hosting_id: 50,
+        domain: '',
+      })
+    ).toThrow('domain cannot be empty');
   });
 
   it('should reject empty fqdn', () => {

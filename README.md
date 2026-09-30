@@ -112,6 +112,9 @@ Or if installed globally or from source:
 | `INFOMANIAK_API_TOKEN` | Yes | - | Your Infomaniak API token |
 | `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
 | `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
+| `MCP_HOST` | No | `127.0.0.1` | HTTP host to bind to. A non-loopback host (e.g. `0.0.0.0`) requires `MCP_AUTH_TOKEN` |
+| `MCP_AUTH_TOKEN` | No* | - | Bearer token required on all `/mcp` routes. *Required when `MCP_HOST` is not a loopback address |
+| `MCP_CORS_ORIGINS` | No | - | Comma-separated list of origins allowed by CORS (e.g. `https://app.example.com`). CORS is disabled when unset. `*` requires `MCP_AUTH_TOKEN` |
 | `MCP_STATELESS` | No | `false` | Set to `true` for stateless mode |
 
 ## 🌐 HTTP Transport
@@ -121,11 +124,25 @@ The server supports HTTP transport with SSE streaming, enabling web-based MCP cl
 ### Starting in HTTP Mode
 
 ```bash
-# Using npx
+# Using npx (listens on 127.0.0.1 only)
 MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token npx infomaniak-mcp-server
 
 # From source
 MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/index.js
+```
+
+### Security
+
+The HTTP server can act on your Infomaniak account with the server's API token, so access to it must be restricted:
+
+- By default it listens on `127.0.0.1` only. Requests whose `Host` header is not `localhost`, `127.0.0.1` or `[::1]` are rejected, to protect against DNS rebinding.
+- To listen on another interface (e.g. `MCP_HOST=0.0.0.0` in a container or on a cloud platform), set `MCP_AUTH_TOKEN`. The server refuses to start on a non-loopback host without it. Clients must then send `Authorization: Bearer <token>` on every `/mcp` request. Use a long random value, e.g. `openssl rand -hex 32`, and serve the endpoint over HTTPS.
+- CORS is disabled by default. Set `MCP_CORS_ORIGINS` to the origins of the browser-based clients you use.
+
+```bash
+# Remote / cloud deployment
+MCP_TRANSPORT=http MCP_HOST=0.0.0.0 MCP_AUTH_TOKEN="$(openssl rand -hex 32)" \
+  INFOMANIAK_API_TOKEN=your-token npx infomaniak-mcp-server
 ```
 
 ### HTTP Endpoints
@@ -136,7 +153,9 @@ MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/inde
 | `/mcp` | POST | Send JSON-RPC messages (initialize, tool calls, etc.) |
 | `/mcp` | GET | Open SSE stream for server-to-client notifications |
 | `/mcp` | DELETE | Terminate a session |
-| `/mcp/sessions` | GET | List active sessions (for debugging) |
+| `/mcp/sessions` | GET | Number of active sessions (for monitoring) |
+
+All `/mcp` routes require the bearer token when `MCP_AUTH_TOKEN` is set. `/health` does not.
 
 ### Session Modes
 
@@ -151,6 +170,7 @@ WORKDIR /app
 RUN npm install -g infomaniak-mcp-server
 ENV MCP_TRANSPORT=http
 ENV MCP_PORT=3000
+ENV MCP_HOST=0.0.0.0
 EXPOSE 3000
 CMD ["infomaniak-mcp-server"]
 ```
@@ -158,18 +178,24 @@ CMD ["infomaniak-mcp-server"]
 ```bash
 # Build and run
 docker build -t infomaniak-mcp .
-docker run -p 3000:3000 -e INFOMANIAK_API_TOKEN=your-token infomaniak-mcp
+docker run -p 127.0.0.1:3000:3000 \
+  -e INFOMANIAK_API_TOKEN=your-token \
+  -e MCP_AUTH_TOKEN=your-long-random-token \
+  infomaniak-mcp
 ```
 
 ### Connecting from Web Clients
 
 ```javascript
 // Step 1: Initialize session
+// The page's origin must be listed in MCP_CORS_ORIGINS.
+// The Authorization header is only needed when MCP_AUTH_TOKEN is set.
 const initResponse = await fetch('http://localhost:3000/mcp', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json, text/event-stream'
+    'Accept': 'application/json, text/event-stream',
+    'Authorization': 'Bearer your-long-random-token'
   },
   body: JSON.stringify({
     jsonrpc: '2.0',
@@ -186,6 +212,7 @@ const response = await fetch('http://localhost:3000/mcp', {
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json, text/event-stream',
+    'Authorization': 'Bearer your-long-random-token',
     'Mcp-Session-Id': sessionId
   },
   body: JSON.stringify({

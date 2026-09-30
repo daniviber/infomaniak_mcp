@@ -12,7 +12,7 @@ export interface InfomaniakConfig {
   baseUrl?: string;
   /** Request timeout in ms (default: 30000) */
   timeoutMs?: number;
-  /** Max retry attempts for 429/5xx errors (default: 3, set 1 to disable retries) */
+  /** Max attempts for 429 errors (any method) and 5xx errors (GET only) (default: 3, set 1 to disable retries) */
   maxAttempts?: number;
 }
 
@@ -28,6 +28,7 @@ export interface ApiResponse<T = unknown> {
   error?: {
     code: string;
     description: string;
+    errors?: unknown[];
   };
 }
 
@@ -271,6 +272,9 @@ export interface Product {
   customer_name: string;
 }
 
+/** Site creation is slow on the API side (it can exceed 30s). */
+const CREATE_SITE_TIMEOUT_MS = 120_000;
+
 class TokenBucket {
   private tokens: number;
   private lastRefill: number;
@@ -324,6 +328,7 @@ export class InfomaniakClient {
     path: string,
     body?: unknown,
     queryParams?: Record<string, string | number | boolean | undefined>,
+    timeoutMs: number = this.timeoutMs,
   ): Promise<T> {
     let url = `${this.baseUrl}${path}`;
 
@@ -343,7 +348,7 @@ export class InfomaniakClient {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      signal: AbortSignal.timeout(this.timeoutMs),
+      signal: AbortSignal.timeout(timeoutMs),
     };
 
     if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
@@ -359,6 +364,11 @@ export class InfomaniakClient {
         const errorJson = JSON.parse(errorText);
         errorMessage =
           errorJson.error?.description ?? errorJson.message ?? errorText;
+        // Validation errors (e.g. 422) list the offending fields in
+        // `error.errors`; without them the message is just "Validation failed".
+        if (Array.isArray(errorJson.error?.errors) && errorJson.error.errors.length > 0) {
+          errorMessage += ` ${JSON.stringify(errorJson.error.errors)}`;
+        }
       } catch {
         errorMessage = errorText;
       }
@@ -381,6 +391,7 @@ export class InfomaniakClient {
     path: string,
     body?: unknown,
     queryParams?: Record<string, string | number | boolean | undefined>,
+    timeoutMs?: number,
   ): Promise<T> {
     await this.bucket.take();
 
@@ -388,12 +399,17 @@ export class InfomaniakClient {
 
     for (let attempt = 1; attempt <= this.maxAttempts; attempt++) {
       try {
-        return await this.executeRequest<T>(method, path, body, queryParams);
+        return await this.executeRequest<T>(method, path, body, queryParams, timeoutMs);
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         const status = (error as { status?: number }).status;
+        // 429 means the request was rejected before being processed, so it is
+        // always safe to retry. A 5xx on a write may already have been applied
+        // (e.g. a domain renewal or a resource creation), so only reads are
+        // retried after a server error.
         const isRetryable =
-          status === 429 || (status !== undefined && status >= 500);
+          status === 429 ||
+          (method === 'GET' && status !== undefined && status >= 500);
 
         if (!isRetryable || attempt === this.maxAttempts) throw lastError;
 
@@ -565,12 +581,25 @@ export class InfomaniakClient {
     return this.request<ApiResponse<Site>>('GET', `/1/web/${hostingId}/site/${siteId}`);
   }
 
+  /**
+   * Create a site on a web hosting.
+   *
+   * The API expects `domain` (the FQDN) and `directory` (the document root,
+   * e.g. `/sites/example.com`). Site creation can take longer than the default
+   * request timeout, so a longer timeout is used for this call.
+   */
   async createSite(hostingId: number, site: {
-    fqdn: string;
-    path?: string;
+    domain: string;
+    directory: string;
     php_version?: string;
   }): Promise<ApiResponse<Site>> {
-    return this.request<ApiResponse<Site>>('POST', `/1/web/${hostingId}/site`, site);
+    return this.request<ApiResponse<Site>>(
+      'POST',
+      `/1/web/${hostingId}/site`,
+      site,
+      undefined,
+      Math.max(this.timeoutMs, CREATE_SITE_TIMEOUT_MS),
+    );
   }
 
   async updateSite(hostingId: number, siteId: number, site: {

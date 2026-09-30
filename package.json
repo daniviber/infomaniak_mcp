@@ -52,7 +52,7 @@
   },
   "homepage": "https://github.com/YOUR_USERNAME/infomaniak-mcp-server#readme",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "zod": "^3.25.76"

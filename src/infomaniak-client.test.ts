@@ -141,6 +141,42 @@ describe('InfomaniakClient', () => {
       );
     });
 
+    it('should include field-level validation errors in the message', async () => {
+      const fieldErrors = [
+        { code: 'validation_failed', description: 'The domain field is required.', context: { attribute: 'domain' } },
+      ];
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        headers: { get: () => null },
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              result: 'error',
+              error: { code: 'validation_failed', description: 'Validation failed', errors: fieldErrors },
+            })
+          ),
+      });
+
+      await expect(client.ping()).rejects.toThrow(
+        `Infomaniak API Error (422): Validation failed ${JSON.stringify(fieldErrors)}`
+      );
+    });
+
+    it('should not append an empty validation error list', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        headers: { get: () => null },
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({ error: { code: 'validation_failed', description: 'Validation failed', errors: [] } })
+          ),
+      });
+
+      await expect(client.ping()).rejects.toThrow(/^Infomaniak API Error \(422\): Validation failed$/);
+    });
+
     it('should handle non-JSON error response', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -387,28 +423,40 @@ describe('InfomaniakClient', () => {
       );
     });
 
-    it('should create a site', async () => {
+    it('should create a site with domain and directory', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
           Promise.resolve({
             result: 'success',
-            data: { id: 50, fqdn: 'newsite.com' },
+            data: { id: 50 },
           }),
       });
 
       await client.createSite(100, {
-        fqdn: 'newsite.com',
-        php_version: '8.2',
+        domain: 'example.com',
+        directory: '/sites/example.com',
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.infomaniak.com/1/web/100/site',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ fqdn: 'newsite.com', php_version: '8.2' }),
+          body: JSON.stringify({ domain: 'example.com', directory: '/sites/example.com' }),
         })
       );
+    });
+
+    it('should use a timeout longer than the default for site creation', async () => {
+      const timeoutSpy = vi.spyOn(AbortSignal, 'timeout');
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ result: 'success', data: { id: 50 } }),
+      });
+
+      await client.createSite(100, { domain: 'example.com', directory: '/sites/example.com' });
+
+      expect(timeoutSpy).toHaveBeenCalledWith(120_000);
     });
   });
 
@@ -500,6 +548,102 @@ describe('InfomaniakClient', () => {
         'https://api.infomaniak.com/1/search?q=test&limit=10',
         expect.objectContaining({ method: 'GET' })
       );
+    });
+  });
+
+  describe('retry policy', () => {
+    const serverError = () => ({
+      ok: false,
+      status: 503,
+      headers: { get: () => null },
+      text: () => Promise.resolve('Service Unavailable'),
+    });
+    const rateLimited = () => ({
+      ok: false,
+      status: 429,
+      headers: { get: (name: string) => (name === 'Retry-After' ? '1' : null) },
+      text: () => Promise.resolve('Rate limit exceeded'),
+    });
+    const success = () => ({
+      ok: true,
+      json: () => Promise.resolve({ result: 'success', data: {} }),
+    });
+
+    let retryingClient: InfomaniakClient;
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      retryingClient = new InfomaniakClient({ token: 'test-token-123', maxAttempts: 3 });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should retry GET requests after a 5xx error', async () => {
+      mockFetch
+        .mockResolvedValueOnce(serverError())
+        .mockResolvedValueOnce(serverError())
+        .mockResolvedValueOnce(success());
+
+      const result = retryingClient.ping();
+      await vi.runAllTimersAsync();
+
+      await expect(result).resolves.toEqual({ result: 'success', data: {} });
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+
+    it.each(['POST', 'PUT', 'PATCH', 'DELETE'] as const)(
+      'should not retry %s requests after a 5xx error',
+      async (method) => {
+        mockFetch.mockResolvedValue(serverError());
+
+        const result = retryingClient.call(method, '/1/example', { key: 'value' });
+        const assertion = expect(result).rejects.toThrow('Infomaniak API Error (503)');
+        await vi.runAllTimersAsync();
+
+        await assertion;
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it('should not retry a domain renewal after a 5xx error', async () => {
+      mockFetch.mockResolvedValue(serverError());
+
+      const result = retryingClient.renewDomain('example.com', 1);
+      const assertion = expect(result).rejects.toThrow('Infomaniak API Error (503)');
+      await vi.runAllTimersAsync();
+
+      await assertion;
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('should retry POST requests after a 429 error', async () => {
+      mockFetch
+        .mockResolvedValueOnce(rateLimited())
+        .mockResolvedValueOnce(success());
+
+      const result = retryingClient.call('POST', '/1/example', { key: 'value' });
+      await vi.runAllTimersAsync();
+
+      await expect(result).resolves.toEqual({ result: 'success', data: {} });
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not retry 4xx errors other than 429', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        headers: { get: () => null },
+        text: () => Promise.resolve('Not Found'),
+      });
+
+      const result = retryingClient.ping();
+      const assertion = expect(result).rejects.toThrow('Infomaniak API Error (404)');
+      await vi.runAllTimersAsync();
+
+      await assertion;
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
   });
 });

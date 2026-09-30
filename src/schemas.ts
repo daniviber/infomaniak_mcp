@@ -90,12 +90,30 @@ export const SiteIdSchema = z.object({
   site_id: z.number({ required_error: 'site_id is required' }).positive(),
 });
 
-export const CreateSiteSchema = z.object({
-  hosting_id: z.number().positive(),
-  fqdn: z.string({ required_error: 'fqdn is required' }).min(1, 'fqdn cannot be empty'),
-  path: z.string().optional(),
-  php_version: z.string().optional(),
-});
+// The API expects `domain` and `directory`. `fqdn` and `path` are accepted as
+// deprecated aliases for backward compatibility with earlier versions of this tool.
+export const CreateSiteSchema = z
+  .object({
+    hosting_id: z.number().positive(),
+    domain: z.string().min(1, 'domain cannot be empty').optional(),
+    directory: z.string().min(1, 'directory cannot be empty').optional(),
+    fqdn: z.string().min(1, 'fqdn cannot be empty').optional(),
+    path: z.string().min(1, 'path cannot be empty').optional(),
+    php_version: z.string().optional(),
+  })
+  .refine((site) => site.domain !== undefined || site.fqdn !== undefined, {
+    message: 'domain is required',
+    path: ['domain'],
+  })
+  .transform(({ hosting_id, domain, directory, fqdn, path, php_version }) => {
+    const siteDomain = (domain ?? fqdn) as string;
+    return {
+      hosting_id,
+      domain: siteDomain,
+      directory: directory ?? path ?? `/sites/${siteDomain}`,
+      php_version,
+    };
+  });
 
 export const UpdateSiteSchema = z.object({
   hosting_id: z.number().positive(),
@@ -361,7 +379,7 @@ export const KChatGetChannelPostsSchema = z.object({
 });
 
 // Helper function to validate and return typed result
-export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
+export function validate<S extends z.ZodTypeAny>(schema: S, data: unknown): z.output<S> {
   const result = schema.safeParse(data);
   if (!result.success) {
     const errors = result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
