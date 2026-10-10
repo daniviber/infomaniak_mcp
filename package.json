@@ -45,12 +45,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git"
+    "url": "git+https://github.com/daniviber/infomaniak_mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/infomaniak-mcp-server/issues"
+    "url": "https://github.com/daniviber/infomaniak_mcp/issues"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/infomaniak-mcp-server#readme",
+  "homepage": "https://github.com/daniviber/infomaniak_mcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3",
     "cors": "^2.8.5",

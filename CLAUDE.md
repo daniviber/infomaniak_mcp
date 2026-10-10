@@ -20,8 +20,14 @@ This is an MCP (Model Context Protocol) server that provides tools for interacti
 
 ```
 src/
-├── index.ts              # MCP server entry point, tool definitions and handlers
-└── infomaniak-client.ts  # Infomaniak API client with typed methods
+├── index.ts              # Entry point: reads the environment, picks the transport
+├── server.ts             # MCP server factory, tool definitions and handlers
+├── infomaniak-client.ts  # Infomaniak API client with typed methods
+├── kchat-client.ts       # kChat (Mattermost-compatible) client, optional
+├── schemas.ts            # Zod schemas for tool inputs
+└── transports/
+    ├── stdio.ts          # Default transport (Claude Desktop, Claude Code)
+    └── http.ts           # Streamable HTTP transport (Express)
 ```
 
 ## Build and Run Commands
@@ -40,9 +46,9 @@ npm run inspector    # Test with MCP Inspector (requires INFOMANIAK_API_TOKEN en
 
 ## Architecture
 
-### MCP Server (`src/index.ts`)
-- Defines 50+ tools organized by service category (domains, mail, hosting, etc.)
-- Uses stdio transport for communication
+### MCP Server (`src/server.ts`)
+- Defines 96 tools organized by service category (domains, mail, hosting, kDrive, kChat, etc.)
+- Transport-agnostic: `src/transports/stdio.ts` (default) or `src/transports/http.ts`
 - Requires `INFOMANIAK_API_TOKEN` environment variable
 - Each tool maps to one or more `InfomaniakClient` methods
 
@@ -81,7 +87,7 @@ npm run inspector    # Test with MCP Inspector (requires INFOMANIAK_API_TOKEN en
 
 ### Adding a New Tool
 
-1. Add tool definition to the `tools` array in `src/index.ts` with:
+1. Add tool definition to the `tools` array in `src/server.ts` with:
    - `name`: Prefixed with `infomaniak_`
    - `description`: Clear description of what it does
    - `inputSchema`: JSON Schema for parameters

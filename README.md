@@ -1,8 +1,6 @@
 # Infomaniak MCP Server
 
-[![npm version](https://badge.fury.io/js/infomaniak-mcp-server.svg)](https://www.npmjs.com/package/infomaniak-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/YOUR_USERNAME/infomaniak-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/infomaniak-mcp-server/actions/workflows/ci.yml)
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for interacting with the [Infomaniak API](https://developer.infomaniak.com/). This server enables AI assistants like Claude to manage Infomaniak services including domains, email, web hosting, kDrive, and more.
 
@@ -48,20 +46,17 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server for in
 
 ## 📦 Installation
 
-### Using npm (recommended)
+The server is not published on npm yet (`npm install -g infomaniak-mcp-server`
+finds nothing), so it is built from source:
 
 ```bash
-npm install -g infomaniak-mcp-server
-```
-
-### From source
-
-```bash
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-npm install
+git clone https://github.com/daniviber/infomaniak_mcp.git
+cd infomaniak_mcp
+npm ci
 npm run build
 ```
+
+The entry point is `build/index.js`.
 
 ## ⚙️ Configuration
 
@@ -79,24 +74,8 @@ Add to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "infomaniak": {
-      "command": "npx",
-      "args": ["-y", "infomaniak-mcp-server"],
-      "env": {
-        "INFOMANIAK_API_TOKEN": "your-api-token-here"
-      }
-    }
-  }
-}
-```
-
-Or if installed globally or from source:
-
-```json
-{
-  "mcpServers": {
-    "infomaniak": {
       "command": "node",
-      "args": ["/path/to/infomaniak-mcp-server/build/index.js"],
+      "args": ["/path/to/infomaniak_mcp/build/index.js"],
       "env": {
         "INFOMANIAK_API_TOKEN": "your-api-token-here"
       }
@@ -121,10 +100,6 @@ The server supports HTTP transport with SSE streaming, enabling web-based MCP cl
 ### Starting in HTTP Mode
 
 ```bash
-# Using npx
-MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token npx infomaniak-mcp-server
-
-# From source
 MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/index.js
 ```
 
@@ -148,11 +123,13 @@ MCP_TRANSPORT=http MCP_PORT=3000 INFOMANIAK_API_TOKEN=your-token node build/inde
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
-RUN npm install -g infomaniak-mcp-server
+COPY package.json package-lock.json tsconfig.json ./
+COPY src ./src
+RUN npm ci && npm run build && npm prune --omit=dev
 ENV MCP_TRANSPORT=http
 ENV MCP_PORT=3000
 EXPOSE 3000
-CMD ["infomaniak-mcp-server"]
+CMD ["node", "build/index.js"]
 ```
 
 ```bash
@@ -322,9 +299,9 @@ const response = await fetch('http://localhost:3000/mcp', {
 ### Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/infomaniak-mcp-server.git
-cd infomaniak-mcp-server
-npm install
+git clone https://github.com/daniviber/infomaniak_mcp.git
+cd infomaniak_mcp
+npm ci
 ```
 
 ### Build
