@@ -11,6 +11,7 @@
  * - MCP_TRANSPORT: Transport mode - 'stdio' (default) or 'http'
  * - MCP_PORT: HTTP port when using http transport (default: 3000)
  * - MCP_STATELESS: Set to 'true' for stateless mode (default: false)
+ * - INFOMANIAK_READ_ONLY: Set to 'true' to offer and allow read-only tools only
  *
  * Get your API token from: https://manager.infomaniak.com/v3/ng/accounts/token/list
  */
@@ -19,6 +20,7 @@ import { InfomaniakClient } from "./infomaniak-client.js";
 import { KChatClient } from "./kchat-client.js";
 import { startStdioServer } from "./transports/stdio.js";
 import { startHttpServer } from "./transports/http.js";
+import { readOnlyFromEnv } from "./policy.js";
 
 // Get API token from environment
 const API_TOKEN = process.env.INFOMANIAK_API_TOKEN;
@@ -43,13 +45,14 @@ const kchatClient = (kchatHost && kchatToken)
 const transport = process.env.MCP_TRANSPORT || "stdio";
 const port = parseInt(process.env.PORT || process.env.MCP_PORT || "3000", 10);
 const stateless = process.env.MCP_STATELESS === "true";
+const readOnly = readOnlyFromEnv();
 
 // Start the server with the selected transport
 async function main() {
   if (transport === "http") {
-    await startHttpServer(client, { port, stateless }, kchatClient);
+    await startHttpServer(client, { port, stateless, readOnly }, kchatClient);
   } else if (transport === "stdio") {
-    await startStdioServer(client, kchatClient);
+    await startStdioServer(client, kchatClient, { readOnly });
   } else {
     console.error(`Error: Unknown transport '${transport}'. Use 'stdio' or 'http'.`);
     process.exit(1);

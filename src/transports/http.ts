@@ -14,7 +14,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "../infomaniak-client.js";
 import { KChatClient } from "../kchat-client.js";
-import { createMcpServer } from "../server.js";
+import { createMcpServer, ServerOptions } from "../server.js";
 
 export interface HttpServerOptions {
   /** Port to listen on (default: 3000) */
@@ -25,6 +25,8 @@ export interface HttpServerOptions {
   stateless?: boolean;
   /** Allowed CORS origins (default: '*' allows all) */
   corsOrigins?: string | string[];
+  /** Only read-only tools are listed and callable (INFOMANIAK_READ_ONLY) */
+  readOnly?: boolean;
 }
 
 // Store active transports for session management (stateful mode)
@@ -83,7 +85,7 @@ export async function startHttpServer(
       });
 
       // Create and connect the MCP server for this session
-      const server = createMcpServer(client, kchatClient);
+      const server = createMcpServer(client, kchatClient, { readOnly: options.readOnly });
       await server.connect(transport);
 
       // Store session immediately if stateful mode (before handleRequest)

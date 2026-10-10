@@ -14,6 +14,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "./infomaniak-client.js";
 import { KChatClient } from "./kchat-client.js";
+import { annotate, assertAllowed, PolicyRefusal, visibleTools } from "./policy.js";
 import {
   validate,
   AccountIdSchema,
@@ -1804,7 +1805,21 @@ async function handleKChatToolCall(
  * @param client - The Infomaniak API client to use for tool calls
  * @returns Configured MCP Server instance
  */
-export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatClient | null): Server {
+export interface ServerOptions {
+  /** Only read-only tools are listed and callable (INFOMANIAK_READ_ONLY). */
+  readOnly?: boolean;
+}
+
+/** Every tool with its annotations; built once, and startup fails if one cannot be classified. */
+export const annotatedTools: Tool[] = annotate(tools);
+
+export function createMcpServer(
+  client: InfomaniakClient,
+  kchatClient?: KChatClient | null,
+  options: ServerOptions = {},
+): Server {
+  const readOnly = options.readOnly ?? false;
+  const offered = visibleTools(annotatedTools, readOnly);
   const server = new Server(
     {
       name: "infomaniak-mcp-server",
@@ -1819,7 +1834,7 @@ export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatCli
 
   // Handle list tools request
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return { tools };
+    return { tools: offered };
   });
 
   // Handle tool calls
@@ -1827,6 +1842,7 @@ export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatCli
     const { name, arguments: args } = request.params;
 
     try {
+      assertAllowed(name, annotatedTools, readOnly);
       const result = await handleToolCall(client, name, args, kchatClient);
 
       const content: TextContent[] = [
@@ -1839,11 +1855,12 @@ export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatCli
       return { content };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      const prefix = error instanceof PolicyRefusal ? "Refused" : "Error";
       return {
         content: [
           {
             type: "text",
-            text: `Error: ${errorMessage}`,
+            text: `${prefix}: ${errorMessage}`,
           },
         ],
         isError: true,

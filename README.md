@@ -113,6 +113,31 @@ Or if installed globally or from source:
 | `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
 | `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
 | `MCP_STATELESS` | No | `false` | Set to `true` for stateless mode |
+| `INFOMANIAK_READ_ONLY` | No | `false` | Set to `true` to offer and allow read-only tools only (see Safety) |
+
+## 🛡️ Safety
+
+Every tool carries MCP annotations: `readOnlyHint` for reads (`list_*`, `get_*`,
+`search_*`, `ping`), `destructiveHint` for what deletes, empties, reboots or
+shuts down, and for `infomaniak_api_call`, which can do anything the token can.
+Clients that honour annotations can ask before a destructive call.
+
+With `INFOMANIAK_READ_ONLY=true` the server **offers only the read-only tools**
+and refuses any other call, `infomaniak_api_call` included, with a message that
+names the variable. Start there when you connect an assistant to an account
+whose mail or DNS you care about, and lift it on purpose:
+
+```json
+{
+  "mcpServers": {
+    "infomaniak": {
+      "command": "node",
+      "args": ["/path/to/infomaniak-mcp-server/build/index.js"],
+      "env": { "INFOMANIAK_API_TOKEN": "your-api-token-here", "INFOMANIAK_READ_ONLY": "true" }
+    }
+  }
+}
+```
 
 ## 🌐 HTTP Transport
 
