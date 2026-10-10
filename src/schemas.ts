@@ -48,38 +48,6 @@ export const GetDomainSchema = z.object({
   domain: z.string().min(1),
 });
 
-// Mail schemas
-export const MailIdSchema = z.object({
-  mail_id: z.number({ required_error: 'mail_id is required' }).positive(),
-});
-
-export const MailboxIdSchema = z.object({
-  mail_id: z.number().positive(),
-  mailbox_id: z.number({ required_error: 'mailbox_id is required' }).positive(),
-});
-
-export const CreateMailboxSchema = z.object({
-  mail_id: z.number().positive(),
-  mailbox_name: z.string({ required_error: 'mailbox_name is required' }).min(1, 'mailbox_name cannot be empty'),
-  password: z.string({ required_error: 'password is required' }).min(8, 'password must be at least 8 characters'),
-  max_size: z.number().positive().optional(),
-});
-
-export const UpdateMailboxSchema = z.object({
-  mail_id: z.number().positive(),
-  mailbox_id: z.number().positive(),
-  password: z.string().min(8).optional(),
-  max_size: z.number().positive().optional(),
-});
-
-export const DeleteMailboxSchema = MailboxIdSchema;
-
-export const MailboxAliasSchema = z.object({
-  mail_id: z.number().positive(),
-  mailbox_id: z.number().positive(),
-  alias: z.string({ required_error: 'alias is required' }).email('alias must be a valid email'),
-});
-
 // Web Hosting schemas
 export const HostingIdSchema = z.object({
   hosting_id: z.number({ required_error: 'hosting_id is required' }).positive(),
@@ -173,19 +141,6 @@ export const UpdateDomainNameserversSchema = z.object({
 export const RenewDomainSchema = z.object({
   domain: z.string().min(1),
   duration: z.number().int().positive(),
-});
-
-// Email redirections
-export const EmailRedirectionIdSchema = z.object({
-  mail_id: z.number().positive(),
-  redirection_id: z.number({ required_error: 'redirection_id is required' }).positive(),
-});
-
-export const CreateEmailRedirectionSchema = z.object({
-  mail_id: z.number().positive(),
-  from: z.string({ required_error: 'from is required' }).email(),
-  to: z.array(z.string().email()).min(1),
-  keep_copy: z.boolean().optional(),
 });
 
 // Cron jobs
@@ -298,22 +253,6 @@ export const KDriveFavoriteFileSchema = z.object({
 export const KDriveFileVersionsSchema = z.object({
   drive_id: z.number().positive(),
   file_id: z.number().positive(),
-});
-
-// Mail extras
-export const UpdateMailboxAutoresponderSchema = z.object({
-  mail_id: z.number().positive(),
-  mailbox_id: z.number().positive(),
-  enabled: z.boolean(),
-  subject: z.string().optional(),
-  body: z.string().optional(),
-  from_date: z.string().optional(),
-  to_date: z.string().optional(),
-});
-
-export const ListMailboxFoldersSchema = z.object({
-  mail_id: z.number().positive(),
-  mailbox_id: z.number().positive(),
 });
 
 // kChat schemas

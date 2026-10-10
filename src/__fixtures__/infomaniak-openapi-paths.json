@@ -1,0 +1,1052 @@
+{
+ "_recorded": {
+  "source": "https://developer.infomaniak.com/openapi.json",
+  "date": "2026-10-10T14:38:23+00:00",
+  "sha256_of_full_document": "81baa2a4d1b7a2147ed54682449b7db24901432fb50592a1a5b1fd73150d972a",
+  "paths_in_full_document": 1088,
+  "note": "Path -> HTTP methods, for the families this server calls. Reduced from the full document by selecting paths only; nothing renamed or edited."
+ },
+ "paths": {
+  "/1/swiss_backups/{swiss_backup_id}/admin": [
+   "POST",
+   "PUT"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/admin/request_password": [
+   "POST"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/slots": [
+   "GET",
+   "POST"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/slots/{slot_id}/disable": [
+   "POST"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/slots/{slot_id}/enable": [
+   "POST"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/slots/{slot_id}/request_password": [
+   "POST"
+  ],
+  "/1/swiss_backups": [
+   "GET"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}": [
+   "GET",
+   "PUT"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/acronis_informations": [
+   "GET"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/slots/{slot_id}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/1/swiss_backups/{swiss_backup_id}/slots/{slot_id}/rclone": [
+   "GET"
+  ],
+  "/1/swiss_backups/pricing": [
+   "GET"
+  ],
+  "/1/swiss_backups/calculate": [
+   "GET"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/bimi": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/signatures/templates": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/signatures/templates/upload": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/signatures/templates/{signature_template}/create_signatures": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/auto_replies": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/filters": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailing_lists/{mailing_list_name}/subscribers": [
+   "DELETE",
+   "GET",
+   "PATCH",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailing_lists/{mailing_list_name}/subscribers/import": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailing_lists": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/filters/set_activation": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/filters/reorder": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/filters": [
+   "DELETE",
+   "GET",
+   "PATCH",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/filters/scripts": [
+   "DELETE",
+   "PATCH",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/filters/scripts/set_activation": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/folders": [
+   "GET",
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/signatures/set_defaults": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/signatures": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/signatures/upload": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/forwarding_addresses": [
+   "DELETE",
+   "GET",
+   "POST",
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auto_reply/model": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auto_reply/reset": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases": [
+   "GET",
+   "POST",
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/redirections": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}/targets": [
+   "DELETE",
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/bulk": [
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/users/bulk": [
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/teams/bulk": [
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/invitations": [
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/invitations/{invitation_webmail}/send": [
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/devices": [
+   "DELETE",
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/devices/{device_access}": [
+   "DELETE",
+   "POST"
+  ],
+  "/1/mail_hostings/{service_mail}/diagnostic/dkim/rotate": [
+   "GET",
+   "POST"
+  ],
+  "/1/mail_hostings/accesses/webmail/mailboxes/{mailbox_id}/set_primary": [
+   "POST"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/preferences": [
+   "GET",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/signatures/templates/default": [
+   "GET"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/signatures/templates/{signature_template}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/auto_replies/{auto_reply_id}": [
+   "DELETE",
+   "GET",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/filters/{filter_id}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailing_lists/{mailing_list_name}": [
+   "DELETE",
+   "GET",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}": [
+   "DELETE",
+   "GET",
+   "PATCH",
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/signatures/templates": [
+   "GET"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/signatures/templates/{signature_template}": [
+   "GET"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/signatures/{signature}": [
+   "DELETE",
+   "GET",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auto_reply/model/{model_id}": [
+   "DELETE",
+   "GET",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/1/mail_hostings/{service_mail}/accounts": [
+   "GET"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox}/email_imports": [
+   "GET"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/users": [
+   "GET"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/users/{user_id}/team_accesses": [
+   "GET"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/teams/{team_id}/individual_users": [
+   "GET"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/devices/users/{user_id}": [
+   "DELETE",
+   "GET"
+  ],
+  "/1/mail_hostings/{service_mail}/accesses/devices/users/{user_id}": [
+   "GET"
+  ],
+  "/1/mail_hostings/accesses/webmail": [
+   "GET"
+  ],
+  "/1/mail_hostings/accesses/webmail/accounts/{account_id}/users/{user_id}": [
+   "GET"
+  ],
+  "/1/mail_hostings/accesses/webmail/accounts/{account_id}/teams/{team_id}": [
+   "GET"
+  ],
+  "/1/mail_hostings/accesses/devices": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/mail_hostings": [
+   "GET"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailing_lists/{mailing_list_name}/send": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailing_lists/{mailing_list_name}/form": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/invitations/{key}": [
+   "DELETE",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}/enable": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}/send-confirmation-requests": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/redirections/{redirection_id}/targets/{target_id}/resend-confirmation-request": [
+   "PUT"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/users/{user_id}": [
+   "DELETE",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{service_mail}/mailboxes/{mailbox_name}/accesses/webmail/teams/{team_id}": [
+   "DELETE",
+   "PATCH"
+  ],
+  "/1/mail_hostings/accesses/devices/{device}": [
+   "DELETE",
+   "PATCH"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/folders/spam": [
+   "DELETE"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/auth/folders/trash": [
+   "DELETE"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/forwarding_addresses/{redirect_addresses}": [
+   "DELETE"
+  ],
+  "/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/aliases/{alias}": [
+   "DELETE"
+  ],
+  "/1/mail_hostings/accesses/webmail/mailboxes/{mailbox_id}": [
+   "DELETE"
+  ],
+  "/2/domains/domains": [
+   "GET"
+  ],
+  "/2/domains/domains/{domain}": [
+   "GET"
+  ],
+  "/2/domains/domains/{domain}/nameservers": [
+   "PUT"
+  ],
+  "/2/domains/domains/{domain}/zones": [
+   "GET"
+  ],
+  "/2/domains/domains/{domain}/dnssec/check": [
+   "GET"
+  ],
+  "/2/domains/domains/{domain}/dnssec/enable": [
+   "POST"
+  ],
+  "/2/domains/domains/{domain}/dnssec/disable": [
+   "POST"
+  ],
+  "/2/domains/{domain}/nameservers": [
+   "PUT"
+  ],
+  "/2/domains/{domain}/zones": [
+   "GET"
+  ],
+  "/2/domains/{domain}/dnssec/check": [
+   "GET"
+  ],
+  "/2/domains/{domain}/dnssec/enable": [
+   "POST"
+  ],
+  "/2/domains/{domain}/dnssec/disable": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/check": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/contacts": [
+   "GET",
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/contacts/{contact}": [
+   "PUT"
+  ],
+  "/2/domains/accounts/{account}/contacts/emails/verifications": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/contacts/emails/verifications/{uuid}/resend": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/contacts/emails/verifications/{uuid}/verify": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/create": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/create/{domain}": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/transfer": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/transfer/{domain}": [
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/documents": [
+   "GET",
+   "POST"
+  ],
+  "/2/domains/accounts/{account}/documents/{document_id}": [
+   "GET"
+  ],
+  "/2/zones/{zone}": [
+   "DELETE",
+   "GET",
+   "POST",
+   "PUT"
+  ],
+  "/2/zones/{zone}/exists": [
+   "GET"
+  ],
+  "/2/zones/{zone}/flatify": [
+   "POST"
+  ],
+  "/2/zones/{zone}/records": [
+   "GET",
+   "POST"
+  ],
+  "/2/zones/{zone}/records/{record}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/2/zones/{zone}/records/{record}/check": [
+   "GET"
+  ],
+  "/1/accounts/{account}/tags": [
+   "POST"
+  ],
+  "/1/accounts/{account}/teams": [
+   "GET",
+   "POST"
+  ],
+  "/1/accounts/{account}/teams/{team}/users": [
+   "DELETE",
+   "GET",
+   "POST"
+  ],
+  "/1/accounts/{account}/invitations": [
+   "POST"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/drive": [
+   "POST"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/ksuite": [
+   "DELETE",
+   "POST"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/mailbox/invite": [
+   "POST"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/mailbox/{mail_id}": [
+   "DELETE",
+   "PATCH",
+   "POST"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/b2b": [
+   "GET",
+   "POST"
+  ],
+  "/2/profile/avatar": [
+   "DELETE",
+   "POST"
+  ],
+  "/2/profile/applications/passwords": [
+   "GET",
+   "POST"
+  ],
+  "/2/profile/ksuites/mailboxes": [
+   "GET",
+   "POST"
+  ],
+  "/1/accounts": [
+   "GET"
+  ],
+  "/1/accounts/{account_id}": [
+   "GET"
+  ],
+  "/1/accounts/{account_id}/tags": [
+   "GET"
+  ],
+  "/1/accounts/{account_id}/products": [
+   "GET"
+  ],
+  "/1/accounts/{account_id}/services": [
+   "GET"
+  ],
+  "/1/accounts/{account}/teams/{team}": [
+   "DELETE",
+   "GET",
+   "PATCH"
+  ],
+  "/1/accounts/current/products": [
+   "GET"
+  ],
+  "/1/accounts/{account_id}/basic/teams": [
+   "GET"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}": [
+   "DELETE",
+   "GET",
+   "PATCH"
+  ],
+  "/1/accounts/{account}/invitations/users/{user}": [
+   "GET"
+  ],
+  "/1/products": [
+   "GET"
+  ],
+  "/2/accounts/{account}/users": [
+   "GET"
+  ],
+  "/2/accounts/{account}/users/{user}/app_accesses": [
+   "GET"
+  ],
+  "/2/profile": [
+   "GET",
+   "PATCH"
+  ],
+  "/2/profile/logs": [
+   "GET"
+  ],
+  "/2/profile/emails": [
+   "GET"
+  ],
+  "/2/profile/emails/{email_type}/{email_id}": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/profile/phones": [
+   "GET"
+  ],
+  "/2/profile/phones/{phone_id}": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/profile/applications/passwords/{password_id}": [
+   "GET"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/drive/{drive_id}": [
+   "DELETE",
+   "PATCH"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/kchat": [
+   "PATCH"
+  ],
+  "/1/accounts/{account}/tags/{tag}": [
+   "DELETE",
+   "PUT"
+  ],
+  "/2/profile/ksuites/mailboxes/{mailbox_id}/set_primary": [
+   "PUT"
+  ],
+  "/2/profile/ksuites/mailboxes/{mailbox_id}/update_password": [
+   "PUT"
+  ],
+  "/1/accounts/{account}/invitations/{invitation}/b2b/{partnership_id}": [
+   "DELETE"
+  ],
+  "/2/profile/ksuites/mailboxes/{mailbox_id}": [
+   "DELETE"
+  ],
+  "/2/drive": [
+   "GET"
+  ],
+  "/2/drive/users": [
+   "GET"
+  ],
+  "/2/drive/users/{user_id}/drives": [
+   "GET"
+  ],
+  "/2/drive/preferences": [
+   "GET",
+   "PATCH"
+  ],
+  "/2/drive/{drive_id}/categories/rights": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/categories": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/categories/{category_id}": [
+   "DELETE",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/categories/{category_id}": [
+   "DELETE",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/categories/{category_id}": [
+   "DELETE",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/categories": [
+   "DELETE"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/categories/{category_id}/ai-feedback": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/settings": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/settings/ai": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/settings/link": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/settings/trash": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/settings/files/private": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/settings/report/storage_report": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/settings/office": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}": [
+   "GET",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/users": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/users/invitation": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/users/invitation/{invitation_id}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/users/invitation/{invitation_id}/send": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/users/{user_id}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/users/{user_id}/manager": [
+   "PATCH"
+  ],
+  "/2/drive/{drive_id}/users/{user_id}/lock": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/users/{user_id}/unlock": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/activities": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/activities/reports": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/activities/reports/{report_id}": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/drive/{drive_id}/activities/reports/{report_id}/export": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/sizes": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/sizes/export": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/activities/users": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/activities/shared_files": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/activities": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/activities/export": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/activities/links": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/statistics/activities/links/export": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/preferences": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/imports": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/drive/{drive_id}/imports/sharelink": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/imports/kdrive": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/imports/oauth": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/imports/oauth/drives": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/imports/{import_id}": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/drive/{drive_id}/imports/{import_id}/cancel": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/cancel": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/access/requests/{request_id}": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/access/requests/{request_id}/decline": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}": [
+   "DELETE"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/favorite": [
+   "DELETE",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/thumbnail": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/preview": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/download": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/rename": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/sizes": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/hash": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/copy-to-drive": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/temporary_url": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/versions": [
+   "DELETE",
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/versions/current": [
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/versions/{version_id}": [
+   "DELETE",
+   "GET",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/versions/{version_id}/download": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/versions/{version_id}/restore": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/versions/{version_id}/restore/{destination_directory_id}": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/notify": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/requests": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/applications": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/sync-parent": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/check": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/invitations": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/invitations/check": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/teams": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/teams/{team_id}": [
+   "DELETE",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/users": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/users/{user_id}": [
+   "DELETE",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/access/force": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/link": [
+   "DELETE",
+   "GET",
+   "POST",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/link/invite": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/dropbox": [
+   "DELETE",
+   "GET",
+   "POST",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/dropbox/invite": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/comments": [
+   "GET",
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/comments/{comment_id}": [
+   "DELETE",
+   "GET",
+   "POST",
+   "PUT"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/comments/{comment_id}/like": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/{file_id}/comments/{comment_id}/unlike": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/exists": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/files/archives/{archive_uuid}": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/trash": [
+   "DELETE"
+  ],
+  "/2/drive/{drive_id}/trash/count": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/trash/{file_id}": [
+   "DELETE"
+  ],
+  "/2/drive/{drive_id}/trash/{file_id}/restore": [
+   "POST"
+  ],
+  "/2/drive/{drive_id}/trash/{file_id}/thumbnail": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/trash/{file_id}/count": [
+   "GET"
+  ],
+  "/2/drive/{drive_id}/upload": [
+   "DELETE"
+  ],
+  "/2/drive/{drive_id}/upload/session/{session_token}": [
+   "DELETE"
+  ],
+  "/2/drive/{drive_id}/upload/session/batch": [
+   "DELETE"
+  ],
+  "/3/drive/{drive_id}/categories/{category_id}/files": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/activities": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/activities/total": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/users": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/wake": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/files": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/name": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/activities": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/hash": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/count": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/directory": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/file": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/copy/{destination_directory_id}": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/duplicate": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/convert": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/move/{destination_directory_id}": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/lock": [
+   "DELETE"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/versions": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/versions/{version_id}/restore": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/versions/{version_id}/restore/{destination_directory_id}": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/{file_id}/last-modified": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/search": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/search/dropboxes": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/search/favorites": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/search/links": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/search/shared_with_me": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/search/my_shared": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/search/trash": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/dropboxes": [
+   "GET",
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/favorites": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/largest": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/last_modified": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/links": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/most_versions": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/my_shared": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/shared_with_me": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/team_directory": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/files/recents": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/activities": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/files/archives": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/trash": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/trash/{file_id}": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/trash/{file_id}/files": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/trash/{file_id}/count": [
+   "GET"
+  ],
+  "/3/drive/{drive_id}/upload": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/upload/session/start": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/upload/session/batch/start": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/upload/session/{session_token}/chunk": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/upload/session/{session_token}/finish": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/upload/session/batch/finish": [
+   "POST"
+  ],
+  "/3/drive/{drive_id}/upload/session/{session_token}": [
+   "DELETE"
+  ],
+  "/3/drive/{drive_id}/upload/session/batch": [
+   "DELETE"
+  ]
+ }
+}

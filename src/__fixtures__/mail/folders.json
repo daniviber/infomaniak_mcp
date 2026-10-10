@@ -1,0 +1,48 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail_hostings/100001/mailboxes/user1/auth/folders",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "cae818bbe7df22e096e7903d6f3d03689d634ed8f429ac9657b79907878aba66",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). "
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": {
+   "folders": [
+    {
+     "name": "Archives"
+    },
+    {
+     "name": "Drafts"
+    },
+    {
+     "name": "INBOX"
+    },
+    {
+     "name": "Promotions"
+    },
+    {
+     "name": "Sent"
+    },
+    {
+     "name": "SocialNetworks"
+    },
+    {
+     "name": "Spam"
+    },
+    {
+     "name": "Trash"
+    }
+   ],
+   "draft_folder": "Drafts",
+   "trash_folder": "Trash",
+   "sent_folder": "Sent",
+   "spam_folder": "Spam",
+   "archives_folder": "Archives",
+   "commercials_folder": "Promotions",
+   "social_networks_folder": "SocialNetworks"
+  }
+ }
+}

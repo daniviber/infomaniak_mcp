@@ -221,17 +221,24 @@ const response = await fetch('http://localhost:3000/mcp', {
 
 ### Email Services
 
+A mail service is a *mail hosting*; a mailbox is addressed by its **name** (the part
+before the `@`), which is how the Infomaniak API identifies it. Routes follow the
+published OpenAPI document (`/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/…`)
+and were checked live on 2026-10-10.
+
 | Tool | Description |
 |------|-------------|
-| `infomaniak_list_mail_services` | List mail services |
-| `infomaniak_get_mail_service` | Get mail service details |
-| `infomaniak_list_mailboxes` | List mailboxes |
-| `infomaniak_get_mailbox` | Get mailbox details |
-| `infomaniak_create_mailbox` | Create new mailbox |
-| `infomaniak_update_mailbox` | Update mailbox |
-| `infomaniak_delete_mailbox` | Delete mailbox |
-| `infomaniak_add_mailbox_alias` | Add email alias |
-| `infomaniak_delete_mailbox_alias` | Remove email alias |
+| `infomaniak_list_mail_hostings` | List mail hostings (mail services), optionally for one account |
+| `infomaniak_list_mailboxes` | List mailboxes of a hosting (search, pagination) |
+| `infomaniak_get_mailbox` | Get a mailbox by name |
+| `infomaniak_create_mailbox` | Create a mailbox (the password is set by its user in the Manager) |
+| `infomaniak_update_mailbox` | Note, auto-responder on/off, spam handling, filtering, senders lists |
+| `infomaniak_delete_mailbox` | Delete a mailbox |
+| `infomaniak_list_mailbox_aliases` / `infomaniak_add_mailbox_alias` / `infomaniak_delete_mailbox_alias` | Aliases of a mailbox |
+| `infomaniak_get_mailbox_forwarding` / `infomaniak_add_mailbox_forwarding` / `infomaniak_update_mailbox_forwarding` / `infomaniak_delete_mailbox_forwarding` | Forwarding addresses of a mailbox |
+| `infomaniak_list_email_redirections` / `infomaniak_create_email_redirection` / `infomaniak_delete_email_redirection` | Redirections of the hosting (addresses without a mailbox) |
+| `infomaniak_list_auto_replies` / `infomaniak_create_auto_reply` / `infomaniak_update_auto_reply` / `infomaniak_delete_auto_reply` | Auto-replies (out of office) of the hosting |
+| `infomaniak_list_mailbox_folders` | IMAP folders of a mailbox and their roles |
 
 ### Web Hosting
 
@@ -303,7 +310,8 @@ const response = await fetch('http://localhost:3000/mcp', {
 
 ### Create a Mailbox
 ```
-"Create a new email address info@mydomain.com with password SecurePass123"
+"Create the mailbox info on mail hosting 12345"
+"List the aliases of the mailbox info on hosting 12345"
 ```
 
 ### Check Infrastructure

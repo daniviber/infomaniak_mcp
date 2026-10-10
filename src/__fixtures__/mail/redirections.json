@@ -1,0 +1,18 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail_hostings/100001/redirections",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "e1ea222619185103f47620ecca47857087be898a802f401125ac84b300fe3dad",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). "
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": [],
+  "total": 0,
+  "pages": 1,
+  "items_per_page": 15,
+  "page": 1
+ }
+}

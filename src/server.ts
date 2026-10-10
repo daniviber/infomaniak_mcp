@@ -14,6 +14,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "./infomaniak-client.js";
 import { KChatClient } from "./kchat-client.js";
+import { mailTools, MAIL_TOOL_NAMES, handleMailTool } from "./mail-tools.js";
 import {
   validate,
   AccountIdSchema,
@@ -23,12 +24,6 @@ import {
   CreateDnsRecordSchema,
   UpdateDnsRecordSchema,
   DeleteDnsRecordSchema,
-  MailIdSchema,
-  MailboxIdSchema,
-  CreateMailboxSchema,
-  UpdateMailboxSchema,
-  DeleteMailboxSchema,
-  MailboxAliasSchema,
   HostingIdSchema,
   SiteIdSchema,
   CreateSiteSchema,
@@ -47,8 +42,6 @@ import {
   GetDomainNameserversSchema,
   UpdateDomainNameserversSchema,
   RenewDomainSchema,
-  EmailRedirectionIdSchema,
-  CreateEmailRedirectionSchema,
   CronJobIdSchema,
   CreateCronJobSchema,
   UpdateCronJobSchema,
@@ -65,7 +58,6 @@ import {
   KDriveTrashSchema,
   KDriveActivitySchema,
   KDriveFavoritesSchema,
-  UpdateMailboxAutoresponderSchema,
   KChatTeamIdSchema,
   KChatChannelIdSchema,
   KChatPostIdSchema,
@@ -81,6 +73,7 @@ import {
  * Tool definitions for the Infomaniak MCP server
  */
 export const tools: Tool[] = [
+  ...mailTools,
   // Profile & Account Tools
   {
     name: "infomaniak_ping",
@@ -297,207 +290,6 @@ export const tools: Tool[] = [
       },
       required: ["domain", "record_id"],
     },
-  },
-
-  // Mail Service Tools
-  {
-    name: "infomaniak_list_mail_services",
-    description: "List all mail services for an account",
-    inputSchema: {
-      type: "object",
-      properties: {
-        account_id: {
-          type: "number",
-          description: "The account ID",
-        },
-      },
-      required: ["account_id"],
-    },
-  },
-  {
-    name: "infomaniak_get_mail_service",
-    description: "Get detailed information about a mail service",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-      },
-      required: ["mail_id"],
-    },
-  },
-  {
-    name: "infomaniak_list_mailboxes",
-    description: "List all mailboxes for a mail service",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-      },
-      required: ["mail_id"],
-    },
-  },
-  {
-    name: "infomaniak_get_mailbox",
-    description: "Get detailed information about a specific mailbox",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-        mailbox_id: {
-          type: "number",
-          description: "The mailbox ID",
-        },
-      },
-      required: ["mail_id", "mailbox_id"],
-    },
-  },
-  {
-    name: "infomaniak_create_mailbox",
-    description: "Create a new mailbox",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-        mailbox_name: {
-          type: "string",
-          description: "The mailbox name (local part of email address)",
-        },
-        password: {
-          type: "string",
-          description: "The mailbox password",
-        },
-        max_size: {
-          type: "number",
-          description: "Maximum mailbox size in MB",
-        },
-      },
-      required: ["mail_id", "mailbox_name", "password"],
-    },
-  },
-  {
-    name: "infomaniak_update_mailbox",
-    description: "Update a mailbox (password or size)",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-        mailbox_id: {
-          type: "number",
-          description: "The mailbox ID",
-        },
-        password: {
-          type: "string",
-          description: "New password (optional)",
-        },
-        max_size: {
-          type: "number",
-          description: "New maximum size in MB (optional)",
-        },
-      },
-      required: ["mail_id", "mailbox_id"],
-    },
-  },
-  {
-    name: "infomaniak_delete_mailbox",
-    description: "Delete a mailbox",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-        mailbox_id: {
-          type: "number",
-          description: "The mailbox ID to delete",
-        },
-      },
-      required: ["mail_id", "mailbox_id"],
-    },
-  },
-  {
-    name: "infomaniak_add_mailbox_alias",
-    description: "Add an email alias to a mailbox",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-        mailbox_id: {
-          type: "number",
-          description: "The mailbox ID",
-        },
-        alias: {
-          type: "string",
-          description: "The alias email address",
-        },
-      },
-      required: ["mail_id", "mailbox_id", "alias"],
-    },
-  },
-  {
-    name: "infomaniak_delete_mailbox_alias",
-    description: "Delete an email alias from a mailbox",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: {
-          type: "number",
-          description: "The mail service ID",
-        },
-        mailbox_id: {
-          type: "number",
-          description: "The mailbox ID",
-        },
-        alias: {
-          type: "string",
-          description: "The alias email address to delete",
-        },
-      },
-      required: ["mail_id", "mailbox_id", "alias"],
-    },
-  },
-
-  {
-    name: "infomaniak_list_email_redirections",
-    description: "List all email redirections for a mail service",
-    inputSchema: { type: "object", properties: { mail_id: { type: "number", description: "The mail service ID" } }, required: ["mail_id"] },
-  },
-  {
-    name: "infomaniak_create_email_redirection",
-    description: "Create an email redirection",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: { type: "number" },
-        from: { type: "string", description: "Source email address" },
-        to: { type: "array", items: { type: "string" }, description: "Destination email address(es)" },
-        keep_copy: { type: "boolean" },
-      },
-      required: ["mail_id", "from", "to"],
-    },
-  },
-  {
-    name: "infomaniak_delete_email_redirection",
-    description: "Delete an email redirection",
-    inputSchema: { type: "object", properties: { mail_id: { type: "number" }, redirection_id: { type: "number" } }, required: ["mail_id", "redirection_id"] },
   },
 
   // Web Hosting Tools
@@ -1117,35 +909,6 @@ export const tools: Tool[] = [
     inputSchema: { type: "object", properties: { drive_id: { type: "number" } }, required: ["drive_id"] },
   },
 
-  // Mail Extras
-  {
-    name: "infomaniak_get_mailbox_autoresponder",
-    description: "Get the autoresponder (out-of-office) settings for a mailbox",
-    inputSchema: { type: "object", properties: { mail_id: { type: "number" }, mailbox_id: { type: "number" } }, required: ["mail_id", "mailbox_id"] },
-  },
-  {
-    name: "infomaniak_update_mailbox_autoresponder",
-    description: "Enable or update the autoresponder for a mailbox",
-    inputSchema: {
-      type: "object",
-      properties: {
-        mail_id: { type: "number" },
-        mailbox_id: { type: "number" },
-        enabled: { type: "boolean", description: "Enable or disable the autoresponder" },
-        subject: { type: "string", description: "Auto-reply subject" },
-        body: { type: "string", description: "Auto-reply message body" },
-        from_date: { type: "string", description: "Start date (ISO 8601)" },
-        to_date: { type: "string", description: "End date (ISO 8601)" },
-      },
-      required: ["mail_id", "mailbox_id", "enabled"],
-    },
-  },
-  {
-    name: "infomaniak_list_mailbox_folders",
-    description: "List folders in a mailbox",
-    inputSchema: { type: "object", properties: { mail_id: { type: "number" }, mailbox_id: { type: "number" } }, required: ["mail_id", "mailbox_id"] },
-  },
-
   // kChat Tools
   {
     name: "infomaniak_kchat_get_me",
@@ -1258,6 +1021,9 @@ async function handleToolCall(
   args: Record<string, unknown> | undefined,
   kchatClient?: KChatClient | null,
 ): Promise<unknown> {
+  if (MAIL_TOOL_NAMES.has(name)) {
+    return handleMailTool(client, name, args);
+  }
   if (name.startsWith("infomaniak_kchat_")) {
     if (!kchatClient) throw new Error("kChat is not configured. Set KCHAT_HOST and KCHAT_TOKEN environment variables.");
     return handleKChatToolCall(kchatClient, name, args);
@@ -1344,84 +1110,6 @@ async function handleToolCall(
     }
 
     // Mail Services
-    case "infomaniak_list_mail_services": {
-      const validated = validate(AccountIdSchema, args);
-      return client.getMailServices(validated.account_id);
-    }
-
-    case "infomaniak_get_mail_service": {
-      const validated = validate(MailIdSchema, args);
-      return client.getMailService(validated.mail_id);
-    }
-
-    case "infomaniak_list_mailboxes": {
-      const validated = validate(MailIdSchema, args);
-      return client.getMailboxes(validated.mail_id);
-    }
-
-    case "infomaniak_get_mailbox": {
-      const validated = validate(MailboxIdSchema, args);
-      return client.getMailbox(validated.mail_id, validated.mailbox_id);
-    }
-
-    case "infomaniak_create_mailbox": {
-      const validated = validate(CreateMailboxSchema, args);
-      return client.createMailbox(validated.mail_id, {
-        mailbox_name: validated.mailbox_name,
-        password: validated.password,
-        max_size: validated.max_size,
-      });
-    }
-
-    case "infomaniak_update_mailbox": {
-      const validated = validate(UpdateMailboxSchema, args);
-      return client.updateMailbox(
-        validated.mail_id,
-        validated.mailbox_id,
-        {
-          password: validated.password,
-          max_size: validated.max_size,
-        }
-      );
-    }
-
-    case "infomaniak_delete_mailbox": {
-      const validated = validate(DeleteMailboxSchema, args);
-      return client.deleteMailbox(validated.mail_id, validated.mailbox_id);
-    }
-
-    case "infomaniak_add_mailbox_alias": {
-      const validated = validate(MailboxAliasSchema, args);
-      return client.addMailboxAlias(
-        validated.mail_id,
-        validated.mailbox_id,
-        validated.alias
-      );
-    }
-
-    case "infomaniak_delete_mailbox_alias": {
-      const validated = validate(MailboxAliasSchema, args);
-      return client.deleteMailboxAlias(
-        validated.mail_id,
-        validated.mailbox_id,
-        validated.alias
-      );
-    }
-
-    case "infomaniak_list_email_redirections": {
-      const validated = validate(MailIdSchema, args);
-      return client.getEmailRedirections(validated.mail_id);
-    }
-    case "infomaniak_create_email_redirection": {
-      const validated = validate(CreateEmailRedirectionSchema, args);
-      return client.createEmailRedirection(validated.mail_id, { from: validated.from, to: validated.to, keep_copy: validated.keep_copy });
-    }
-    case "infomaniak_delete_email_redirection": {
-      const validated = validate(EmailRedirectionIdSchema, args);
-      return client.deleteEmailRedirection(validated.mail_id, validated.redirection_id);
-    }
-
-    // Web Hosting
     case "infomaniak_list_web_hostings": {
       const validated = validate(AccountIdSchema, args);
       return client.getWebHostings(validated.account_id);
@@ -1702,27 +1390,6 @@ async function handleToolCall(
     }
 
     // Mail Extras
-    case "infomaniak_get_mailbox_autoresponder": {
-      const validated = validate(MailboxIdSchema, args);
-      return client.getMailboxAutoresponder(validated.mail_id, validated.mailbox_id);
-    }
-
-    case "infomaniak_update_mailbox_autoresponder": {
-      const validated = validate(UpdateMailboxAutoresponderSchema, args);
-      return client.updateMailboxAutoresponder(validated.mail_id, validated.mailbox_id, {
-        enabled: validated.enabled,
-        subject: validated.subject,
-        body: validated.body,
-        from_date: validated.from_date,
-        to_date: validated.to_date,
-      });
-    }
-
-    case "infomaniak_list_mailbox_folders": {
-      const validated = validate(MailboxIdSchema, args);
-      return client.listMailboxFolders(validated.mail_id, validated.mailbox_id);
-    }
-
     default:
       throw new Error(`Unknown tool: ${name}`);
   }

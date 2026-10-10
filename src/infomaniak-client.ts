@@ -56,22 +56,68 @@ export interface DnsRecord {
   priority?: number;
 }
 
-export interface MailService {
+export interface MailHosting {
   id: number;
   account_id: number;
   customer_name: string;
-  nb_mailbox: number;
-  max_mailbox: number;
+  service_name: string;
+  [key: string]: unknown;
 }
 
+/** A mailbox as /1/mail_hostings/{id}/mailboxes returns it (fields beyond these exist). */
 export interface Mailbox {
-  id: number;
-  mail_id: number;
   mailbox_name: string;
-  email: string;
+  mailbox: string;
+  mailbox_idn?: string;
+  note?: string;
+  aliases?: string[];
+  full_aliases?: string[];
+  size?: number;
+  created_at?: number;
+  has_auto_responder?: boolean;
+  has_redirection?: boolean;
+  redirection?: unknown[];
+  has_move_spam?: boolean;
+  has_mail_filtering?: boolean;
+  authorized_senders?: string[];
+  blocked_senders?: string[];
+  is_limited?: boolean;
+  is_free_mail?: boolean;
+  [key: string]: unknown;
+}
+
+export interface CreatedMailbox {
+  mailbox: Mailbox;
+  quota?: number;
+  used?: number;
+  total?: number;
+  existing_user_email?: boolean;
+}
+
+export interface MailboxAliases {
+  enabled_alias: number;
   aliases: string[];
-  size_used: number;
-  max_size: number;
+}
+
+export interface MailboxForwarding {
+  is_enabled: boolean | string;
+  /** sic — the API spells it this way */
+  redirect_adresses: string[];
+  has_dont_deliver: boolean | string;
+  has_forward_spam: boolean | string;
+}
+
+export interface AutoReply {
+  id: number;
+  name: string;
+  message: string;
+  is_active?: boolean;
+  is_recurrent?: boolean;
+  is_visible?: boolean;
+  started_at?: number;
+  ended_at?: number;
+  dont_reply_to?: string[];
+  [key: string]: unknown;
 }
 
 export interface WebHosting {
@@ -128,12 +174,13 @@ export interface DomainNameserver {
 }
 
 export interface EmailRedirection {
-  id: number;
-  mail_id: number;
-  from: string;
-  to: string[];
-  keep_copy: boolean;
-  created_at: string;
+  id: string;
+  name: string;
+  targets: unknown[];
+  state?: string;
+  created_at?: number;
+  updated_at?: number;
+  [key: string]: unknown;
 }
 
 export interface CronJob {
@@ -191,20 +238,16 @@ export interface KDriveActivity {
   created_at: number;
 }
 
-export interface AutoresponderSettings {
-  enabled: boolean;
-  subject?: string;
-  body?: string;
-  from_date?: string;
-  to_date?: string;
-}
 
-export interface MailboxFolder {
-  id: string;
-  name: string;
-  path: string;
-  messages_count: number;
-  unseen_count: number;
+export interface MailboxFolders {
+  folders: { name: string }[];
+  draft_folder?: string;
+  trash_folder?: string;
+  sent_folder?: string;
+  spam_folder?: string;
+  archives_folder?: string;
+  commercials_folder?: string;
+  social_networks_folder?: string;
 }
 
 export interface Vps {
@@ -270,6 +313,9 @@ export interface Product {
   account_id: number;
   customer_name: string;
 }
+
+/** A value that travels as one path segment, and cannot leave it. */
+const seg = (value: string | number): string => encodeURIComponent(String(value));
 
 class TokenBucket {
   private tokens: number;
@@ -480,72 +526,127 @@ export class InfomaniakClient {
     return this.request<ApiResponse<void>>('DELETE', `/1/domain/${domain}/dns/record/${recordId}`);
   }
 
-  // Mail Services
-  async getMailServices(accountId: number): Promise<ApiResponse<MailService[]>> {
-    return this.request<ApiResponse<MailService[]>>('GET', `/1/mail`, undefined, { account_id: accountId });
+  // Mail — on the documented routes: a mail service is a *mail hosting*, a
+  // mailbox is addressed by its name (the part before the @), and every name
+  // travels URL-encoded in its path segment.
+  // The products list filtered on the mail service: checked live on
+  // 2026-10-10, `/2/mail_hostings` answers an empty list for a token that
+  // `/1/products?service_name=email_hosting` answers with the hosting.
+  async getMailHostings(accountId?: number): Promise<ApiResponse<MailHosting[]>> {
+    return this.request<ApiResponse<MailHosting[]>>('GET', `/1/products`, undefined, { service_name: 'email_hosting', account_id: accountId });
   }
 
-  async getMailService(mailId: number): Promise<ApiResponse<MailService>> {
-    return this.request<ApiResponse<MailService>>('GET', `/1/mail/${mailId}`);
+  async getMailboxes(mailHostingId: number, options: { search?: string; page?: number; per_page?: number } = {}): Promise<ApiResponse<Mailbox[]>> {
+    return this.request<ApiResponse<Mailbox[]>>('GET', `/1/mail_hostings/${mailHostingId}/mailboxes`, undefined, options);
   }
 
-  async getMailboxes(mailId: number): Promise<ApiResponse<Mailbox[]>> {
-    return this.request<ApiResponse<Mailbox[]>>('GET', `/1/mail/${mailId}/mailbox`);
+  async getMailbox(mailHostingId: number, mailboxName: string): Promise<ApiResponse<Mailbox>> {
+    return this.request<ApiResponse<Mailbox>>('GET', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}`);
   }
 
-  async getMailbox(mailId: number, mailboxId: number): Promise<ApiResponse<Mailbox>> {
-    return this.request<ApiResponse<Mailbox>>('GET', `/1/mail/${mailId}/mailbox/${mailboxId}`);
-  }
-
-  async createMailbox(mailId: number, mailbox: {
+  async createMailbox(mailHostingId: number, mailbox: {
     mailbox_name: string;
-    password: string;
-    max_size?: number;
+    note?: string;
+    target?: 'current_user' | 'ksuite_user' | 'other_user';
+    link_to_current_user?: boolean;
+  }): Promise<ApiResponse<CreatedMailbox>> {
+    return this.request<ApiResponse<CreatedMailbox>>('POST', `/1/mail_hostings/${mailHostingId}/mailboxes`, mailbox);
+  }
+
+  async updateMailbox(mailHostingId: number, mailboxName: string, changes: {
+    note?: string;
+    has_responder?: boolean;
+    has_move_spam?: boolean;
+    has_mail_filtering?: boolean;
+    authorized_senders?: string[];
+    blocked_senders?: string[];
   }): Promise<ApiResponse<Mailbox>> {
-    return this.request<ApiResponse<Mailbox>>('POST', `/1/mail/${mailId}/mailbox`, mailbox);
+    return this.request<ApiResponse<Mailbox>>('PATCH', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}`, changes);
   }
 
-  async updateMailbox(mailId: number, mailboxId: number, mailbox: {
-    password?: string;
-    max_size?: number;
-  }): Promise<ApiResponse<Mailbox>> {
-    return this.request<ApiResponse<Mailbox>>('PUT', `/1/mail/${mailId}/mailbox/${mailboxId}`, mailbox);
+  async deleteMailbox(mailHostingId: number, mailboxName: string): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('DELETE', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}`);
   }
 
-  async deleteMailbox(mailId: number, mailboxId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/1/mail/${mailId}/mailbox/${mailboxId}`);
+  async getMailboxAliases(mailHostingId: number, mailboxName: string): Promise<ApiResponse<MailboxAliases>> {
+    return this.request<ApiResponse<MailboxAliases>>('GET', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/aliases`);
   }
 
-  async addMailboxAlias(mailId: number, mailboxId: number, alias: string): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('POST', `/1/mail/${mailId}/mailbox/${mailboxId}/alias`, { alias });
+  async addMailboxAlias(mailHostingId: number, mailboxName: string, alias: string): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('POST', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/aliases`, { alias });
   }
 
-  async deleteMailboxAlias(mailId: number, mailboxId: number, alias: string): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/1/mail/${mailId}/mailbox/${mailboxId}/alias/${encodeURIComponent(alias)}`);
+  async deleteMailboxAlias(mailHostingId: number, mailboxName: string, alias: string): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('DELETE', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/aliases/${seg(alias)}`);
   }
 
-  async getEmailRedirections(mailId: number): Promise<ApiResponse<EmailRedirection[]>> {
-    return this.request<ApiResponse<EmailRedirection[]>>('GET', `/1/mail/${mailId}/redirection`);
+  async getMailboxForwarding(mailHostingId: number, mailboxName: string): Promise<ApiResponse<MailboxForwarding>> {
+    return this.request<ApiResponse<MailboxForwarding>>('GET', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/forwarding_addresses`);
   }
 
-  async createEmailRedirection(mailId: number, redirection: { from: string; to: string[]; keep_copy?: boolean }): Promise<ApiResponse<EmailRedirection>> {
-    return this.request<ApiResponse<EmailRedirection>>('POST', `/1/mail/${mailId}/redirection`, redirection);
+  async addMailboxForwarding(mailHostingId: number, mailboxName: string, redirectAddress: string): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('POST', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/forwarding_addresses`, { redirect_address: redirectAddress });
   }
 
-  async deleteEmailRedirection(mailId: number, redirectionId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/1/mail/${mailId}/redirection/${redirectionId}`);
+  async updateMailboxForwarding(mailHostingId: number, mailboxName: string, changes: {
+    redirect_addresses?: string[];
+    is_enabled?: boolean;
+    has_dont_deliver?: boolean;
+    has_forward_spam?: boolean;
+  }): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('PUT', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/forwarding_addresses`, changes);
   }
 
-  async getMailboxAutoresponder(mailId: number, mailboxId: number): Promise<ApiResponse<AutoresponderSettings>> {
-    return this.request<ApiResponse<AutoresponderSettings>>('GET', `/1/mail/${mailId}/mailbox/${mailboxId}/autoresponder`);
+  async deleteMailboxForwarding(mailHostingId: number, mailboxName: string): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('DELETE', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/forwarding_addresses`);
   }
 
-  async updateMailboxAutoresponder(mailId: number, mailboxId: number, settings: AutoresponderSettings): Promise<ApiResponse<AutoresponderSettings>> {
-    return this.request<ApiResponse<AutoresponderSettings>>('PUT', `/1/mail/${mailId}/mailbox/${mailboxId}/autoresponder`, settings);
+  async getRedirections(mailHostingId: number): Promise<ApiResponse<EmailRedirection[]>> {
+    return this.request<ApiResponse<EmailRedirection[]>>('GET', `/1/mail_hostings/${mailHostingId}/redirections`);
   }
 
-  async listMailboxFolders(mailId: number, mailboxId: number): Promise<ApiResponse<MailboxFolder[]>> {
-    return this.request<ApiResponse<MailboxFolder[]>>('GET', `/1/mail/${mailId}/mailbox/${mailboxId}/folder`);
+  async createRedirection(mailHostingId: number, redirection: { name: string; targets: string[] }): Promise<ApiResponse<EmailRedirection>> {
+    return this.request<ApiResponse<EmailRedirection>>('POST', `/1/mail_hostings/${mailHostingId}/redirections`, redirection);
+  }
+
+  async deleteRedirection(mailHostingId: number, redirectionId: string): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('DELETE', `/1/mail_hostings/${mailHostingId}/redirections/${seg(redirectionId)}`);
+  }
+
+  async getAutoReplies(mailHostingId: number): Promise<ApiResponse<AutoReply[]>> {
+    return this.request<ApiResponse<AutoReply[]>>('GET', `/1/mail_hostings/${mailHostingId}/auto_replies`);
+  }
+
+  async createAutoReply(mailHostingId: number, autoReply: {
+    name: string;
+    message: string;
+    is_recurrent: boolean;
+    started_at?: number;
+    ended_at?: number;
+    dont_reply_to?: string[];
+    is_visible?: boolean;
+  }): Promise<ApiResponse<AutoReply>> {
+    return this.request<ApiResponse<AutoReply>>('POST', `/1/mail_hostings/${mailHostingId}/auto_replies`, autoReply);
+  }
+
+  async updateAutoReply(mailHostingId: number, autoReplyId: number, changes: {
+    name?: string;
+    message?: string;
+    is_recurrent?: boolean;
+    started_at?: number;
+    ended_at?: number;
+    dont_reply_to?: string[];
+    is_visible?: boolean;
+  }): Promise<ApiResponse<AutoReply>> {
+    return this.request<ApiResponse<AutoReply>>('PATCH', `/1/mail_hostings/${mailHostingId}/auto_replies/${autoReplyId}`, changes);
+  }
+
+  async deleteAutoReply(mailHostingId: number, autoReplyId: number): Promise<ApiResponse<boolean>> {
+    return this.request<ApiResponse<boolean>>('DELETE', `/1/mail_hostings/${mailHostingId}/auto_replies/${autoReplyId}`);
+  }
+
+  async getMailboxFolders(mailHostingId: number, mailboxName: string): Promise<ApiResponse<MailboxFolders>> {
+    return this.request<ApiResponse<MailboxFolders>>('GET', `/1/mail_hostings/${mailHostingId}/mailboxes/${seg(mailboxName)}/auth/folders`);
   }
 
   // Web Hosting

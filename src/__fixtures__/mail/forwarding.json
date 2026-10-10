@@ -1,0 +1,19 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail_hostings/100001/mailboxes/user1/forwarding_addresses",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "c3d07b90662228e735b7800766dc7719e4528f2d641eae72f414c0021a748d32",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). "
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": {
+   "is_enabled": true,
+   "redirect_adresses": [],
+   "has_dont_deliver": true,
+   "has_forward_spam": false
+  }
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail_hostings/100001/mailboxes/user1",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "46d63798bc8a62502d353754a08f560a2668a31eec0d7380603de75d1cedbe4f",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). "
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": {
+   "mailbox_name": "user1",
+   "mailbox": "user1@example.com",
+   "mailbox_idn": "user1@example.com",
+   "note": null,
+   "type": null,
+   "is_limited": false,
+   "is_free_mail": false,
+   "is_used_for_account": false
+  }
+ }
+}

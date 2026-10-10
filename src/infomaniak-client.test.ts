@@ -319,55 +319,6 @@ describe('InfomaniakClient', () => {
     });
   });
 
-  describe('Mail Services', () => {
-    it('should list mail services with account_id query param', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            result: 'success',
-            data: [{ id: 1, customer_name: 'example.com' }],
-          }),
-      });
-
-      await client.getMailServices(456);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.infomaniak.com/1/mail?account_id=456',
-        expect.objectContaining({ method: 'GET' })
-      );
-    });
-
-    it('should create a mailbox', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            result: 'success',
-            data: { id: 789, mailbox_name: 'info', email: 'info@example.com' },
-          }),
-      });
-
-      await client.createMailbox(123, {
-        mailbox_name: 'info',
-        password: 'securepassword123',
-        max_size: 5000,
-      });
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.infomaniak.com/1/mail/123/mailbox',
-        expect.objectContaining({
-          method: 'POST',
-          body: JSON.stringify({
-            mailbox_name: 'info',
-            password: 'securepassword123',
-            max_size: 5000,
-          }),
-        })
-      );
-    });
-  });
-
   describe('Web Hosting', () => {
     it('should list sites for a hosting', async () => {
       mockFetch.mockResolvedValueOnce({

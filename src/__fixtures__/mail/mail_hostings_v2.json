@@ -1,0 +1,35 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/2/mail_hostings?account_id=200001",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "62fbad002dae0c723c7c2db1413e4e9567d1da312efc03e6e06e5c1b139199b7",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). "
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": [
+   {
+    "id": 100001,
+    "unique_id": 8864190,
+    "customer_name": "example.com",
+    "account_id": 200001,
+    "pack_id": 2,
+    "is_part_of_ksuite": false,
+    "created_at": 1742831599,
+    "expires_at": 1900537200,
+    "service_id": 23,
+    "service_name": "email_hosting",
+    "has_operation_in_progress": false,
+    "is_locked": false,
+    "has_maintenance": false,
+    "dns_error_number": 0
+   }
+  ],
+  "total": 1,
+  "pages": 1,
+  "items_per_page": 25,
+  "page": 1
+ }
+}

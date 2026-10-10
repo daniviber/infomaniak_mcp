@@ -67,7 +67,7 @@ npm run inspector    # Test with MCP Inspector (requires INFOMANIAK_API_TOKEN en
 1. **Profile & Account**: ping, profile, accounts, products
 2. **Domains**: list domains, get domain details
 3. **DNS**: full CRUD for DNS records (A, AAAA, CNAME, MX, TXT, NS, SRV, CAA)
-4. **Mail Services**: manage mailboxes and aliases
+4. **Mail Services**: mail hostings, mailboxes (by name), aliases, forwarding, redirections, auto-replies, folders — `src/mail-tools.ts`
 5. **Web Hosting**: sites, PHP versions, databases
 6. **kDrive**: list and get kDrive details
 7. **Swiss Backup**: backup products and slots
@@ -94,7 +94,8 @@ npm run inspector    # Test with MCP Inspector (requires INFOMANIAK_API_TOKEN en
 
 - API version is in the path: `/1/` (v1) or `/2/` (v2 for kDrive)
 - Account-scoped endpoints: `/1/account/{account_id}/...`
-- Service-specific: `/1/domain/`, `/1/mail/`, `/1/web/`, etc.
+- Mail: `/1/mail_hostings/{mail_hosting_id}/mailboxes/{mailbox_name}/...` (mailboxes are addressed by name); hostings listed with `/1/products?service_name=email_hosting`
+- Other services: `/1/domain/`, `/1/web/`, etc. (not all are in the published OpenAPI document — see `src/api-routes.contract.test.ts`)
 
 ### Type Safety
 

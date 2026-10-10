@@ -1,0 +1,24 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail_hostings/100001/mailboxes/user1/aliases",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "75a86575eac7ba90b90d7bf5fd331ecc7c0c227fceba1a7431e00c62e2449fc6",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts).  Alias names were replaced by alias1..aliasN as well."
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": {
+   "enabled_alias": 1,
+   "aliases": [
+    "alias1",
+    "alias2",
+    "alias3",
+    "alias4",
+    "alias5",
+    "alias6"
+   ]
+  }
+ }
+}

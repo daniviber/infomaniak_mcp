@@ -1,0 +1,89 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail_hostings/100001/mailboxes",
+  "status": 200,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "1ec59fd52756df333d67837969590bc157f1f216c7fdb1d2b1d5c4a3993038e7",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). "
+ },
+ "status": 200,
+ "body": {
+  "result": "success",
+  "data": [
+   {
+    "mailbox_name": "user1",
+    "mailbox": "user1@example.com",
+    "mailbox_idn": "user1@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   },
+   {
+    "mailbox_name": "user2",
+    "mailbox": "user2@example.com",
+    "mailbox_idn": "user2@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   },
+   {
+    "mailbox_name": "user3",
+    "mailbox": "user3@example.com",
+    "mailbox_idn": "user3@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   },
+   {
+    "mailbox_name": "user4",
+    "mailbox": "user4@example.com",
+    "mailbox_idn": "user4@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   },
+   {
+    "mailbox_name": "user5",
+    "mailbox": "user5@example.com",
+    "mailbox_idn": "user5@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   },
+   {
+    "mailbox_name": "user6",
+    "mailbox": "user6@example.com",
+    "mailbox_idn": "user6@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   },
+   {
+    "mailbox_name": "user7",
+    "mailbox": "user7@example.com",
+    "mailbox_idn": "user7@example.com",
+    "note": null,
+    "type": null,
+    "is_limited": false,
+    "is_free_mail": false,
+    "is_used_for_account": false
+   }
+  ],
+  "total": 7,
+  "pages": 1,
+  "items_per_page": 100,
+  "page": 1
+ }
+}

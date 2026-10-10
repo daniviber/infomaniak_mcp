@@ -1,0 +1,13 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail",
+  "status": 404,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "205a5bd029972c6b016a2ba2af12f14dce300aacd662d558221755a79a0c9b63",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). The route the server used to call: it does not exist."
+ },
+ "status": 404,
+ "body": {
+  "_non_json_body_length": 12113
+ }
+}

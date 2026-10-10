@@ -1,0 +1,13 @@
+{
+ "_recorded": {
+  "url": "https://api.infomaniak.com/1/mail/100001/mailbox",
+  "status": 302,
+  "date": "2026-10-10T14:56:18+00:00",
+  "sha256_of_raw_response": "a6d312770907b4ba663c020eb02516b17a2a6eab2143ecb3db2dfbd8634ad4b0",
+  "note": "Recorded from api.infomaniak.com with a mail-scoped token, then anonymised: the hosting and account ids, the domain and every mailbox name were replaced by placeholders (same structure, keys, types and counts). The route the server used to call for mailboxes: a redirect, not JSON."
+ },
+ "status": 302,
+ "body": {
+  "_non_json_body_length": 1682
+ }
+}

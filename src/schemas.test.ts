@@ -10,8 +10,6 @@ import {
   CreateDnsRecordSchema,
   UpdateDnsRecordSchema,
   DeleteDnsRecordSchema,
-  CreateMailboxSchema,
-  MailboxAliasSchema,
   CreateSiteSchema,
   CreateDatabaseSchema,
   ApiCallSchema,
@@ -209,68 +207,6 @@ describe('DeleteDnsRecordSchema', () => {
         domain: 'example.com',
       })
     ).toThrow('record_id is required');
-  });
-});
-
-describe('CreateMailboxSchema', () => {
-  it('should accept valid mailbox creation', () => {
-    const result = validate(CreateMailboxSchema, {
-      mail_id: 100,
-      mailbox_name: 'info',
-      password: 'SecurePass123!',
-    });
-    expect(result.mailbox_name).toBe('info');
-  });
-
-  it('should accept optional max_size', () => {
-    const result = validate(CreateMailboxSchema, {
-      mail_id: 100,
-      mailbox_name: 'info',
-      password: 'SecurePass123!',
-      max_size: 5000,
-    });
-    expect(result.max_size).toBe(5000);
-  });
-
-  it('should reject short password', () => {
-    expect(() =>
-      validate(CreateMailboxSchema, {
-        mail_id: 100,
-        mailbox_name: 'info',
-        password: 'short',
-      })
-    ).toThrow('password must be at least 8 characters');
-  });
-
-  it('should reject empty mailbox_name', () => {
-    expect(() =>
-      validate(CreateMailboxSchema, {
-        mail_id: 100,
-        mailbox_name: '',
-        password: 'SecurePass123!',
-      })
-    ).toThrow('mailbox_name cannot be empty');
-  });
-});
-
-describe('MailboxAliasSchema', () => {
-  it('should accept valid email alias', () => {
-    const result = validate(MailboxAliasSchema, {
-      mail_id: 100,
-      mailbox_id: 200,
-      alias: 'contact@example.com',
-    });
-    expect(result.alias).toBe('contact@example.com');
-  });
-
-  it('should reject invalid email format', () => {
-    expect(() =>
-      validate(MailboxAliasSchema, {
-        mail_id: 100,
-        mailbox_id: 200,
-        alias: 'not-an-email',
-      })
-    ).toThrow('alias must be a valid email');
   });
 });
 
