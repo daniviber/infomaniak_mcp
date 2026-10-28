@@ -113,6 +113,10 @@ Or if installed globally or from source:
 | `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio` or `http` |
 | `MCP_PORT` | No | `3000` | HTTP server port (when using `http` transport) |
 | `MCP_STATELESS` | No | `false` | Set to `true` for stateless mode |
+| `INFOMANIAK_IMAP_USER` | No | - | Mailbox address to read over IMAP; without it the mail-reading tools are not offered |
+| `INFOMANIAK_IMAP_PASSWORD` | With a user | - | Its password (an app password if two-factor authentication is on) |
+| `INFOMANIAK_IMAP_PASSWORD_FILE` | Instead of the above | - | A file holding the password, so it does not sit in the MCP client's configuration |
+| `INFOMANIAK_IMAP_HOST` / `INFOMANIAK_IMAP_PORT` | No | `mail.infomaniak.com` / `993` | IMAP server; the connection is always TLS |
 
 ## 🌐 HTTP Transport
 
@@ -232,6 +236,18 @@ const response = await fetch('http://localhost:3000/mcp', {
 | `infomaniak_delete_mailbox` | Delete mailbox |
 | `infomaniak_add_mailbox_alias` | Add email alias |
 | `infomaniak_delete_mailbox_alias` | Remove email alias |
+
+### Reading Mail (IMAP, read-only)
+
+The API manages mailboxes but does not return the messages in them; these tools read them over IMAP. They are listed only when `INFOMANIAK_IMAP_USER` is set. Folders are opened with `EXAMINE` and bodies fetched with `BODY.PEEK`, so nothing is marked as read and no flag changes; each call opens its own connection and logs out.
+
+| Tool | Description |
+|------|-------------|
+| `infomaniak_list_mail_folders` | Folders of the mailbox, each with its role (inbox, sent, drafts, trash, junk, archive) |
+| `infomaniak_search_mail_messages` | Search by sender, recipient, subject, body words and dates; newest first, at most 50 |
+| `infomaniak_get_mail_message` | One message by uid: headers, text (HTML turned into text), attachments listed without their content |
+
+Message content is written by other people, and the tools say so in their output: a client should treat it as data, not instructions.
 
 ### Web Hosting
 

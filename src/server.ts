@@ -14,6 +14,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "./infomaniak-client.js";
 import { KChatClient } from "./kchat-client.js";
+import { ImapReader, imapTools, IMAP_TOOL_NAMES, handleImapTool } from "./imap-tools.js";
 import {
   validate,
   AccountIdSchema,
@@ -1802,9 +1803,11 @@ async function handleKChatToolCall(
  * Create and configure an MCP server instance
  *
  * @param client - The Infomaniak API client to use for tool calls
+ * @param kchatClient - Optional kChat API client
+ * @param imapReader - Optional IMAP reader; without it the mail-reading tools are not listed
  * @returns Configured MCP Server instance
  */
-export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatClient | null): Server {
+export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatClient | null, imapReader?: ImapReader | null): Server {
   const server = new Server(
     {
       name: "infomaniak-mcp-server",
@@ -1819,7 +1822,7 @@ export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatCli
 
   // Handle list tools request
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return { tools };
+    return { tools: imapReader ? [...tools, ...imapTools] : tools };
   });
 
   // Handle tool calls
@@ -1827,7 +1830,9 @@ export function createMcpServer(client: InfomaniakClient, kchatClient?: KChatCli
     const { name, arguments: args } = request.params;
 
     try {
-      const result = await handleToolCall(client, name, args, kchatClient);
+      const result = IMAP_TOOL_NAMES.has(name)
+        ? await handleImapTool(imapReader, name, args)
+        : await handleToolCall(client, name, args, kchatClient);
 
       const content: TextContent[] = [
         {

@@ -1,0 +1,20 @@
+From: Anna Rossi <anna@example.org>
+To: Ufficio: Me <me@example.org>, Paolo <paolo@example.org>;
+Subject: Contratto firmato
+Date: Thu, 22 Oct 2026 12:00:00 +0200
+Message-ID: <inbox-4@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b1"
+
+--b1
+Content-Type: text/plain; charset=us-ascii
+
+Ecco il contratto firmato.
+
+--b1
+Content-Type: application/pdf; name="contratto.pdf"
+Content-Disposition: attachment; filename="contratto.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJSBkZXJpdmVkIHRlc3QgYXR0YWNobWVudCwgbm90IGEgcmVhbCBkb2N1bWVudAo=
+--b1--

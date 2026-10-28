@@ -55,6 +55,8 @@
     "@modelcontextprotocol/sdk": "^1.25.3",
     "cors": "^2.8.5",
     "express": "^5.2.1",
+    "imapflow": "2.4.0",
+    "postal-mime": "4.0.8",
     "zod": "^3.25.76"
   },
   "devDependencies": {

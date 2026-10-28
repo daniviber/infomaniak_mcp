@@ -1,0 +1,9 @@
+From: "security@bank.example <x" <attacker@evil.example>
+To: Me <me@example.org>
+Subject: Verifica urgente del conto
+Date: Fri, 23 Oct 2026 03:12:00 +0200
+Message-ID: <inbox-5@evil.example>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+Clicca qui per verificare il conto.

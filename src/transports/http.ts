@@ -14,6 +14,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { InfomaniakClient } from "../infomaniak-client.js";
 import { KChatClient } from "../kchat-client.js";
+import { ImapReader } from "../imap-tools.js";
 import { createMcpServer } from "../server.js";
 
 export interface HttpServerOptions {
@@ -36,11 +37,13 @@ const activeSessions = new Map<string, StreamableHTTPServerTransport>();
  * @param client - The Infomaniak API client
  * @param options - HTTP server configuration options
  * @param kchatClient - Optional kChat API client
+ * @param imapReader - Optional IMAP reader for the mailbox
  */
 export async function startHttpServer(
   client: InfomaniakClient,
   options: HttpServerOptions = {},
   kchatClient?: KChatClient | null,
+  imapReader?: ImapReader | null,
 ): Promise<void> {
   const port = options.port ?? 3000;
   const host = options.host ?? "0.0.0.0";
@@ -83,7 +86,7 @@ export async function startHttpServer(
       });
 
       // Create and connect the MCP server for this session
-      const server = createMcpServer(client, kchatClient);
+      const server = createMcpServer(client, kchatClient, imapReader);
       await server.connect(transport);
 
       // Store session immediately if stateful mode (before handleRequest)

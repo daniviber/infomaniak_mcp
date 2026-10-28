@@ -21,7 +21,8 @@ This is an MCP (Model Context Protocol) server that provides tools for interacti
 ```
 src/
 ├── index.ts              # MCP server entry point, tool definitions and handlers
-└── infomaniak-client.ts  # Infomaniak API client with typed methods
+├── infomaniak-client.ts  # Infomaniak API client with typed methods
+└── imap-tools.ts         # Reading mail over IMAP, read-only, optional
 ```
 
 ## Build and Run Commands

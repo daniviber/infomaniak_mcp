@@ -1,0 +1,33 @@
+{
+  "_derived": {
+    "date": "2026-10-28",
+    "note": "Composed for the tests, not recorded: no credentials for a live mailbox were used. Addresses are under example.org/.com/.net/evil.example (RFC 2606). The .eml files were written by Python's email.header (RFC 2047 encoded words, quoted-printable, base64), so the encodings are what a mail client produces. inbox-5 carries a display name built to look like an address, the shape of the nodemailer addressparser advisories of October 2026 (GHSA-8c8m-p3m8-cjg8)."
+  },
+  "user": "me@example.org",
+  "password": "app-password-for-tests",
+  "folders": [
+    {
+      "path": "INBOX",
+      "specialUse": null,
+      "messages": [
+        { "uid": 1, "file": "inbox-1.eml", "internalDate": "2026-10-10T07:15:30Z", "flags": ["\\Seen"] },
+        { "uid": 2, "file": "inbox-2.eml", "internalDate": "2026-10-19T16:40:30Z", "flags": [] },
+        { "uid": 3, "file": "inbox-3.eml", "internalDate": "2026-10-21T05:00:30Z", "flags": [] },
+        { "uid": 4, "file": "inbox-4.eml", "internalDate": "2026-10-22T10:00:30Z", "flags": [] },
+        { "uid": 5, "file": "inbox-5.eml", "internalDate": "2026-10-23T01:12:30Z", "flags": [] }
+      ]
+    },
+    {
+      "path": "Posta inviata",
+      "specialUse": "\\Sent",
+      "messages": [
+        { "uid": 1, "file": "sent-1.eml", "internalDate": "2026-10-19T08:05:30Z", "flags": ["\\Seen"] }
+      ]
+    },
+    {
+      "path": "Cestino",
+      "specialUse": "\\Trash",
+      "messages": []
+    }
+  ]
+}

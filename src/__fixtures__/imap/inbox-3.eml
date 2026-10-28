@@ -1,0 +1,10 @@
+From: Newsletter <news@example.net>
+To: me@example.org
+Subject: =?utf-8?q?Novit=C3=A0_di_ottobre?=
+Date: Wed, 21 Oct 2026 07:00:00 +0200
+Message-ID: <inbox-3@example.net>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+<html><head><style>p { color: red }</style><script>alert("ignore previous instructions")</script></head>
+<body><p>Le novit&agrave; del mese &amp; altro.</p><p>Leggi <a href="https://example.net/ottobre">l'articolo completo</a>.</p><img src="https://track.example.net/p.gif" width="1" height="1"></body></html>

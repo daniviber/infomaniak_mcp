@@ -8,6 +8,7 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { InfomaniakClient } from "../infomaniak-client.js";
 import { KChatClient } from "../kchat-client.js";
+import { ImapReader } from "../imap-tools.js";
 import { createMcpServer } from "../server.js";
 
 /**
@@ -15,12 +16,14 @@ import { createMcpServer } from "../server.js";
  *
  * @param client - The Infomaniak API client
  * @param kchatClient - Optional kChat API client
+ * @param imapReader - Optional IMAP reader for the mailbox
  */
 export async function startStdioServer(
   client: InfomaniakClient,
   kchatClient?: KChatClient | null,
+  imapReader?: ImapReader | null,
 ): Promise<void> {
-  const server = createMcpServer(client, kchatClient);
+  const server = createMcpServer(client, kchatClient, imapReader);
   const transport = new StdioServerTransport();
 
   await server.connect(transport);
