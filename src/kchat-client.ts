@@ -6,6 +6,8 @@
  * Authentication: Bearer Token (personal access token)
  */
 
+import { pathSegment } from "./path-segment.js";
+
 export interface KChatConfig {
   readonly host: string;
   readonly token: string;
@@ -147,7 +149,7 @@ export class KChatClient {
   }
 
   async getTeam(teamId: string): Promise<KChatTeam> {
-    return this.request<KChatTeam>("GET", `/teams/${teamId}`);
+    return this.request<KChatTeam>("GET", `/teams/${pathSegment(teamId)}`);
   }
 
   async listMyTeams(): Promise<KChatTeam[]> {
@@ -157,15 +159,15 @@ export class KChatClient {
   // ─── Channels ─────────────────────────────────────────────────────────────
 
   async listChannels(teamId: string): Promise<KChatChannel[]> {
-    return this.request<KChatChannel[]>("GET", `/teams/${teamId}/channels`);
+    return this.request<KChatChannel[]>("GET", `/teams/${pathSegment(teamId)}/channels`);
   }
 
   async listMyChannels(teamId: string): Promise<KChatChannel[]> {
-    return this.request<KChatChannel[]>("GET", `/users/me/teams/${teamId}/channels`);
+    return this.request<KChatChannel[]>("GET", `/users/me/teams/${pathSegment(teamId)}/channels`);
   }
 
   async getChannel(channelId: string): Promise<KChatChannel> {
-    return this.request<KChatChannel>("GET", `/channels/${channelId}`);
+    return this.request<KChatChannel>("GET", `/channels/${pathSegment(channelId)}`);
   }
 
   async createDirectChannel(userIds: [string, string]): Promise<KChatChannel> {
@@ -179,7 +181,7 @@ export class KChatClient {
     page?: number,
     perPage?: number,
   ): Promise<KChatPostList> {
-    return this.request<KChatPostList>("GET", `/channels/${channelId}/posts`, undefined, {
+    return this.request<KChatPostList>("GET", `/channels/${pathSegment(channelId)}/posts`, undefined, {
       page,
       per_page: perPage,
     });
@@ -197,7 +199,7 @@ export class KChatClient {
   }
 
   async deletePost(postId: string): Promise<void> {
-    return this.request<void>("DELETE", `/posts/${postId}`);
+    return this.request<void>("DELETE", `/posts/${pathSegment(postId)}`);
   }
 
   async searchPosts(
@@ -205,7 +207,7 @@ export class KChatClient {
     terms: string,
     isOrSearch?: boolean,
   ): Promise<KChatPostList> {
-    return this.request<KChatPostList>("POST", `/teams/${teamId}/posts/search`, {
+    return this.request<KChatPostList>("POST", `/teams/${pathSegment(teamId)}/posts/search`, {
       terms,
       is_or_search: isOrSearch ?? false,
     });
