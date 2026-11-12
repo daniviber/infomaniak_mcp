@@ -11,6 +11,8 @@ import { pathSegment } from "./path-segment.js";
 export interface KChatConfig {
   readonly host: string;
   readonly token: string;
+  /** Request timeout in ms (default: 30000) */
+  readonly timeoutMs?: number;
 }
 
 export interface KChatTeam {
@@ -56,10 +58,12 @@ export interface KChatPostList {
 export class KChatClient {
   private readonly baseUrl: string;
   private readonly token: string;
+  private readonly timeoutMs: number;
 
   constructor(config: KChatConfig) {
     this.baseUrl = `https://${config.host}/api/v4`;
     this.token = config.token;
+    this.timeoutMs = config.timeoutMs ?? 30_000;
   }
 
   private async request<T>(
@@ -90,6 +94,7 @@ export class KChatClient {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      signal: AbortSignal.timeout(this.timeoutMs),
     };
 
     if (body !== undefined && (method === "POST" || method === "PUT" || method === "PATCH")) {
@@ -125,7 +130,7 @@ export class KChatClient {
   }
 
   async searchUsers(term: string): Promise<KChatUser[]> {
-    return this.request<KChatUser[]>("GET", "/users/search", undefined, { term });
+    return this.request<KChatUser[]>("POST", "/users/search", { term });
   }
 
   async listUsers(params?: {
