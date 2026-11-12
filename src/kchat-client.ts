@@ -6,9 +6,13 @@
  * Authentication: Bearer Token (personal access token)
  */
 
+import { pathSegment } from "./path-segment.js";
+
 export interface KChatConfig {
   readonly host: string;
   readonly token: string;
+  /** Request timeout in ms (default: 30000) */
+  readonly timeoutMs?: number;
 }
 
 export interface KChatTeam {
@@ -54,10 +58,12 @@ export interface KChatPostList {
 export class KChatClient {
   private readonly baseUrl: string;
   private readonly token: string;
+  private readonly timeoutMs: number;
 
   constructor(config: KChatConfig) {
     this.baseUrl = `https://${config.host}/api/v4`;
     this.token = config.token;
+    this.timeoutMs = config.timeoutMs ?? 30_000;
   }
 
   private async request<T>(
@@ -88,6 +94,7 @@ export class KChatClient {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      signal: AbortSignal.timeout(this.timeoutMs),
     };
 
     if (body !== undefined && (method === "POST" || method === "PUT" || method === "PATCH")) {
@@ -123,7 +130,7 @@ export class KChatClient {
   }
 
   async searchUsers(term: string): Promise<KChatUser[]> {
-    return this.request<KChatUser[]>("GET", "/users/search", undefined, { term });
+    return this.request<KChatUser[]>("POST", "/users/search", { term });
   }
 
   async listUsers(params?: {
@@ -147,7 +154,7 @@ export class KChatClient {
   }
 
   async getTeam(teamId: string): Promise<KChatTeam> {
-    return this.request<KChatTeam>("GET", `/teams/${teamId}`);
+    return this.request<KChatTeam>("GET", `/teams/${pathSegment(teamId)}`);
   }
 
   async listMyTeams(): Promise<KChatTeam[]> {
@@ -157,15 +164,15 @@ export class KChatClient {
   // ─── Channels ─────────────────────────────────────────────────────────────
 
   async listChannels(teamId: string): Promise<KChatChannel[]> {
-    return this.request<KChatChannel[]>("GET", `/teams/${teamId}/channels`);
+    return this.request<KChatChannel[]>("GET", `/teams/${pathSegment(teamId)}/channels`);
   }
 
   async listMyChannels(teamId: string): Promise<KChatChannel[]> {
-    return this.request<KChatChannel[]>("GET", `/users/me/teams/${teamId}/channels`);
+    return this.request<KChatChannel[]>("GET", `/users/me/teams/${pathSegment(teamId)}/channels`);
   }
 
   async getChannel(channelId: string): Promise<KChatChannel> {
-    return this.request<KChatChannel>("GET", `/channels/${channelId}`);
+    return this.request<KChatChannel>("GET", `/channels/${pathSegment(channelId)}`);
   }
 
   async createDirectChannel(userIds: [string, string]): Promise<KChatChannel> {
@@ -179,7 +186,7 @@ export class KChatClient {
     page?: number,
     perPage?: number,
   ): Promise<KChatPostList> {
-    return this.request<KChatPostList>("GET", `/channels/${channelId}/posts`, undefined, {
+    return this.request<KChatPostList>("GET", `/channels/${pathSegment(channelId)}/posts`, undefined, {
       page,
       per_page: perPage,
     });
@@ -197,7 +204,7 @@ export class KChatClient {
   }
 
   async deletePost(postId: string): Promise<void> {
-    return this.request<void>("DELETE", `/posts/${postId}`);
+    return this.request<void>("DELETE", `/posts/${pathSegment(postId)}`);
   }
 
   async searchPosts(
@@ -205,7 +212,7 @@ export class KChatClient {
     terms: string,
     isOrSearch?: boolean,
   ): Promise<KChatPostList> {
-    return this.request<KChatPostList>("POST", `/teams/${teamId}/posts/search`, {
+    return this.request<KChatPostList>("POST", `/teams/${pathSegment(teamId)}/posts/search`, {
       terms,
       is_or_search: isOrSearch ?? false,
     });

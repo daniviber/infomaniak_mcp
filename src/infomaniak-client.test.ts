@@ -503,3 +503,56 @@ describe('InfomaniakClient', () => {
     });
   });
 });
+
+describe('InfomaniakClient path segments', () => {
+  let client: InfomaniakClient;
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    client = new InfomaniakClient({ token: 'test-token-123', maxAttempts: 1 });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ result: 'success', data: {} }),
+    });
+  });
+
+  it('keeps an ordinary domain name unchanged', async () => {
+    await client.getDomain(1, 'example.com');
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.infomaniak.com/1/domain/account/1/domain/example.com',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('encodes a slash, a question mark or a hash inside the domain segment', async () => {
+    await client.getDnsRecords('a/b?c#d');
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.infomaniak.com/1/domain/a%2Fb%3Fc%23d/dns/record',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('does not let a domain turn a DNS record deletion into another DELETE', async () => {
+    // Unencoded, fetch resolves this to DELETE https://api.infomaniak.com/1/account/123:
+    // the dot segments climb out of /1/domain/ and the hash drops /dns/record/5.
+    await client.deleteDnsRecord('../../../1/account/123#', 5);
+
+    const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit];
+    const resolved = new URL(url);
+    expect(options.method).toBe('DELETE');
+    expect(resolved.pathname).toBe('/1/domain/..%2F..%2F..%2F1%2Faccount%2F123%23/dns/record/5');
+    expect(resolved.hash).toBe('');
+  });
+
+  it.each(['.', '..'])('refuses %j as a domain', async (domain) => {
+    await expect(client.getDnsRecords(domain)).rejects.toThrow(/path segment/);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('refuses ".." as a mailbox alias', async () => {
+    await expect(client.deleteMailboxAlias(1, 2, '..')).rejects.toThrow(/path segment/);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+});

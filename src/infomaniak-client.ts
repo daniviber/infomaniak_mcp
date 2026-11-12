@@ -7,6 +7,8 @@
  * Rate Limit: 60 requests per minute
  */
 
+import { pathSegment } from './path-segment.js';
+
 export interface InfomaniakConfig {
   token: string;
   baseUrl?: string;
@@ -437,23 +439,23 @@ export class InfomaniakClient {
   }
 
   async getDomain(accountId: number, domain: string): Promise<ApiResponse<Domain>> {
-    return this.request<ApiResponse<Domain>>('GET', `/1/domain/account/${accountId}/domain/${domain}`);
+    return this.request<ApiResponse<Domain>>('GET', `/1/domain/account/${accountId}/domain/${pathSegment(domain)}`);
   }
 
   async getDomainNameservers(domain: string): Promise<ApiResponse<DomainNameserver[]>> {
-    return this.request<ApiResponse<DomainNameserver[]>>('GET', `/1/domain/${domain}/nameserver`);
+    return this.request<ApiResponse<DomainNameserver[]>>('GET', `/1/domain/${pathSegment(domain)}/nameserver`);
   }
 
   async updateDomainNameservers(domain: string, nameservers: DomainNameserver[]): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('PUT', `/1/domain/${domain}/nameserver`, { nameservers });
+    return this.request<ApiResponse<void>>('PUT', `/1/domain/${pathSegment(domain)}/nameserver`, { nameservers });
   }
 
   async renewDomain(domain: string, duration: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('POST', `/1/domain/${domain}/renew`, { duration });
+    return this.request<ApiResponse<void>>('POST', `/1/domain/${pathSegment(domain)}/renew`, { duration });
   }
 
   async getDnsRecords(domain: string): Promise<ApiResponse<DnsRecord[]>> {
-    return this.request<ApiResponse<DnsRecord[]>>('GET', `/1/domain/${domain}/dns/record`);
+    return this.request<ApiResponse<DnsRecord[]>>('GET', `/1/domain/${pathSegment(domain)}/dns/record`);
   }
 
   async createDnsRecord(domain: string, record: {
@@ -463,7 +465,7 @@ export class InfomaniakClient {
     ttl?: number;
     priority?: number;
   }): Promise<ApiResponse<DnsRecord>> {
-    return this.request<ApiResponse<DnsRecord>>('POST', `/1/domain/${domain}/dns/record`, record);
+    return this.request<ApiResponse<DnsRecord>>('POST', `/1/domain/${pathSegment(domain)}/dns/record`, record);
   }
 
   async updateDnsRecord(domain: string, recordId: number, record: {
@@ -473,11 +475,11 @@ export class InfomaniakClient {
     ttl?: number;
     priority?: number;
   }): Promise<ApiResponse<DnsRecord>> {
-    return this.request<ApiResponse<DnsRecord>>('PUT', `/1/domain/${domain}/dns/record/${recordId}`, record);
+    return this.request<ApiResponse<DnsRecord>>('PUT', `/1/domain/${pathSegment(domain)}/dns/record/${recordId}`, record);
   }
 
   async deleteDnsRecord(domain: string, recordId: number): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/1/domain/${domain}/dns/record/${recordId}`);
+    return this.request<ApiResponse<void>>('DELETE', `/1/domain/${pathSegment(domain)}/dns/record/${recordId}`);
   }
 
   // Mail Services
@@ -521,7 +523,7 @@ export class InfomaniakClient {
   }
 
   async deleteMailboxAlias(mailId: number, mailboxId: number, alias: string): Promise<ApiResponse<void>> {
-    return this.request<ApiResponse<void>>('DELETE', `/1/mail/${mailId}/mailbox/${mailboxId}/alias/${encodeURIComponent(alias)}`);
+    return this.request<ApiResponse<void>>('DELETE', `/1/mail/${mailId}/mailbox/${mailboxId}/alias/${pathSegment(alias)}`);
   }
 
   async getEmailRedirections(mailId: number): Promise<ApiResponse<EmailRedirection[]>> {
